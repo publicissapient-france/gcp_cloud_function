@@ -11,7 +11,7 @@ const publisher = topic.publisher();
  * @param {object} event The Cloud Functions event.
  * @param {function} callback The callback function.
  */
-exports.helloPubSub = (event, callback) => {
+exports.parcelConsumer = (event, callback) => {
     const pubsubMessage = event.data;
     const rawData = pubsubMessage.data ? Buffer.from(pubsubMessage.data, 'base64').toString() : 'World';
 
