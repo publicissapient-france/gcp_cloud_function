@@ -57,6 +57,7 @@ fun Application.main() {
 
         get("/tasks/computeNextDronesLocations") {
             println("... computing next drones locations now")
+            call.respond(HttpStatusCode.OK)
         }
 
 

@@ -2,7 +2,7 @@
 <cronentries>
   <cron>
     <url>/tasks/computeNextDronesLocations</url>
-    <description>every 10 seconds job</description>
-    <schedule>every 10 seconds</schedule>
+    <description>every 60 minute job</description>
+    <schedule>every 60 minutes</schedule>
   </cron>
 </cronentries>
