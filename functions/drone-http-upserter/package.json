@@ -1,5 +1,5 @@
 {
-    "name": "drone-command-consumer",
+    "name": "drone-http-updater",
     "version": "0.0.1",
     "dependencies": {
         "@google-cloud/datastore": "1.4.0",

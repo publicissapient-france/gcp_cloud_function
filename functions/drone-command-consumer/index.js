@@ -11,36 +11,34 @@ const datastore = new Datastore({});
  */
 exports.droneCommandConsumer = (event, callback) => {
     try {
-    
-    
-    // The Cloud Pub/Sub Message object.
-    const pubsubMessage = event.data;
+        // The Cloud Pub/Sub Message object.
+        const pubsubMessage = event.data;
 
-    const message = Buffer.from(pubsubMessage.data, 'base64').toString();
+        const message = Buffer.from(pubsubMessage.data, 'base64').toString();
 
-    console.log("message received " + message);
+        console.log("message received " + message);
 
-    const jsonMsg = JSON.parse(message);
-    const droneInfoKey = datastore.key([ 'DroneInfo', jsonMsg.teamId]);
-    
-    const droneInfoEntity = {
-        key: droneInfoKey,
-        data: {
-            command: jsonMsg.command
-        },
-    };
+        const jsonMsg = JSON.parse(message);
+        const droneInfoKey = datastore.key(['DroneInfo', jsonMsg.teamId]);
 
-    datastore
-        .upsert(droneInfoEntity)
-        .then(() => {
-            console.log(`DroneInfo entity with id ${jsonMsg.teamId} upserted successfully.`);
-            // Don't forget to call the callback.
-            callback();
-        })
-        .catch(err => {
-            console.error('ERROR:', err);
-            callback(new Error(err));
-        });
+        const droneInfoEntity = {
+            key: droneInfoKey,
+            data: {
+                command: jsonMsg.command
+            },
+        };
+
+        datastore
+            .upsert(droneInfoEntity)
+            .then(() => {
+                console.log(`DroneInfo entity with id ${jsonMsg.teamId} upserted successfully.`);
+                // Don't forget to call the callback.
+                callback();
+            })
+            .catch(err => {
+                console.error('ERROR:', err);
+                callback(new Error(err));
+            });
 
     } catch (err) {
         console.error('ERROR:', err);
@@ -48,18 +46,18 @@ exports.droneCommandConsumer = (event, callback) => {
     }
 };
 
-function toDatastore (obj, nonIndexed) {
+function toDatastore(obj, nonIndexed) {
     nonIndexed = nonIndexed || [];
     const results = [];
     Object.keys(obj).forEach((k) => {
-      if (obj[k] === undefined) {
-        return;
-      }
-      results.push({
-        name: k,
-        value: obj[k],
-        excludeFromIndexes: nonIndexed.indexOf(k) !== -1
-      });
+        if (obj[k] === undefined) {
+            return;
+        }
+        results.push({
+            name: k,
+            value: obj[k],
+            excludeFromIndexes: nonIndexed.indexOf(k) !== -1
+        });
     });
     return results;
-  }
+}
