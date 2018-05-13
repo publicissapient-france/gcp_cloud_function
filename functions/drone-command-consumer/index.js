@@ -21,17 +21,12 @@ exports.droneCommandConsumer = (event, callback) => {
         const jsonMsg = JSON.parse(message);
         const droneInfoKey = datastore.key(['DroneInfo', jsonMsg.teamId]);
 
-        const droneInfoEntity = {
-            key: droneInfoKey,
-            data: {
-                command: jsonMsg.command
-            },
-        };
+        console.log(`jsonMsg.command = ${JSON.stringify(jsonMsg.command)}`);
 
-        datastore
-            .upsert(droneInfoEntity)
+        getDroneInfoByKey(droneInfoKey)
+            .then((droneInfo) => updateDroneInfo(droneInfoKey, droneInfo, jsonMsg.command))
             .then(() => {
-                console.log(`DroneInfo entity with id ${jsonMsg.teamId} upserted successfully.`);
+                console.log(`DroneInfo entity with key ${JSON.stringify(droneInfoKey)} upserted successfully.`);
                 // Don't forget to call the callback.
                 callback();
             })
@@ -46,18 +41,38 @@ exports.droneCommandConsumer = (event, callback) => {
     }
 };
 
-function toDatastore(obj, nonIndexed) {
-    nonIndexed = nonIndexed || [];
-    const results = [];
-    Object.keys(obj).forEach((k) => {
-        if (obj[k] === undefined) {
-            return;
-        }
-        results.push({
-            name: k,
-            value: obj[k],
-            excludeFromIndexes: nonIndexed.indexOf(k) !== -1
+getDroneInfoByKey = (key) => {
+    console.log("getDroneInfoByKey");
+    const query = datastore
+        .createQuery('DroneInfo')
+        .filter('__key__', '>', key);
+
+    return datastore.runQuery(query)
+        .then(results => {
+            if (results[0] && results[0].length == 1) {
+                console.log("getDroneInfoByKey return result");
+                return results[0][0];
+            } else {
+                return undefined;
+            }
         });
-    });
-    return results;
+}
+
+updateDroneInfo = (key, droneInfo, command) => {
+    console.log(`updateDroneInfo key = ${JSON.stringify(key)}`);
+    console.log(`updateDroneInfo droneInfo = ${JSON.stringify(droneInfo)}`);
+    console.log(`updateDroneInfo command = ${JSON.stringify(command)}`);
+
+    droneInfo['command'] = command;
+    console.log(`updateDroneInfo droneInfo bis = ${JSON.stringify(droneInfo)}`);
+
+    const droneInfoEntity = {
+        key: key,
+        data: droneInfo,
+    };
+
+    console.log(`updateDroneInfo droneInfoEntity = ${JSON.stringify(droneInfoEntity)}`);
+
+    return datastore
+        .upsert(droneInfoEntity);
 }
