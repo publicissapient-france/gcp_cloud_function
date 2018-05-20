@@ -23,6 +23,7 @@ exports.droneLocationUpdater = (req, res) => {
         droneInfos.forEach(droneInfo => {
             console.log('---------------');
             console.log(`-- droneInfo before update : ${JSON.stringify(droneInfo)}`);
+            const droneInfoKey = droneInfo[datastore.KEY];
             var currentLocation = turf.point([droneInfo.location.latitude, droneInfo.location.longitude]);
             var dest = turf.point([droneInfo.command.location.latitude, droneInfo.command.location.longitude]);
 
@@ -35,7 +36,8 @@ exports.droneLocationUpdater = (req, res) => {
                 // todo : envoyer un event DESTINATION_REACHED dans le topic drone-events
                 // todo : checker s'il y a un colis à prendre si c'est le cas le prendre et envoyer l'event PARCEL_GRABBED (et ne pas envoyer l'event DESTINATION_REACHED)
 
-                const data = JSON.stringify({ event: 'DESTINATION_REACHED' });
+                const data = JSON.stringify({ teamId: droneInfoKey.name, location: droneInfo.location, event: 'PARCEL_GRABBED' });
+                console.log(`will send to topic : ${data}`)
                 const dataBuffer = Buffer.from(data);
                 pubsub
                     .topic(topicName)
@@ -56,7 +58,8 @@ exports.droneLocationUpdater = (req, res) => {
                 droneInfo.location.latitude = destination.geometry.coordinates[0];
                 droneInfo.location.longitude = destination.geometry.coordinates[1];
 
-                const data = JSON.stringify({ event: 'MOVING' });
+                const data = JSON.stringify({ teamId: droneInfoKey.name, location: droneInfo.location, command: droneInfo.command, event: 'MOVING' });
+                console.log(`will send to topic : ${data}`)
                 const dataBuffer = Buffer.from(data);
                 pubsub
                     .topic(topicName)
@@ -80,7 +83,7 @@ exports.droneLocationUpdater = (req, res) => {
 
 upsert = (droneInfo) => {
     const droneInfoKey = droneInfo[datastore.KEY];
-
+    console.log(`-- droneInfoKey : ${JSON.stringify(droneInfoKey)}`);
     const droneInfoEntity = {
         key: droneInfoKey,
         data: {
@@ -92,7 +95,7 @@ upsert = (droneInfo) => {
     datastore
         .upsert(droneInfoEntity)
         .then(() => {
-            console.log(`DroneInfo entity with id ${droneInfo.teamId} upserted successfully.`);
+            console.log(`DroneInfo entity with id ${droneInfoKey.name} upserted successfully.`);
         })
         .catch(err => {
             console.error('ERROR:', err);
