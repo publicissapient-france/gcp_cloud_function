@@ -8,6 +8,11 @@ const pubsub = new PubSub();
 const topicName = 'drone-events';
 const DISTANCE_PER_TICK = 0.1;
 
+/**
+ * 
+ * gcloud command to deploy:
+ * gcloud beta functions deploy droneLocationUpdater --trigger-http
+ */
 exports.droneLocationUpdater = (req, res) => {
     console.log('read from datastore with filter and require turf');
 
@@ -36,7 +41,7 @@ exports.droneLocationUpdater = (req, res) => {
                 // todo : envoyer un event DESTINATION_REACHED dans le topic drone-events
                 // todo : checker s'il y a un colis à prendre si c'est le cas le prendre et envoyer l'event PARCEL_GRABBED (et ne pas envoyer l'event DESTINATION_REACHED)
 
-                const data = JSON.stringify({ teamId: droneInfoKey.name, location: droneInfo.location, event: 'PARCEL_GRABBED' });
+                const data = JSON.stringify({ teamId: droneInfoKey.name, location: droneInfo.location, event: 'DESTINATION_REACHED' });
                 console.log(`will send to topic : ${data}`)
                 const dataBuffer = Buffer.from(data);
                 pubsub
