@@ -23,6 +23,10 @@ exports.droneStateList = (req, res) => {
         };
       });
       console.log(`Parsed data from DroneInfo: ${JSON.stringify(data, null, 2)}`);
+      // Enable CORS
+      res.set('Access-Control-Allow-Origin', "*");
+      res.set('Access-Control-Allow-Methods', 'GET, POST');
+
       res.send(data);
     })
     .catch(err => {
