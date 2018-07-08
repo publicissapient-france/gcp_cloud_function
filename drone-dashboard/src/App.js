@@ -101,19 +101,21 @@ class App extends Component {
     });
   }
 
-  renderDrones() {
-    return this.state.drones.map((drone) =>
-      <MyDrone
-        key={drone.id}
-        lat={drone.latitude}
-        lng={drone.longitude}
-        text={`${drone.id} is moving`}
-      >
-        <DroneContainer {...drone} >
-          <Drone />
-        </DroneContainer>
-      </MyDrone>
-    );
+  renderDrone(drone) {
+    if (drone.latitude && drone.longitude) {
+      return (
+        <MyDrone
+          key={drone.id}
+          lat={drone.latitude}
+          lng={drone.longitude}
+          text={`${drone.id} is moving`}
+        >
+          <DroneContainer {...drone} >
+            <Drone />
+          </DroneContainer>
+        </MyDrone>
+      )
+    }
   }
 
   render() {
@@ -130,7 +132,7 @@ class App extends Component {
               defaultCenter={this.props.center}
               defaultZoom={this.props.zoom}
             >
-              { this.renderDrones() }
+              { this.state.drones.map((drone) => this.renderDrone(drone)) }
             </GoogleMapReact>
           </GoogleMapContainer>
         </Section>
