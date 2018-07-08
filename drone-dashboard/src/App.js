@@ -5,43 +5,13 @@ import GoogleMapReact from 'google-map-react';
 import logo from './assets/logo.svg';
 import './App.css';
 import Drone from './components/Drone';
-
-const constants = {
-  step: 0.0004,
-  speed: 3000,
-  drone: '20px',
-  map: {
-    center: {
-      lat: 48.86,
-      lng: 2.340,
-    },
-    zoom: 13,
-  },
-  boundaries: {
-    minLatitude: 48.816000,
-    maxLatitude: 48.900000,
-    minLongitude: 2.25000,
-    maxLongitude: 2.42000,
-  },
-  operators: ['-', '+'],
-};
-const getRandomFloat = (min, max) => Math.random() * (max - min) + min;
-const getRandomInteger = (min, max) => Math.floor(Math.random() * (Math.floor(max) - Math.ceil(min) + 1)) + Math.ceil(min);
-const getRandomColor = () => `hsla(${Math.random() * 360}, 100%, 42%, 1)`;
-const getRandomOperator = () => constants.operators[getRandomInteger(0,1)]
-
-const createDrones = (quantity) => Array
-  .from(Array(quantity).keys())
-  .map((value) => (
-    {
-      id: value,
-      latitude: getRandomFloat(constants.boundaries.minLatitude, constants.boundaries.maxLatitude),
-      longitude: getRandomFloat(constants.boundaries.minLongitude, constants.boundaries.maxLongitude),
-      color: getRandomColor(),
-      latitudeOperator: getRandomOperator(),
-      longitudeOperator: getRandomOperator(),
-    }
-  ))
+import {
+  getDroneInfo,
+  parseDroneInfo,
+  // createDrones,
+  // moveDrone,
+} from './services/drone.service';
+import { constants } from './constants';
 
 const Section = styled.div`
   display: flex;
@@ -92,7 +62,8 @@ class App extends Component {
         latitude: 48.855047,
         longitude: 2.348426,
       },
-      drones: createDrones(3),
+      // drones: createDrones(3),
+      drones: [],
     };
   }
 
@@ -102,25 +73,32 @@ class App extends Component {
 
   startDrone = () => {
     this.timer = setInterval(() => {
-      this.moveDrones();
+      // this.moveDrones();
+      getDroneInfo()
+        .then(this.updateDrones);
     }, constants.speed);
   }
 
-  moveDrones() {
-    const updatedDrones = this.state.drones.map((drone) => {
-      return {
-        ...drone,
-        latitude: eval(`${drone.latitude} ${drone.latitudeOperator} ${constants.step} * ${getRandomFloat(1.5, 2)}`),
-        longitude: eval(`${drone.longitude} ${drone.longitudeOperator} ${constants.step} * ${getRandomFloat(1.5, 2)}`),
-      }
-    });
-    this.setState({
-      drones: updatedDrones,
-    });
-  }
+  // moveDrones() {
+  //   const updatedDrones = this.state.drones.map((drone) => {
+  //     return moveDrone(drone);
+  //   });
+  //   this.setState({
+  //     drones: updatedDrones,
+  //   });
+  // }
+  //
+  // stopDrone = () => {
+  //   clearInterval(this.timer);
+  // }
 
-  stopDrone = () => {
-    clearInterval(this.timer);
+  updateDrones = (data) => {
+    // console.log(JSON.stringify(data, null, 2));
+    const updateInfo = parseDroneInfo(data);
+    // console.log(updateInfo);
+    this.setState({
+      drones: updateInfo,
+    });
   }
 
   renderDrones() {
@@ -156,10 +134,12 @@ class App extends Component {
             </GoogleMapReact>
           </GoogleMapContainer>
         </Section>
+        { /*
         <Actions>
           <button onClick={this.stopDrone}>Stop</button>
           <button onClick={this.startDrone}>Start</button>
         </Actions>
+        */ }
       </div>
     );
   }
