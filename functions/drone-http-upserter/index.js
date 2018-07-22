@@ -3,12 +3,6 @@ const Datastore = require('@google-cloud/datastore');
 // creates datastore client
 const datastore = new Datastore({});
 
-/**
- * Triggered from a message on a Cloud Pub/Sub topic.
- *
- * @param {!Object} event The Cloud Functions event.
- * @param {!Function} The callback function.
- */
 exports.droneHttpUpserter = (req, res) => {
     try {
         console.log(JSON.stringify(req.body));
