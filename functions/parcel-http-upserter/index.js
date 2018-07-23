@@ -20,8 +20,8 @@ exports.parcelHttpUpserter = (req, res) => {
         const parcelEntity = {
             key: parcelKey,
             data: {
-                score: parcelFromBody.score,
-                destination: parcelFromBody.destination,
+                teamId: parcelFromBody.teamId,
+                score: parcelFromBody.score,            
                 location: parcelFromBody.location
             },
         };
