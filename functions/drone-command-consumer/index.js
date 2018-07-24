@@ -58,7 +58,7 @@ getDroneInfoByKey = (key) => {
         });
 }
 
-updateDroneInfo = (key, droneInfo, command) => {
+updateDroneInfo = (key, droneInfo = {}, command) => {
     console.log(`updateDroneInfo key = ${JSON.stringify(key)}`);
     console.log(`updateDroneInfo droneInfo = ${JSON.stringify(droneInfo)}`);
     console.log(`updateDroneInfo command = ${JSON.stringify(command)}`);
