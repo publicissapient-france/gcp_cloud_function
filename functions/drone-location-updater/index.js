@@ -55,6 +55,7 @@ exports.droneLocationUpdater = (req, res) => {
                         console.error('ERROR:', err);
                     });
             } else {
+                checkParcelAround(currentLocation, droneInfo.teamId);
                 // Continue moving to destination
                 bearing = turf.bearing(currentLocation, dest);
                 console.log(`bearing for team ${JSON.stringify(droneInfo[datastore.KEY])}: ${bearing}`);
@@ -106,3 +107,24 @@ upsert = (droneInfo) => {
             console.error('ERROR:', err);
         });
 }
+
+checkParcelAround = async (location, teamId) => {
+    console.log('checking parcels around the point');
+    let parcel = null;
+    const query = datastore
+        .createQuery('Parcel')
+        .filter('teamId', teamId);
+
+    try {
+        const results = await datastore.runQuery(query);
+
+        const parcels = results[0];
+
+        console.log('parcels:');
+        parcels.forEach(parcel => console.log(parcel));
+        const parcelsWithParcelId = parcels.map(p => p.parcelId = p[datastore.KEY].name);
+        res.status(200).send(parcelsWithParcelId);
+    } catch (err) {
+        console.error(`checkParcelAround : Oups cannot get data for teamId ${teamId}`, err);
+    }
+} 
