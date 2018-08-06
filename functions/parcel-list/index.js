@@ -18,10 +18,12 @@ exports.parcelList = async (req, res) => {
     try {
         const results = await datastore.runQuery(query);
         const parcels = results[0];
+        
+        const parcelsWithParcelId = parcels.map(p => {
+            p.parcelId = p[datastore.KEY].name;
+            return p;
+        });
 
-        console.log('parcels:');
-        parcels.forEach(parcel => console.log(parcel));
-        const parcelsWithParcelId = parcels.map(p => p.parcelId = p[datastore.KEY].name);
         res.status(200).send(parcelsWithParcelId);
     } catch (err) {
         console.error(`Oups cannot get data for teamId ${teamId}`, err);
