@@ -13,7 +13,7 @@ const DISTANCE_PER_TICK = 0.1;
  * gcloud command to deploy:
  * gcloud beta functions deploy droneLocationUpdater --trigger-http
  */
-exports.droneLocationUpdater = (req, res) => {
+exports.droneLocationUpdater = async (req, res) => {
     console.log('read from datastore with filter and require turf');
 
     const query = datastore
@@ -25,7 +25,7 @@ exports.droneLocationUpdater = (req, res) => {
         const droneInfos = results[0];
 
         console.log('droneInfos:');
-        droneInfos.forEach(droneInfo => {
+        droneInfos.forEach(async droneInfo => {
             console.log('---------------');
             console.log(`-- droneInfo before update : ${JSON.stringify(droneInfo)}`);
             const droneInfoKey = droneInfo[datastore.KEY];
@@ -40,6 +40,14 @@ exports.droneLocationUpdater = (req, res) => {
                 delete droneInfo.command;
                 // todo : envoyer un event DESTINATION_REACHED dans le topic drone-events
                 // todo : checker s'il y a un colis à prendre si c'est le cas le prendre et envoyer l'event PARCEL_GRABBED (et ne pas envoyer l'event DESTINATION_REACHED)
+                try {
+                    const parcels = await checkParcelAround(currentLocation, droneInfo.teamId);
+                    if (parcels && parcels.length > 0) {
+                        console.log("Parcel around drone detected !");
+                    }
+                } catch (err) {
+                    console.log(`checkParcelAround error: ${err}`);
+                }
 
                 const data = JSON.stringify({ teamId: droneInfoKey.name, location: droneInfo.location, event: 'DESTINATION_REACHED' });
                 console.log(`will send to topic : ${data}`)
@@ -54,8 +62,7 @@ exports.droneLocationUpdater = (req, res) => {
                     .catch(err => {
                         console.error('ERROR:', err);
                     });
-            } else {
-                checkParcelAround(currentLocation, droneInfo.teamId);
+            } else {                
                 // Continue moving to destination
                 bearing = turf.bearing(currentLocation, dest);
                 console.log(`bearing for team ${JSON.stringify(droneInfo[datastore.KEY])}: ${bearing}`);
@@ -79,7 +86,7 @@ exports.droneLocationUpdater = (req, res) => {
                     });
             }
             console.log(`-- droneInfo after update : ${JSON.stringify(droneInfo)}`);
-            upsert(droneInfo);
+            upsertDrone(droneInfo);
         });
 
         res.send('query datastore and require turf');
@@ -87,7 +94,7 @@ exports.droneLocationUpdater = (req, res) => {
 
 };
 
-upsert = (droneInfo) => {
+upsertDrone = (droneInfo) => {
     const droneInfoKey = droneInfo[datastore.KEY];
     console.log(`-- droneInfoKey : ${JSON.stringify(droneInfoKey)}`);
     const droneInfoEntity = {
@@ -109,22 +116,25 @@ upsert = (droneInfo) => {
 }
 
 checkParcelAround = async (location, teamId) => {
-    console.log('checking parcels around the point');
-    let parcel = null;
+    console.log(`checking parcels around the point for teamId: ${teamId}`);
+    let parcelsResult = [];
+    
     const query = datastore
         .createQuery('Parcel')
         .filter('teamId', teamId);
 
     try {
         const results = await datastore.runQuery(query);
-
         const parcels = results[0];
-
-        console.log('parcels:');
-        parcels.forEach(parcel => console.log(parcel));
-        const parcelsWithParcelId = parcels.map(p => p.parcelId = p[datastore.KEY].name);
-        res.status(200).send(parcelsWithParcelId);
+        parcelsResult = parcels.map(p => {
+            p.parcelId = p[datastore.KEY].name;
+            return p;
+        });      
+        console.log(`parcels=${parcels}`);  
+        console.log(`parcelsResult=${parcelsResult}`);  
     } catch (err) {
         console.error(`checkParcelAround : Oups cannot get data for teamId ${teamId}`, err);
     }
+
+    return parcelsResult;
 } 
