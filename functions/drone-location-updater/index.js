@@ -25,7 +25,7 @@ exports.droneLocationUpdater = async (req, res) => {
     const droneInfos = dronesQueryResults[0];
 
     console.log('droneInfos:');
-    droneInfos.forEach(async droneInfo => {
+    const jobs = droneInfos.map(async droneInfo => {
         console.log('---------------');
         console.log(`-- droneInfo before update : ${JSON.stringify(droneInfo)}`);
         const droneInfoKey = droneInfo[datastore.KEY];
@@ -41,10 +41,12 @@ exports.droneLocationUpdater = async (req, res) => {
             // todo : envoyer un event DESTINATION_REACHED dans le topic drone-events
             // todo : checker s'il y a un colis à prendre si c'est le cas le prendre et envoyer l'event PARCEL_GRABBED (et ne pas envoyer l'event DESTINATION_REACHED)
             try {
-                const teamId = droneInfo[datastore.KEY].name;
-                const parcels = await checkParcelAround(currentLocation, teamId);
+                const teamId = droneInfoKey.name;
+                const parcels = await checkParcelAround(droneInfo.location, teamId);
                 if (parcels && parcels.length > 0) {
                     console.log("Parcel around drone detected !");
+                    droneInfo.parcels = droneInfo.parcels || []
+                    droneInfo.parcels = [...droneInfo.parcels, ...parcels]
                 }
             } catch (err) {
                 console.log(`checkParcelAround error: ${err}`);
@@ -90,6 +92,8 @@ exports.droneLocationUpdater = async (req, res) => {
         upsertDrone(droneInfo);
     });
 
+    await Promise.all(jobs);
+
     res.send('query datastore and require turf');
 
 
@@ -102,7 +106,8 @@ upsertDrone = (droneInfo) => {
         key: droneInfoKey,
         data: {
             command: droneInfo.command,
-            location: droneInfo.location
+            location: droneInfo.location,
+            parcels: droneInfo.parcels
         },
     };
 
@@ -116,23 +121,34 @@ upsertDrone = (droneInfo) => {
         });
 }
 
-checkParcelAround = async (location, teamId) => {
-    console.log(`checking parcels around the point for teamId: ${teamId}`);
+checkParcelAround = async (droneLocation, teamId) => {
+    console.log(`checking parcels around the point for teamId: ${teamId} and location ${JSON.stringify(droneLocation)}`);
     let parcelsResult = [];
+
+    const droneLocationPoint = turf.point([droneLocation.latitude, droneLocation.longitude]);
 
     const query = datastore
         .createQuery('Parcel')
         .filter('teamId', teamId);
 
     try {
+
         console.log('running query');
         const results = await datastore.runQuery(query);
         const parcels = results[0];
-        parcelsResult = parcels.map(p => {
-            p.parcelId = p[datastore.KEY].name;
-            return p;
-        });
-        console.log(`parcels=${parcels}`);
+        console.log(`parcels before filter=${JSON.stringify(parcels)}`);
+        parcelsResult = parcels
+            .filter(p => {
+                const parcelPickupLocationPoint = turf.point([p.location.pickup.latitude, p.location.pickup.longitude]);
+                const distance = turf.distance(droneLocationPoint, parcelPickupLocationPoint, {});
+                console.log(`distance (${distance}) < DISTANCE_PER_TICK (${DISTANCE_PER_TICK}) = ${distance < DISTANCE_PER_TICK}`);
+                return distance < DISTANCE_PER_TICK;
+            })
+            .map(p => {
+                p.parcelId = p[datastore.KEY].name;
+                return p;
+            });
+
         console.log(`parcelsResult=${JSON.stringify(parcelsResult)}`);
     } catch (err) {
         console.error(`checkParcelAround : Oups cannot get data for teamId ${teamId}`, err);
