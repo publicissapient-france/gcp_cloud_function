@@ -33,38 +33,55 @@ exports.droneLocationUpdater = async (req, res) => {
         var dest = turf.point([droneInfo.command.location.latitude, droneInfo.command.location.longitude]);
 
         const distance = turf.distance(currentLocation, dest, {});
-        if (distance < DISTANCE_PER_TICK) {
+        if (droneAsReachItsDestination(distance)) {
             console.log('drone has arrived at destination');
             droneInfo.location.latitude = droneInfo.command.location.latitude;
             droneInfo.location.longitude = droneInfo.command.location.longitude;
             delete droneInfo.command;
-            // todo : envoyer un event DESTINATION_REACHED dans le topic drone-events
-            // todo : checker s'il y a un colis à prendre si c'est le cas le prendre et envoyer l'event PARCEL_GRABBED (et ne pas envoyer l'event DESTINATION_REACHED)
+
             try {
+                // todo : checker s'il y a un colis à prendre si c'est le cas le prendre et envoyer l'event PARCEL_GRABBED (et ne pas envoyer l'event DESTINATION_REACHED)
                 const teamId = droneInfoKey.name;
-                const parcels = await checkParcelAround(droneInfo.location, teamId);
-                if (parcels && parcels.length > 0) {
+                const parcelsAroundDrone = await checkParcelAround(droneInfo.location, teamId);
+                if (parcelsAroundDrone && parcelsAroundDrone.length > 0) {
                     console.log("Parcel around drone detected !");
                     droneInfo.parcels = droneInfo.parcels || []
-                    droneInfo.parcels = [...droneInfo.parcels, ...parcels]
+                    droneInfo.parcels = [...droneInfo.parcels, ...parcelsAroundDrone]
+                    const data = JSON.stringify({ teamId: droneInfoKey.name, droneInfo, event: 'PARCEL_GRABBED' });
+                    console.log(`will send to topic : ${data}`)
+                    const dataBuffer = Buffer.from(data);
+                    pubsub
+                        .topic(topicName)
+                        .publisher()
+                        .publish(dataBuffer)
+                        .then(messageId => {
+                            console.log(`Message ${messageId} published.`);
+                        })
+                        .catch(err => {
+                            console.error('ERROR:', err);
+                        });
+                } else {
+                    // Envoyer un event DESTINATION_REACHED dans le topic drone-events
+                    // TODO: pq ne pas envoyer directement un attribut droneInfo plutôt que location ?
+                    const data = JSON.stringify({ teamId: droneInfoKey.name, location: droneInfo.location, event: 'DESTINATION_REACHED' });
+                    console.log(`will send to topic : ${data}`)
+                    const dataBuffer = Buffer.from(data);
+                    pubsub
+                        .topic(topicName)
+                        .publisher()
+                        .publish(dataBuffer)
+                        .then(messageId => {
+                            console.log(`Message ${messageId} published.`);
+                        })
+                        .catch(err => {
+                            console.error('ERROR:', err);
+                        });
                 }
             } catch (err) {
                 console.log(`checkParcelAround error: ${err}`);
             }
 
-            const data = JSON.stringify({ teamId: droneInfoKey.name, location: droneInfo.location, event: 'DESTINATION_REACHED' });
-            console.log(`will send to topic : ${data}`)
-            const dataBuffer = Buffer.from(data);
-            pubsub
-                .topic(topicName)
-                .publisher()
-                .publish(dataBuffer)
-                .then(messageId => {
-                    console.log(`Message ${messageId} published.`);
-                })
-                .catch(err => {
-                    console.error('ERROR:', err);
-                });
+
         } else {
             // Continue moving to destination
             bearing = turf.bearing(currentLocation, dest);
@@ -98,6 +115,10 @@ exports.droneLocationUpdater = async (req, res) => {
 
 
 };
+
+droneAsReachItsDestination = (distanceToDestination) => {
+    return distanceToDestination < DISTANCE_PER_TICK;
+}
 
 upsertDrone = (droneInfo) => {
     const droneInfoKey = droneInfo[datastore.KEY];
