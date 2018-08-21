@@ -1,17 +1,20 @@
 const Datastore = require('@google-cloud/datastore');
 const PubSub = require(`@google-cloud/pubsub`);
 const turf = require('@turf/turf');
+const { get } = require('lodash');
 
 const datastore = new Datastore({});
 const pubsub = new PubSub();
 
 const topicName = 'drone-events';
 const DISTANCE_PER_TICK = 0.1;
+const DEFAULT_LATITUDE = 48.8753487;
+const DEFAULT_LONGITUDE = 2.3088396;
 
 /**
  * 
  * gcloud command to deploy:
- * gcloud beta functions deploy droneLocationUpdater --trigger-http
+ * gcloud beta functions deploy droneLocationUpdater --runtime nodejs8 --trigger-http
  */
 exports.droneLocationUpdater = async (req, res) => {
     console.log('read from datastore with filter and require turf');
@@ -25,12 +28,18 @@ exports.droneLocationUpdater = async (req, res) => {
     const droneInfos = dronesQueryResults[0];
 
     console.log('droneInfos:');
-    const jobs = droneInfos.map(async droneInfo => {
+    const jobs = droneInfos.map(async (droneInfo = {}) => {
         console.log('---------------');
         console.log(`-- droneInfo before update : ${JSON.stringify(droneInfo)}`);
         const droneInfoKey = droneInfo[datastore.KEY];
-        var currentLocation = turf.point([droneInfo.location.latitude, droneInfo.location.longitude]);
-        var dest = turf.point([droneInfo.command.location.latitude, droneInfo.command.location.longitude]);
+        // Set default location
+        droneInfo.location = {
+            ...droneInfo.location,
+            latitude: get(droneInfo, 'location.latitude') || DEFAULT_LATITUDE,
+            longitude: get(droneInfo, 'location.longitude') || DEFAULT_LONGITUDE,
+        };
+        const currentLocation = turf.point([droneInfo.location.latitude, droneInfo.location.longitude]);
+        const dest = turf.point([droneInfo.command.location.latitude, droneInfo.command.location.longitude]);
 
         const distance = turf.distance(currentLocation, dest, {});
         if (droneAsReachItsDestination(distance)) {
@@ -116,11 +125,11 @@ exports.droneLocationUpdater = async (req, res) => {
 
 };
 
-droneAsReachItsDestination = (distanceToDestination) => {
+const droneAsReachItsDestination = (distanceToDestination) => {
     return distanceToDestination < DISTANCE_PER_TICK;
 }
 
-upsertDrone = (droneInfo) => {
+const upsertDrone = (droneInfo) => {
     const droneInfoKey = droneInfo[datastore.KEY];
     console.log(`-- droneInfoKey : ${JSON.stringify(droneInfoKey)}`);
     const droneInfoEntity = {
@@ -142,7 +151,7 @@ upsertDrone = (droneInfo) => {
         });
 }
 
-checkParcelAround = async (droneLocation, teamId) => {
+const checkParcelAround = async (droneLocation, teamId) => {
     console.log(`checking parcels around the point for teamId: ${teamId} and location ${JSON.stringify(droneLocation)}`);
     let parcelsResult = [];
 
