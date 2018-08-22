@@ -72,7 +72,7 @@ exports.droneLocationUpdater = async (req, res) => {
                 } else {
                     // Envoyer un event DESTINATION_REACHED dans le topic drone-events
                     // TODO: pq ne pas envoyer directement un attribut droneInfo plutôt que location ?
-                    const data = JSON.stringify({ teamId: droneInfoKey.name, location: droneInfo.location, event: 'DESTINATION_REACHED' });
+                    const data = JSON.stringify({ teamId: droneInfoKey.name, droneInfo, event: 'DESTINATION_REACHED' });
                     console.log(`will send to topic : ${data}`)
                     const dataBuffer = Buffer.from(data);
                     pubsub
