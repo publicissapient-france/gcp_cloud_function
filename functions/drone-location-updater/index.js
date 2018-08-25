@@ -1,18 +1,18 @@
 const Datastore = require('@google-cloud/datastore');
 const PubSub = require(`@google-cloud/pubsub`);
 const turf = require('@turf/turf');
-const { get } = require('lodash');
+const {get} = require('lodash');
 
 const datastore = new Datastore({});
 const pubsub = new PubSub();
 
-const topicName = 'drone-events';
+const topicName = 'projects/jbc-atl-sal-func-techevent/topics/drone-events';
 const DISTANCE_PER_TICK = 0.1;
 const DEFAULT_LATITUDE = 48.8753487;
 const DEFAULT_LONGITUDE = 2.3088396;
 
 /**
- * 
+ *
  * gcloud command to deploy:
  * gcloud beta functions deploy droneLocationUpdater --runtime nodejs8 --trigger-http
  */
@@ -32,12 +32,24 @@ exports.droneLocationUpdater = async (req, res) => {
         console.log('---------------');
         console.log(`-- droneInfo before update : ${JSON.stringify(droneInfo)}`);
         const droneInfoKey = droneInfo[datastore.KEY];
+        const teamId = droneInfoKey.name;
         // Set default location
-        droneInfo.location = {
-            ...droneInfo.location,
-            latitude: get(droneInfo, 'location.latitude') || DEFAULT_LATITUDE,
-            longitude: get(droneInfo, 'location.longitude') || DEFAULT_LONGITUDE,
+        droneInfo = {
+            ...droneInfo,
+            location: {
+                ...droneInfo.location,
+                latitude: get(droneInfo, 'location.latitude') || DEFAULT_LATITUDE,
+                longitude: get(droneInfo, 'location.longitude') || DEFAULT_LONGITUDE,
+            },
+            command: {
+                ...droneInfo.command,
+                latitude: get(droneInfo, 'location.latitude') || DEFAULT_LATITUDE,
+                longitude: get(droneInfo, 'location.longitude') || DEFAULT_LONGITUDE,
+            },
+            // TODO remove
+            topic: 'projects/modulom-moludom/topics/drone-events',
         };
+
         const currentLocation = turf.point([droneInfo.location.latitude, droneInfo.location.longitude]);
         const dest = turf.point([droneInfo.command.location.latitude, droneInfo.command.location.longitude]);
 
@@ -47,7 +59,7 @@ exports.droneLocationUpdater = async (req, res) => {
             droneInfo.location.latitude = droneInfo.command.location.latitude;
             droneInfo.location.longitude = droneInfo.command.location.longitude;
             delete droneInfo.command;
-
+            
             try {
                 if (isALocationForADelivery(droneInfo)) {
                     console.log('--- this is a location for a delivery');
@@ -57,17 +69,19 @@ exports.droneLocationUpdater = async (req, res) => {
                 const parcelsAroundDrone = await checkParcelAround(droneInfo.location, teamId);
                 if (parcelsAroundDrone && parcelsAroundDrone.length > 0) {
                     console.log("Parcel around drone detected !");
-                    droneInfo.parcels = droneInfo.parcels || []
-                    droneInfo.parcels = [...droneInfo.parcels, ...parcelsAroundDrone]
+                    droneInfo.parcels = droneInfo.parcels || [];
+                    droneInfo.parcels = [...droneInfo.parcels, ...parcelsAroundDrone];
                     const data = JSON.stringify({ teamId: droneInfoKey.name, droneInfo, event: 'PARCEL_GRABBED' });
 
                     publishInTopic(data, topicName);
-
+                    publishOnTeamTopic(teamId, droneInfo, dataBuffer);
                 } else {
                     const data = JSON.stringify({ teamId: droneInfoKey.name, droneInfo, event: 'DESTINATION_REACHED' });
 
                     publishInTopic(data, topicName);
+                    publishOnTeamTopic(teamId, droneInfo, dataBuffer);
                 }
+
             } catch (err) {
                 console.log(`checkParcelAround error: ${err}`);
             }
@@ -85,6 +99,7 @@ exports.droneLocationUpdater = async (req, res) => {
             const data = JSON.stringify({ teamId: droneInfoKey.name, location: droneInfo.location, command: droneInfo.command, event: 'MOVING' });
 
             publishInTopic(data, topicName);
+            publishOnTeamTopic(teamId, droneInfo, dataBuffer);
         }
         console.log(`-- droneInfo after update : ${JSON.stringify(droneInfo)}`);
         upsertDrone(droneInfo);
@@ -109,11 +124,11 @@ const publishInTopic = (message, topicName) => {
         .catch(err => {
             console.error('ERROR:', err);
         });
-}
+};
 
 const droneAsReachItsDestination = (distanceToDestination) => {
     return distanceToDestination < DISTANCE_PER_TICK;
-}
+};
 
 const isALocationForADelivery = (droneInfo) => {
     if (droneInfo.parcels) {
@@ -123,7 +138,7 @@ const isALocationForADelivery = (droneInfo) => {
             }
         });
     }
-}
+};
 
 const upsertDrone = (droneInfo) => {
     const droneInfoKey = droneInfo[datastore.KEY];
@@ -145,7 +160,7 @@ const upsertDrone = (droneInfo) => {
         .catch(err => {
             console.error('ERROR:', err);
         });
-}
+};
 
 const checkParcelAround = async (droneLocation, teamId) => {
     console.log(`checking parcels around the point for teamId: ${teamId} and location ${JSON.stringify(droneLocation)}`);
@@ -181,11 +196,26 @@ const checkParcelAround = async (droneLocation, teamId) => {
     }
 
     return parcelsResult;
-}
+};
 
-const areCloseToEAchOther = (itemALocation, itemBLocation) => {
-    const itemATurfLocation = turf.point([itemALocation.latitude, itemALocation.longitude]);
-    const itemBTurfLocation = turf.point([itemBLocation.latitude, itemBLocation.longitude]);
-    const distance = turf.distance(itemATurfLocation, itemBTurfLocation, {});
-    return distance < DISTANCE_PER_TICK;
-}
+const publishOnTeamTopic = (teamId, droneInfo, dataBuffer) => {
+    if (droneInfo && droneInfo.topic) {
+        console.log(`publish event to team topic ${droneInfo.topic}.`);
+        try {
+            pubsub
+                .topic(droneInfo.topic)
+                .publisher()
+                .publish(dataBuffer)
+                .then(messageId => {
+                    console.log(`Message ${messageId} published in team topic ${droneInfo.topic}.`);
+                })
+                .catch(err => {
+                    console.error('ERROR:', err);
+                });
+        } catch (err) {
+            console.error(`publishOnTeamTopic : Oups cannot publish event for teamId ${teamId} and droneInfo ${JSON.stringify(droneInfo, null, 2)}`, err);
+        }
+    } else {
+        console.log(`team ${teamId} has no topic set.`);
+    }
+};
