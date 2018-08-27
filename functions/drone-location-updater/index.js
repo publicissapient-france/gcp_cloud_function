@@ -49,6 +49,10 @@ exports.droneLocationUpdater = async (req, res) => {
             delete droneInfo.command;
 
             try {
+                if (isALocationForADelivery(droneInfo)) {
+                    console.log('--- this is a location for a delivery');
+                }
+
                 const teamId = droneInfoKey.name;
                 const parcelsAroundDrone = await checkParcelAround(droneInfo.location, teamId);
                 if (parcelsAroundDrone && parcelsAroundDrone.length > 0) {
@@ -112,11 +116,13 @@ const droneAsReachItsDestination = (distanceToDestination) => {
 }
 
 const isALocationForADelivery = (droneInfo) => {
-    droneInfo.parcels.each(parcel => {
-        if (areCloseToEAchOther(droneInfo.location, parcel.location.delivery)) {
-            return true;
-        }
-    });
+    if (droneInfo.parcels) {
+        droneInfo.parcels.forEach(parcel => {
+            if (areCloseToEAchOther(droneInfo.location, parcel.location.delivery)) {
+                return true;
+            }
+        });
+    }
 }
 
 const upsertDrone = (droneInfo) => {
