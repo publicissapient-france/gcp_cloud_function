@@ -49,7 +49,6 @@ exports.droneLocationUpdater = async (req, res) => {
             delete droneInfo.command;
 
             try {
-                // todo : checker s'il y a un colis à prendre si c'est le cas le prendre et envoyer l'event PARCEL_GRABBED (et ne pas envoyer l'event DESTINATION_REACHED)
                 const teamId = droneInfoKey.name;
                 const parcelsAroundDrone = await checkParcelAround(droneInfo.location, teamId);
                 if (parcelsAroundDrone && parcelsAroundDrone.length > 0) {
@@ -57,34 +56,13 @@ exports.droneLocationUpdater = async (req, res) => {
                     droneInfo.parcels = droneInfo.parcels || []
                     droneInfo.parcels = [...droneInfo.parcels, ...parcelsAroundDrone]
                     const data = JSON.stringify({ teamId: droneInfoKey.name, droneInfo, event: 'PARCEL_GRABBED' });
-                    console.log(`will send to topic : ${data}`)
-                    const dataBuffer = Buffer.from(data);
-                    pubsub
-                        .topic(topicName)
-                        .publisher()
-                        .publish(dataBuffer)
-                        .then(messageId => {
-                            console.log(`Message ${messageId} published.`);
-                        })
-                        .catch(err => {
-                            console.error('ERROR:', err);
-                        });
+
+                    publishInTopic(data, topicName);
+
                 } else {
-                    // Envoyer un event DESTINATION_REACHED dans le topic drone-events
-                    // TODO: pq ne pas envoyer directement un attribut droneInfo plutôt que location ?
                     const data = JSON.stringify({ teamId: droneInfoKey.name, droneInfo, event: 'DESTINATION_REACHED' });
-                    console.log(`will send to topic : ${data}`)
-                    const dataBuffer = Buffer.from(data);
-                    pubsub
-                        .topic(topicName)
-                        .publisher()
-                        .publish(dataBuffer)
-                        .then(messageId => {
-                            console.log(`Message ${messageId} published.`);
-                        })
-                        .catch(err => {
-                            console.error('ERROR:', err);
-                        });
+
+                    publishInTopic(data, topicName);
                 }
             } catch (err) {
                 console.log(`checkParcelAround error: ${err}`);
@@ -101,18 +79,8 @@ exports.droneLocationUpdater = async (req, res) => {
             droneInfo.location.longitude = destination.geometry.coordinates[1];
 
             const data = JSON.stringify({ teamId: droneInfoKey.name, location: droneInfo.location, command: droneInfo.command, event: 'MOVING' });
-            console.log(`will send to topic : ${data}`)
-            const dataBuffer = Buffer.from(data);
-            pubsub
-                .topic(topicName)
-                .publisher()
-                .publish(dataBuffer)
-                .then(messageId => {
-                    console.log(`Message ${messageId} published.`);
-                })
-                .catch(err => {
-                    console.error('ERROR:', err);
-                });
+
+            publishInTopic(data, topicName);
         }
         console.log(`-- droneInfo after update : ${JSON.stringify(droneInfo)}`);
         upsertDrone(droneInfo);
@@ -122,11 +90,33 @@ exports.droneLocationUpdater = async (req, res) => {
 
     res.send('query datastore and require turf');
 
-
 };
+
+const publishInTopic = (message, topicName) => {
+    console.log(`will send to topic ${topicName} : ${message}`)
+    const dataBuffer = Buffer.from(message);
+    pubsub
+        .topic(topicName)
+        .publisher()
+        .publish(dataBuffer)
+        .then(messageId => {
+            console.log(`Message ${messageId} published.`);
+        })
+        .catch(err => {
+            console.error('ERROR:', err);
+        });
+}
 
 const droneAsReachItsDestination = (distanceToDestination) => {
     return distanceToDestination < DISTANCE_PER_TICK;
+}
+
+const isALocationForADelivery = (droneInfo) => {
+    droneInfo.parcels.each(parcel => {
+        if (areCloseToEAchOther(droneInfo.location, parcel.location.delivery)) {
+            return true;
+        }
+    });
 }
 
 const upsertDrone = (droneInfo) => {
@@ -162,17 +152,17 @@ const checkParcelAround = async (droneLocation, teamId) => {
         .filter('teamId', teamId);
 
     try {
-
         console.log('running query');
         const results = await datastore.runQuery(query);
         const parcels = results[0];
         console.log(`parcels before filter=${JSON.stringify(parcels)}`);
         parcelsResult = parcels
             .filter(p => {
-                const parcelPickupLocationPoint = turf.point([p.location.pickup.latitude, p.location.pickup.longitude]);
-                const distance = turf.distance(droneLocationPoint, parcelPickupLocationPoint, {});
-                console.log(`distance (${distance}) < DISTANCE_PER_TICK (${DISTANCE_PER_TICK}) = ${distance < DISTANCE_PER_TICK}`);
-                return distance < DISTANCE_PER_TICK;
+                return areCloseToEAchOther(droneLocation, p.location.pickup);
+                // const parcelPickupLocationPoint = turf.point([p.location.pickup.latitude, p.location.pickup.longitude]);
+                // const distance = turf.distance(droneLocationPoint, parcelPickupLocationPoint, {});
+                // console.log(`distance (${distance}) < DISTANCE_PER_TICK (${DISTANCE_PER_TICK}) = ${distance < DISTANCE_PER_TICK}`);
+                // return distance < DISTANCE_PER_TICK;
             })
             .map(p => {
                 p.parcelId = p[datastore.KEY].name;
@@ -185,4 +175,11 @@ const checkParcelAround = async (droneLocation, teamId) => {
     }
 
     return parcelsResult;
-} 
+}
+
+const areCloseToEAchOther = (itemALocation, itemBLocation) => {
+    const itemATurfLocation = turf.point([itemALocation.latitude, itemALocation.longitude]);
+    const itemBTurfLocation = turf.point([itemBLocation.latitude, itemBLocation.longitude]);
+    const distance = turf.distance(itemATurfLocation, itemBTurfLocation, {});
+    return distance < DISTANCE_PER_TICK;
+}
