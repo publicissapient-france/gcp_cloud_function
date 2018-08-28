@@ -148,7 +148,8 @@ const upsertDrone = (droneInfo) => {
         data: {
             command: droneInfo.command,
             location: droneInfo.location,
-            parcels: droneInfo.parcels
+            parcels: droneInfo.parcels,
+            topic: droneInfo.topic,
         },
     };
 
