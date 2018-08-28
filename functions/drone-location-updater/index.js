@@ -1,7 +1,7 @@
 const Datastore = require('@google-cloud/datastore');
 const PubSub = require(`@google-cloud/pubsub`);
 const turf = require('@turf/turf');
-const {get} = require('lodash');
+const { get } = require('lodash');
 
 const datastore = new Datastore({});
 const pubsub = new PubSub();
@@ -59,7 +59,7 @@ exports.droneLocationUpdater = async (req, res) => {
             droneInfo.location.latitude = droneInfo.command.location.latitude;
             droneInfo.location.longitude = droneInfo.command.location.longitude;
             delete droneInfo.command;
-            
+
             try {
                 if (isALocationForADelivery(droneInfo)) {
                     console.log('--- this is a location for a delivery');
@@ -128,6 +128,7 @@ const droneAsReachItsDestination = (distanceToDestination) => {
 };
 
 const isALocationForADelivery = (droneInfo) => {
+    console.log('isALocationForADelivery');
     if (droneInfo.parcels) {
         droneInfo.parcels.forEach(parcel => {
             if (areCloseToEAchOther(droneInfo.location, parcel.location.delivery)) {
@@ -195,3 +196,13 @@ const checkParcelAround = async (droneLocation, teamId) => {
 
     return parcelsResult;
 };
+
+const areCloseToEAchOther = (itemALocation, itemBLocation) => {
+    const itemATurfLocation = turf.point([itemALocation.latitude, itemALocation.longitude]);
+    const itemBTurfLocation = turf.point([itemBLocation.latitude, itemBLocation.longitude]);
+    const distance = turf.distance(itemATurfLocation, itemBTurfLocation, {});
+    console.log(itemALocation);
+    console.log(itemBLocation);
+    console.log(`distance = ${distance}`);
+    return distance < DISTANCE_PER_TICK;
+}
