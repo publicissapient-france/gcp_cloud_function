@@ -74,12 +74,10 @@ exports.droneLocationUpdater = async (req, res) => {
                     const data = JSON.stringify({ teamId: droneInfoKey.name, droneInfo, event: 'PARCEL_GRABBED' });
 
                     publishInTopic(data, topicName);
-                    publishOnTeamTopic(teamId, droneInfo, dataBuffer);
                 } else {
                     const data = JSON.stringify({ teamId: droneInfoKey.name, droneInfo, event: 'DESTINATION_REACHED' });
 
                     publishInTopic(data, topicName);
-                    publishOnTeamTopic(teamId, droneInfo, dataBuffer);
                 }
 
             } catch (err) {
@@ -99,7 +97,6 @@ exports.droneLocationUpdater = async (req, res) => {
             const data = JSON.stringify({ teamId: droneInfoKey.name, location: droneInfo.location, command: droneInfo.command, event: 'MOVING' });
 
             publishInTopic(data, topicName);
-            publishOnTeamTopic(teamId, droneInfo, dataBuffer);
         }
         console.log(`-- droneInfo after update : ${JSON.stringify(droneInfo)}`);
         upsertDrone(droneInfo);
@@ -197,26 +194,4 @@ const checkParcelAround = async (droneLocation, teamId) => {
     }
 
     return parcelsResult;
-};
-
-const publishOnTeamTopic = (teamId, droneInfo, dataBuffer) => {
-    if (droneInfo && droneInfo.topic && droneInfo.topic.url) {
-        console.log(`publish event to team topic ${droneInfo.topic.url}.`);
-        try {
-            pubsub
-                .topic(droneInfo.topic.url)
-                .publisher()
-                .publish(dataBuffer)
-                .then(messageId => {
-                    console.log(`Message ${messageId} published in team topic ${droneInfo.topic.url}.`);
-                })
-                .catch(err => {
-                    console.error('ERROR:', err);
-                });
-        } catch (err) {
-            console.error(`publishOnTeamTopic : Oups cannot publish event for teamId ${teamId} and droneInfo ${JSON.stringify(droneInfo, null, 2)}`, err);
-        }
-    } else {
-        console.log(`team ${teamId} has no topic set.`);
-    }
 };
