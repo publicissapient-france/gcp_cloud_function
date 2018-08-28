@@ -200,15 +200,15 @@ const checkParcelAround = async (droneLocation, teamId) => {
 };
 
 const publishOnTeamTopic = (teamId, droneInfo, dataBuffer) => {
-    if (droneInfo && droneInfo.topic) {
-        console.log(`publish event to team topic ${droneInfo.topic}.`);
+    if (droneInfo && droneInfo.topic && droneInfo.topic.url) {
+        console.log(`publish event to team topic ${droneInfo.topic.url}.`);
         try {
             pubsub
-                .topic(droneInfo.topic)
+                .topic(droneInfo.topic.url)
                 .publisher()
                 .publish(dataBuffer)
                 .then(messageId => {
-                    console.log(`Message ${messageId} published in team topic ${droneInfo.topic}.`);
+                    console.log(`Message ${messageId} published in team topic ${droneInfo.topic.url}.`);
                 })
                 .catch(err => {
                     console.error('ERROR:', err);
