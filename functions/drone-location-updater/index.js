@@ -130,12 +130,15 @@ const droneAsReachItsDestination = (distanceToDestination) => {
 const isALocationForADelivery = (droneInfo) => {
     console.log('isALocationForADelivery');
     if (droneInfo.parcels) {
-        droneInfo.parcels.forEach(parcel => {
+        for (i = 0; i < droneInfo.parcels.length; i++) {
+            const parcel = droneInfo.parcels[i];
             if (areCloseToEAchOther(droneInfo.location, parcel.location.delivery)) {
+                console.log('return true');
                 return true;
             }
-        });
+        }
     }
+    return false;
 };
 
 const upsertDrone = (droneInfo) => {
