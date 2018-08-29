@@ -1,7 +1,6 @@
-exports.droneEventDispatcher = (data, context, callback) => {
-    const message = Buffer.from(data, 'base64').toString();
+exports.droneEventConsumer = (data, context, callback) => {
 
-    console.log("event received " + message);
+    console.log('event received with data: ', message);
 
     callback();
 };
