@@ -61,27 +61,33 @@ exports.droneLocationUpdater = async (req, res) => {
             delete droneInfo.command;
 
             try {
-                if (isALocationForADelivery(droneInfo)) {
-                    console.log('--- this is a location for a delivery');
-                }
-
                 const teamId = droneInfoKey.name;
-                const parcelsAroundDrone = await checkParcelAround(droneInfo.location, teamId);
-                if (parcelsAroundDrone && parcelsAroundDrone.length > 0) {
-                    console.log("Parcel around drone detected !");
-                    droneInfo.parcels = droneInfo.parcels || [];
-                    droneInfo.parcels = [...droneInfo.parcels, ...parcelsAroundDrone];
-                    const data = JSON.stringify({ teamId: droneInfoKey.name, droneInfo, event: 'PARCEL_GRABBED' });
+                const deliveredParcelId = searchIfALocationForADelivery(droneInfo);
+                if (deliveredParcelId) {
+                    console.log('--- this is a location for a delivery');
+                    const parcelsInDrone = droneInfo.parcels.filter(parcel => parcel.parcelId !== deliveredParcelId);
+                    // TODO : ajouter les points du paquet à l'équipe
 
+                    const data = JSON.stringify({ teamId, droneInfo, event: 'PARCEL_DELIVERED' });
                     publishInTopic(data, topicName);
                 } else {
-                    const data = JSON.stringify({ teamId: droneInfoKey.name, droneInfo, event: 'DESTINATION_REACHED' });
+                    const parcelsAroundDrone = await checkParcelAround(droneInfo.location, teamId);
+                    if (parcelsAroundDrone && parcelsAroundDrone.length > 0) {
+                        console.log("Parcel around drone detected !");
+                        droneInfo.parcels = droneInfo.parcels || [];
+                        droneInfo.parcels = [...droneInfo.parcels, ...parcelsAroundDrone];
+                        const data = JSON.stringify({ teamId: droneInfoKey.name, droneInfo, event: 'PARCEL_GRABBED' });
 
-                    publishInTopic(data, topicName);
+                        publishInTopic(data, topicName);
+                    } else {
+                        const data = JSON.stringify({ teamId, droneInfo, event: 'DESTINATION_REACHED' });
+
+                        publishInTopic(data, topicName);
+                    }
                 }
 
             } catch (err) {
-                console.log(`checkParcelAround error: ${err}`);
+                console.log(`error: ${err}`);
             }
 
 
@@ -127,18 +133,18 @@ const droneAsReachItsDestination = (distanceToDestination) => {
     return distanceToDestination < DISTANCE_PER_TICK;
 };
 
-const isALocationForADelivery = (droneInfo) => {
+const searchIfALocationForADelivery = (droneInfo) => {
     console.log('isALocationForADelivery');
     if (droneInfo.parcels) {
         for (i = 0; i < droneInfo.parcels.length; i++) {
             const parcel = droneInfo.parcels[i];
             if (areCloseToEAchOther(droneInfo.location, parcel.location.delivery)) {
                 console.log('return true');
-                return true;
+                return parcel.parcelId;
             }
         }
     }
-    return false;
+    return undefined;
 };
 
 const upsertDrone = (droneInfo) => {
