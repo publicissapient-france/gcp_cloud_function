@@ -23,9 +23,9 @@ exports.droneCommandPublisher = (req, res) => {
                 latitude: 48.8753487,
                 longitude: 2.3088396,
             },
-            topic: {
-                url: 'projects/modulom-moludom/topics/drone-events'
-            }
+        },
+        topic: {
+            url: 'projects/modulom-moludom/topics/drone-events'
         },
     };
     const dataToPublish = Buffer.from(JSON.stringify(message));
