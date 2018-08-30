@@ -47,7 +47,9 @@ exports.droneLocationUpdater = async (req, res) => {
                 longitude: get(droneInfo, 'location.longitude') || DEFAULT_LONGITUDE,
             },
             // TODO remove
-            topic: 'projects/modulom-moludom/topics/drone-events',
+            topic: {
+                url: 'projects/modulom-moludom/topics/drone-events'
+            },
         };
 
         const currentLocation = turf.point([droneInfo.location.latitude, droneInfo.location.longitude]);
