@@ -66,8 +66,8 @@ exports.droneLocationUpdater = async (req, res) => {
                 const teamId = droneInfoKey.name;
                 const deliveredParcelId = searchIfALocationForADelivery(droneInfo);
                 if (deliveredParcelId) {
-                    console.log('--- this is a location for a delivery');
-                    const parcelsInDrone = droneInfo.parcels.filter(parcel => parcel.parcelId !== deliveredParcelId);
+                    console.log('--- this is a location for a delivery');                    
+                    droneInfo.parcels = droneInfo.parcels.filter(parcel => parcel.parcelId !== deliveredParcelId);
                     // TODO : ajouter les points du paquet à l'équipe
 
                     const data = JSON.stringify({ teamId, droneInfo, event: 'PARCEL_DELIVERED' });
