@@ -1,11 +1,10 @@
 const PubSub = require(`@google-cloud/pubsub`);
-const atob = require('atob');
 const { get } = require('lodash');
 
 const pubsub = new PubSub();
 
-exports.droneEventDispatcher = (message, context, callback) => {
-    const data = JSON.parse(atob(message.data));
+exports.droneEventsDispatcher = (message, context, callback) => {
+    const data = JSON.parse(Buffer.from(message.data, 'base64').toString());
     console.log('event received with data: ', data);
 
     publishInTeamTopic(data, message.data);
