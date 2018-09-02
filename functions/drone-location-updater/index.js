@@ -64,11 +64,11 @@ exports.droneLocationUpdater = async (req, res) => {
 
             try {
                 const teamId = droneInfoKey.name;
-                const deliveredParcelId = searchIfALocationForADelivery(droneInfo);
-                if (deliveredParcelId) {
-                    console.log('--- this is a location for a delivery');                    
-                    droneInfo.parcels = droneInfo.parcels.filter(parcel => parcel.parcelId !== deliveredParcelId);
-                    // TODO : ajouter les points du paquet à l'équipe
+                const deliveredParcel = searchIfALocationForADelivery(droneInfo);
+                if (deliveredParcel.parcelId) {
+                    console.log('--- this is a location for a delivery');
+                    removeParcelFromDrone(droneInfo, deliveredParcel);
+                    updateDroneScore(droneInfo, deliveredParcel);
 
                     const data = JSON.stringify({ teamId, droneInfo, event: 'PARCEL_DELIVERED' });
                     publishInTopic(data, topicName);
@@ -79,6 +79,8 @@ exports.droneLocationUpdater = async (req, res) => {
                         droneInfo.parcels = droneInfo.parcels || [];
                         droneInfo.parcels = [...droneInfo.parcels, ...parcelsAroundDrone];
                         const data = JSON.stringify({ teamId: droneInfoKey.name, droneInfo, event: 'PARCEL_GRABBED' });
+
+                        // TODO : supprimer le paquet de la base de données
 
                         publishInTopic(data, topicName);
                     } else {
@@ -116,6 +118,15 @@ exports.droneLocationUpdater = async (req, res) => {
 
 };
 
+const removeParcelFromDrone = (droneInfo, deliveredParcel) => {
+    droneInfo.parcels = droneInfo.parcels.filter(parcel => parcel.parcelId !== deliveredParcel.parcelId);
+};
+
+const updateDroneScore = (droneInfo, deliveredParcel) => {
+    droneInfo.score = droneInfo.score | 0;
+    droneInfo.score = droneInfo.score + deliveredParcel.score;
+};
+
 const publishInTopic = (message, topicName) => {
     console.log(`will send to topic ${topicName} : ${message}`)
     const dataBuffer = Buffer.from(message);
@@ -142,7 +153,7 @@ const searchIfALocationForADelivery = (droneInfo) => {
             const parcel = droneInfo.parcels[i];
             if (areCloseToEAchOther(droneInfo.location, parcel.location.delivery)) {
                 console.log('return true');
-                return parcel.parcelId;
+                return parcel;
             }
         }
     }
@@ -159,6 +170,7 @@ const upsertDrone = (droneInfo) => {
             location: droneInfo.location,
             parcels: droneInfo.parcels,
             topic: droneInfo.topic,
+            score: droneInfo.score,
         },
     };
 
