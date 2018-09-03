@@ -17,20 +17,27 @@ exports.droneStateUpdater = async (req, res) => {
 
     const droneReadyInfos = await getDroneInfosForCommand('READY');
     const droneMoveInfos = await getDroneInfosForCommand('MOVE');
+    const dronesWithNoCommand = await getDroneInfosWithNoCommand();
+
+    console.log(`dronesWithNoCommand=${dronesWithNoCommand}`);
 
     let readyJobs;
     let moveJobs;
-    
+
     if (droneReadyInfos) {
         readyJobs = await getJobsDroneReady(droneReadyInfos) || [];
     }
     if (droneMoveInfos) {
         moveJobs = await getJobsDroneMove(droneMoveInfos) || [];
     }
+    if (dronesWithNoCommand) {
+        waitingForCommandJobs = await getJobsDroneWaitingForCommand(dronesWithNoCommand) || [];
+    }
 
     await Promise.all([
         ...readyJobs,
         ...moveJobs,
+        ...waitingForCommandJobs,
     ]);
 
     // TODO improve response?
@@ -50,8 +57,34 @@ const getDroneInfosForCommand = async (command) => {
     if (!dronesQueryResults) {
         console.error(`No result found for: ${command}`);
     }
-    // Task entities found.
+    // entities found.
     return dronesQueryResults[0];
+};
+
+const getDroneInfosWithNoCommand = async () => {
+    const query = datastore
+        .createQuery('DroneInfo');
+
+    const dronesQueryResults = await datastore.runQuery(query);
+    if (!dronesQueryResults) {
+        console.error(`No result found for: ${command}`);
+    }
+
+    const allDrones = dronesQueryResults[0];
+    return allDrones.filter(d => d.command == undefined);
+};
+
+const getJobsDroneWaitingForCommand = async (droneInfos) => {
+    console.log('drone waiting for a command:');
+    return droneInfos.map(async (droneInfo = {}) => {
+        console.log('---------------');
+        console.log(`-- droneInfo before update : ${JSON.stringify(droneInfo)}`);
+        const droneInfoKey = droneInfo[datastore.KEY];
+        const teamId = droneInfoKey.name;
+
+        const data = JSON.stringify({ teamId, droneInfo, event: 'WAITING_FOR_COMMAND' });
+        publishInTopic(data, topicName);
+    });
 };
 
 const getJobsDroneReady = async (droneInfos) => {
@@ -83,7 +116,7 @@ const getJobsDroneReady = async (droneInfos) => {
     });
 };
 
-const getJobsDroneMove = async (droneInfos, teamId) => { 
+const getJobsDroneMove = async (droneInfos, teamId) => {
     console.log('drone move info:');
     return droneInfos.map(async (droneInfo = {}) => {
         console.log('---------------');
@@ -105,7 +138,7 @@ const getJobsDroneMove = async (droneInfos, teamId) => {
                 longitude: get(droneInfo, 'location.longitude') || DEFAULT_LONGITUDE,
             },
         };
-        
+
         const currentLocation = turf.point([droneInfo.location.latitude, droneInfo.location.longitude]);
         const dest = turf.point([droneInfo.command.location.latitude, droneInfo.command.location.longitude]);
         const distance = turf.distance(currentLocation, dest, {});
