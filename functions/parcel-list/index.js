@@ -15,6 +15,10 @@ exports.parcelList = async (req, res) => {
         .createQuery('Parcel')
         .filter('teamId', teamId);
 
+    // Enable CORS
+    res.set('Access-Control-Allow-Origin', "*");
+    res.set('Access-Control-Allow-Methods', 'GET, POST');
+
     try {
         const results = await datastore.runQuery(query);
         const parcels = results[0];
