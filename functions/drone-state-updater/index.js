@@ -95,11 +95,10 @@ const getJobsDroneReady = async (droneInfos) => {
         const droneInfoKey = droneInfo[datastore.KEY];
         const teamId = droneInfoKey.name;
 
-        const teamTopicUrl = get(droneInfo, 'command.topic.url');
-        delete droneInfo.command;
+        const teamTopicUrl = get(droneInfo, 'command.topicUrl');
         if (!teamTopicUrl) {
             console.error(`No topic url found for team ${teamId}`);
-            const data = JSON.stringify({ teamId, droneInfo, event: 'READY_FAILED' });
+            const data = JSON.stringify({ teamId, droneInfo, event: 'DRONE_READY_ATTEMPT' });
             publishInTopic(data, topicName);
         } else {
             droneInfo = {
@@ -108,7 +107,7 @@ const getJobsDroneReady = async (droneInfos) => {
                     url: teamTopicUrl
                 },
             };
-            const data = JSON.stringify({ teamId, droneInfo, event: 'READY_SUCCEED' });
+            const data = JSON.stringify({ teamId, droneInfo, event: 'DRONE_READY_NO_URL_FOUND' });
             publishInTopic(data, topicName);
         }
 
