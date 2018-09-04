@@ -10,22 +10,21 @@ exports.droneCommandPublisher = (req, res) => {
 
     // message
     const teamId = 'blue';
-    // const name = 'READY';
-    const name = 'MOVE';
     const message = {
         teamId,
         command: {
-            name,
-            location: {
-                //   latitude : 45.3534,
-                //   longitude : 2.3535
-                // Xebia
-                latitude: 48.8753487,
-                longitude: 2.3088396,
+            // name: 'MOVE',
+            // location: {
+            //     //   latitude : 45.3534,
+            //     //   longitude : 2.3535
+            //     // Xebia
+            //     latitude: 48.8753487,
+            //     longitude: 2.3088396,
+            // },
+            name: 'READY',
+            topic: {
+                url: 'projects/modulom-moludom/topics/drone-events'
             },
-        },
-        topic: {
-            url: 'projects/modulom-moludom/topics/drone-events'
         },
     };
     const dataToPublish = Buffer.from(JSON.stringify(message));
