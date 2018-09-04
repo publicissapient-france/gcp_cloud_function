@@ -1,17 +1,22 @@
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 import styled from 'styled-components';
 import GoogleMapReact from 'google-map-react';
+import { get } from 'lodash';
 
 import logo from './assets/logo.svg';
 import './App.css';
+import { COLORS } from './styles/variables';
 import Drone from './components/Drone';
+import Parcel from './components/Parcel';
 import {
-  getDroneInfo,
-  parseDroneInfo,
-  // createDrones,
-  // moveDrone,
+    getDroneInfo,
+    getParcelInfo,
+    parseDroneInfo,
+    parseParcelInfo,
 } from './services/drone.service';
-import { constants } from './constants';
+import {
+    GAME_PARAMETERS,
+} from './constants';
 
 const Section = styled.div`
   display: flex;
@@ -32,119 +37,156 @@ const GoogleMapContainer = styled.div`
 const DroneContainer = styled.div`
   div {  
     svg {
-      width: ${constants.drone};
-      height: ${constants.drone};
-      fill: ${(props) => props.color};
+      width: ${GAME_PARAMETERS.drone};
+      height: ${GAME_PARAMETERS.drone};
+      fill: ${(props) => COLORS[props.color]};
+      filter: drop-shadow(2px 4px 4px rgba(0,0,0,0.8));
     }
   }
 `;
 
-const MyDrone = styled.div`
+const ParcelContainer = styled.div`
+  div {  
+    svg {
+      width: ${GAME_PARAMETERS.drone};
+      height: ${GAME_PARAMETERS.drone};
+      fill: ${(props) => COLORS[props.color]};
+      filter: drop-shadow(2px 4px 3px rgba(0,0,0,0.8));
+    }
+  }
+`;
+
+const CustomMapElement = styled.div`
   position: relative;
   width: 4px;
   height: 4px;
   ${DroneContainer} {
     position: absolute;
-    top: calc(-${constants.drone} / 2);
-    left: calc(-${constants.drone} / 2);
+    top: calc(-${GAME_PARAMETERS.drone} / 2);
+    left: calc(-${GAME_PARAMETERS.drone} / 2);
   }
 `;
 
 class App extends Component {
-  static defaultProps = {
-    ...constants.map,
-  };
-
-  constructor() {
-    super()
-    this.state = {
-      drone: {
-        latitude: 48.855047,
-        longitude: 2.348426,
-      },
-      // drones: createDrones(3),
-      drones: [],
+    static defaultProps = {
+        ...GAME_PARAMETERS.map,
     };
-  }
 
-  componentDidMount() {
-    this.startDrone();
-  }
-
-  startDrone = () => {
-    this.timer = setInterval(() => {
-      // this.moveDrones();
-      getDroneInfo()
-        .then(this.updateDrones);
-    }, constants.speed);
-  }
-
-  // moveDrones() {
-  //   const updatedDrones = this.state.drones.map((drone) => {
-  //     return moveDrone(drone);
-  //   });
-  //   this.setState({
-  //     drones: updatedDrones,
-  //   });
-  // }
-  //
-  // stopDrone = () => {
-  //   clearInterval(this.timer);
-  // }
-
-  updateDrones = (data) => {
-    // console.log(JSON.stringify(data, null, 2));
-    const updateInfo = parseDroneInfo(data);
-    // console.log(updateInfo);
-    this.setState({
-      drones: updateInfo,
-    });
-  }
-
-  renderDrone(drone) {
-    if (drone.latitude && drone.longitude) {
-      return (
-        <MyDrone
-          key={drone.id}
-          lat={drone.latitude}
-          lng={drone.longitude}
-          text={`${drone.id} is moving`}
-        >
-          <DroneContainer {...drone} >
-            <Drone />
-          </DroneContainer>
-        </MyDrone>
-      )
+    constructor() {
+        super();
+        this.state = {
+            // drone: {
+            //     latitude: 48.855047,
+            //     longitude: 2.348426,
+            // },
+            // drones: createDrones(3),
+            drones: [],
+            parcels: [],
+        };
     }
-  }
 
-  render() {
-    return (
-      <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <h1 className="App-title">Google Functions drones race</h1>
-        </header>
-        <Section>
-          <GoogleMapContainer>
-            <GoogleMapReact
-              bootstrapURLKeys={{ key: process.env.REACT_APP_GOOGLE_MAP_KEY}}
-              defaultCenter={this.props.center}
-              defaultZoom={this.props.zoom}
+    componentDidMount() {
+        this.startDrone();
+    }
+
+    startDrone = () => {
+        this.timer = setInterval(async () => {
+            // this.moveDrones();
+            const droneInfo = await getDroneInfo();
+            const parcelInfo = await getParcelInfo();
+            this.updateDrones({droneInfo, parcelInfo});
+        }, GAME_PARAMETERS.speed);
+    };
+
+    // moveDrones() {
+    //   const updatedDrones = this.state.drones.map((drone) => {
+    //     return moveDrone(drone);
+    //   });
+    //   this.setState({
+    //     drones: updatedDrones,
+    //   });
+    // }
+    //
+    // stopDrone = () => {
+    //   clearInterval(this.timer);
+    // }
+
+    updateDrones = ({droneInfo, parcelInfo}) => {
+        const droneInfoNext = parseDroneInfo(droneInfo || []);
+        // const droneInfoNext = parseDroneInfo({"blue":{"team":"blue","data":{"topic":{"url":"projects/modulom-moludom/topics/drone-events"}}},"red":{"team":"red","data":{"location":{"latitude":48.80621744882436,"longitude":2.1723810610753986}}},"yellow":{"team":"yellow","data":{"location":{"latitude":48.805173,"longitude":2.186636},"parcels":[],"topic":{"url":"projects/jbc-some-tests/topics/drone-events-receiver"},"score":300}}});
+        const parcelInfoNext = parcelInfo ? parseParcelInfo(parcelInfo) : [];
+        // const parcelInfoNext = [
+        //     {"score":100,"teamId":"yellow","location":{"pickup":{"latitude":48.804986,"longitude":2.3088396},"delivery":{"longitude":2.171485,"latitude":48.806294}},"parcelId":"136e5a64-2050-4fa7-8cfc-72df26ca164d"},
+        //     {"teamId":"yellow","location":{"pickup":{"latitude":48.810123,"longitude":2.190504},"delivery":{"latitude":48.806294,"longitude":2.171485}},"score":200,"parcelId":"481294fc-9cef-4143-9022-815b7777df2d"},
+        //     {"teamId":"blue","location":{"pickup":{"latitude":1.1,"longitude":2.3},"delivery":{"latitude":12.1,"longitude":22.3}},"parcelId":"0a24e505-7b0f-4f00-967b-ac7dcdef95ab"},
+        //     {"teamId":"blue","location":{"pickup":{"latitude":1.1,"longitude":2.3},"delivery":{"latitude":12.1,"longitude":22.3}},"parcelId":"46cf225a-8726-483c-a56e-284a6beac843"},
+        // ];
+        this.setState({
+            drones: droneInfoNext,
+            parcels: parcelInfoNext,
+        }, console.log(this.state));
+    };
+
+    renderDrone(drone) {
+        if (drone.latitude && drone.longitude) {
+            return (
+                <CustomMapElement
+                    key={drone.id}
+                    lat={drone.latitude}
+                    lng={drone.longitude}
+                    text={`${drone.id} is moving`}
+                >
+                    <DroneContainer {...drone} >
+                        <Drone/>
+                    </DroneContainer>
+                </CustomMapElement>
+            )
+        }
+    }
+
+    renderParcel(parcel) {
+        const { parcelId, location, teamId } = parcel;
+        return (
+            <CustomMapElement
+                key={parcelId}
+                lat={get(location, 'pickup.latitude')}
+                lng={get(location, 'pickup.longitude')}
             >
-              { this.state.drones.map((drone) => this.renderDrone(drone)) }
-            </GoogleMapReact>
-          </GoogleMapContainer>
-        </Section>
-        { /*
+                <ParcelContainer {...parcel} color={teamId}>
+                    <Parcel/>
+                </ParcelContainer>
+            </CustomMapElement>
+        );
+    }
+
+    render() {
+        return (
+            <div className="App">
+                <header className="App-header">
+                    <img src={logo} className="App-logo" alt="logo"/>
+                    <h1 className="App-title">Google Functions drones race</h1>
+                </header>
+                <Section>
+                    <GoogleMapContainer>
+                        <GoogleMapReact
+                            bootstrapURLKeys={{key: process.env.REACT_APP_GOOGLE_MAP_KEY}}
+                            defaultCenter={this.props.center}
+                            defaultZoom={this.props.zoom}
+                        >
+                            {this.state.drones.map((drone) => this.renderDrone(drone))}
+                            {this.state.parcels.map((parcel) => this.renderParcel(parcel))}
+                        </GoogleMapReact>
+                    </GoogleMapContainer>
+                </Section>
+                {/*
         <Actions>
           <button onClick={this.stopDrone}>Stop</button>
           <button onClick={this.startDrone}>Start</button>
         </Actions>
-        */ }
-      </div>
-    );
-  }
+        */}
+            </div>
+        );
+    }
 }
 
 export default App;
