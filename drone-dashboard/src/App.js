@@ -169,6 +169,7 @@ class App extends Component {
                 <Section>
                     <GoogleMapContainer>
                         <GoogleMapReact
+                            style={{borderRadius: '20px'}}
                             bootstrapURLKeys={{key: process.env.REACT_APP_GOOGLE_MAP_KEY}}
                             defaultCenter={this.props.center}
                             defaultZoom={this.props.zoom}
