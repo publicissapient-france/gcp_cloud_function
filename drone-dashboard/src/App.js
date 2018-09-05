@@ -30,8 +30,10 @@ const Actions = Section.extend`
 `;
 
 const GoogleMapContainer = styled.div`
+  overflow: hidden;
   height: 600px;
   width: 950px;
+  border-radius: 15px;
 `;
 
 const DroneContainer = styled.div`
@@ -169,7 +171,6 @@ class App extends Component {
                 <Section>
                     <GoogleMapContainer>
                         <GoogleMapReact
-                            style={{borderRadius: '20px'}}
                             bootstrapURLKeys={{key: process.env.REACT_APP_GOOGLE_MAP_KEY}}
                             defaultCenter={this.props.center}
                             defaultZoom={this.props.zoom}
