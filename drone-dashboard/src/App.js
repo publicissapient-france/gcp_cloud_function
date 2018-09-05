@@ -1,18 +1,20 @@
 import React, {Component} from 'react';
 import styled from 'styled-components';
 import GoogleMapReact from 'google-map-react';
-import { get } from 'lodash';
+import {get} from 'lodash';
 
 import logo from './assets/logo.svg';
 import './App.css';
-import { COLORS } from './styles/variables';
+import {COLORS} from './styles/variables';
 import Drone from './components/Drone';
 import Parcel from './components/Parcel';
+import Pin from './components/Pin';
 import {
     getDroneInfo,
     getParcelInfo,
     parseDroneInfo,
     parseParcelInfo,
+    parseDroneTeamColor,
 } from './services/drone.service';
 import {
     GAME_PARAMETERS,
@@ -41,7 +43,7 @@ const DroneContainer = styled.div`
     svg {
       width: ${GAME_PARAMETERS.drone};
       height: ${GAME_PARAMETERS.drone};
-      fill: ${(props) => COLORS[props.color]};
+      fill: ${(props) => COLORS[parseDroneTeamColor(props.color)]};
       filter: drop-shadow(2px 4px 4px rgba(0,0,0,0.8));
     }
   }
@@ -50,10 +52,21 @@ const DroneContainer = styled.div`
 const ParcelContainer = styled.div`
   div {  
     svg {
-      width: ${GAME_PARAMETERS.drone};
-      height: ${GAME_PARAMETERS.drone};
-      fill: ${(props) => COLORS[props.color]};
+      width: ${GAME_PARAMETERS.parcel};
+      height: ${GAME_PARAMETERS.parcel};
+      fill: ${(props) => COLORS[parseDroneTeamColor(props.color)]};
       filter: drop-shadow(2px 4px 3px rgba(0,0,0,0.8));
+    }
+  }
+`;
+
+const PinContainer = styled.div`
+  div {  
+    svg {
+      width: ${GAME_PARAMETERS.pin};
+      height: ${GAME_PARAMETERS.pin};
+      fill: ${COLORS['default']};
+      filter: drop-shadow(2px 6px 4px rgba(0,0,0,0.8));
     }
   }
 `;
@@ -66,6 +79,11 @@ const CustomMapElement = styled.div`
     position: absolute;
     top: calc(-${GAME_PARAMETERS.drone} / 2);
     left: calc(-${GAME_PARAMETERS.drone} / 2);
+  }
+  ${ParcelContainer} {
+    position: absolute;
+    top: calc(-${GAME_PARAMETERS.parcel} / 2);
+    left: calc(-${GAME_PARAMETERS.parcel} / 2);
   }
 `;
 
@@ -116,7 +134,7 @@ class App extends Component {
     updateDrones = ({droneInfo, parcelInfo}) => {
         const droneInfoNext = parseDroneInfo(droneInfo || []);
         // const droneInfoNext = parseDroneInfo({"blue":{"team":"blue","data":{"topic":{"url":"projects/modulom-moludom/topics/drone-events"}}},"red":{"team":"red","data":{"location":{"latitude":48.80621744882436,"longitude":2.1723810610753986}}},"yellow":{"team":"yellow","data":{"location":{"latitude":48.805173,"longitude":2.186636},"parcels":[],"topic":{"url":"projects/jbc-some-tests/topics/drone-events-receiver"},"score":300}}});
-        const parcelInfoNext = parcelInfo ? parseParcelInfo(parcelInfo) : [];
+        const parcelInfoNext = parcelInfo ? parseParcelInfo(parcelInfo) : [];
         // const parcelInfoNext = [
         //     {"score":100,"teamId":"yellow","location":{"pickup":{"latitude":48.804986,"longitude":2.3088396},"delivery":{"longitude":2.171485,"latitude":48.806294}},"parcelId":"136e5a64-2050-4fa7-8cfc-72df26ca164d"},
         //     {"teamId":"yellow","location":{"pickup":{"latitude":48.810123,"longitude":2.190504},"delivery":{"latitude":48.806294,"longitude":2.171485}},"score":200,"parcelId":"481294fc-9cef-4143-9022-815b7777df2d"},
@@ -147,7 +165,7 @@ class App extends Component {
     }
 
     renderParcel(parcel) {
-        const { parcelId, location, teamId } = parcel;
+        const {parcelId, location, teamId} = parcel;
         return (
             <CustomMapElement
                 key={parcelId}
@@ -159,6 +177,20 @@ class App extends Component {
                 </ParcelContainer>
             </CustomMapElement>
         );
+    }
+
+    renderBoundaries() {
+        return GAME_PARAMETERS.pinBoundaries.map((pin, index) => (
+            <CustomMapElement
+                key={`boundary-${index}`}
+                lat={get(pin, 'latitude')}
+                lng={get(pin, 'longitude')}
+            >
+                <PinContainer>
+                    <Pin/>
+                </PinContainer>
+            </CustomMapElement>
+        ))
     }
 
     render() {
@@ -177,6 +209,7 @@ class App extends Component {
                         >
                             {this.state.drones.map((drone) => this.renderDrone(drone))}
                             {this.state.parcels.map((parcel) => this.renderParcel(parcel))}
+                            {this.renderBoundaries()}
                         </GoogleMapReact>
                     </GoogleMapContainer>
                 </Section>
