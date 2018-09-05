@@ -35,39 +35,40 @@ export const getDroneInfo = async () => {
     }
 };
 
-export const getParcelInfo = async () => {
-    return Bluebird.reduce(TEAMS, async (acc, teamId) => {
-        try {
-            const response = await fetch(
-                `https://europe-west1-jbc-atl-sal-func-techevent.cloudfunctions.net/parcelList?teamId=${teamId}`,
-                {
-                    method: 'GET',
-                    mode: 'cors',
-                }
-            );
-            const parcelData = await response.json();
-            return [
-                ...acc,
-                ...parcelData,
-            ];
-        } catch (error) {
-            console.log(error);
-        }
-    }, []);
-};
+// TODO to remove
+// export const getParcelInfo = async () => {
+//     return Bluebird.reduce(TEAMS, async (acc, teamId) => {
+//         try {
+//             const response = await fetch(
+//                 `https://europe-west1-jbc-atl-sal-func-techevent.cloudfunctions.net/parcelList?teamId=${teamId}`,
+//                 {
+//                     method: 'GET',
+//                     mode: 'cors',
+//                 }
+//             );
+//             const parcelData = await response.json();
+//             return [
+//                 ...acc,
+//                 ...parcelData,
+//             ];
+//         } catch (error) {
+//             console.log(error);
+//         }
+//     }, []);
+// };
 
-export const parseDroneInfo = (data) => {
-    return Object.values(data).map((teamInfo, index) => {
+export const parseDroneInfo = (drones) => {
+    return drones.map((drone = {}) => {
         let droneBaseInfo;
         let dronePositionInfo;
         droneBaseInfo = {
-            id: index,
-            color: teamInfo.team,
+            id: drone.teamId,
+            color: drone.teamId,
         };
-        if (teamInfo && teamInfo.data && teamInfo.data.location) {
+        if (drone.data && drone.data.location) {
             dronePositionInfo = {
-                latitude: teamInfo.data.location.latitude,
-                longitude: teamInfo.data.location.longitude,
+                latitude: drone.data.location.latitude,
+                longitude: drone.data.location.longitude,
             };
         }   
         return {

@@ -112,9 +112,8 @@ class App extends Component {
     startDrone = () => {
         this.timer = setInterval(async () => {
             // this.moveDrones();
-            const droneInfo = await getDroneInfo();
-            const parcelInfo = await getParcelInfo();
-            this.updateDrones({droneInfo, parcelInfo});
+            const { drones, parcels } = await getDroneInfo();
+            this.updateDrones({drones, parcels});
         }, GAME_PARAMETERS.speed);
     };
 
@@ -131,10 +130,10 @@ class App extends Component {
     //   clearInterval(this.timer);
     // }
 
-    updateDrones = ({droneInfo, parcelInfo}) => {
-        const droneInfoNext = parseDroneInfo(droneInfo || []);
+    updateDrones = ({drones, parcels}) => {
+        const dronesNext = parseDroneInfo(drones || []);
         // const droneInfoNext = parseDroneInfo({"blue":{"team":"blue","data":{"topic":{"url":"projects/modulom-moludom/topics/drone-events"}}},"red":{"team":"red","data":{"location":{"latitude":48.80621744882436,"longitude":2.1723810610753986}}},"yellow":{"team":"yellow","data":{"location":{"latitude":48.805173,"longitude":2.186636},"parcels":[],"topic":{"url":"projects/jbc-some-tests/topics/drone-events-receiver"},"score":300}}});
-        const parcelInfoNext = parcelInfo ? parseParcelInfo(parcelInfo) : [];
+        const parcelsNext = parcels ? parseParcelInfo(parcels) : [];
         // const parcelInfoNext = [
         //     {"score":100,"teamId":"yellow","location":{"pickup":{"latitude":48.804986,"longitude":2.3088396},"delivery":{"longitude":2.171485,"latitude":48.806294}},"parcelId":"136e5a64-2050-4fa7-8cfc-72df26ca164d"},
         //     {"teamId":"yellow","location":{"pickup":{"latitude":48.810123,"longitude":2.190504},"delivery":{"latitude":48.806294,"longitude":2.171485}},"score":200,"parcelId":"481294fc-9cef-4143-9022-815b7777df2d"},
@@ -142,8 +141,8 @@ class App extends Component {
         //     {"teamId":"blue","location":{"pickup":{"latitude":1.1,"longitude":2.3},"delivery":{"latitude":12.1,"longitude":22.3}},"parcelId":"46cf225a-8726-483c-a56e-284a6beac843"},
         // ];
         this.setState({
-            drones: droneInfoNext,
-            parcels: parcelInfoNext,
+            drones: dronesNext,
+            parcels: parcelsNext,
         }, console.log(this.state));
     };
 
