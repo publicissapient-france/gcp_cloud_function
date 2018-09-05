@@ -10,13 +10,16 @@ exports.droneHttpUpserter = async (req, res) => {
             res.status(400).send('No body with a teamId to upsert defined!');
         } else {
             const jsonMsg = req.body;
-            console.log('teamId=', jsonMsg.teamId);
+            const teamId = jsonMsg.teamId;
+            delete jsonMsg.teamId;
 
-            const droneInfoKey = datastore.key(['DroneInfo', jsonMsg.teamId]);
+            console.log('teamId=', teamId);
+
+            const droneInfoKey = datastore.key(['DroneInfo', teamId]);
 
             const droneInfoFromDB = await findDroneByKey(droneInfoKey);
 
-            const data = Object.assign(droneInfoFromDB, jsonMsg);
+            const data = Object.assign(droneInfoFromDB || {}, jsonMsg);
 
             const droneInfoEntity = {
                 key: droneInfoKey,
@@ -26,7 +29,7 @@ exports.droneHttpUpserter = async (req, res) => {
             datastore
                 .upsert(droneInfoEntity)
                 .then(() => {
-                    console.log(`DroneInfo entity with id ${jsonMsg.teamId} upserted successfully.`);
+                    console.log(`DroneInfo entity with id ${teamId} upserted successfully.`);
                     res.status(200).end();
                 })
                 .catch(err => {
