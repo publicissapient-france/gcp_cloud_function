@@ -23,6 +23,7 @@ exports.droneStateUpdater = async (req, res) => {
 
     let readyJobs;
     let moveJobs;
+    let waitingForCommandJobs;
 
     if (droneReadyInfos) {
         readyJobs = await getJobsDroneReady(droneReadyInfos) || [];
@@ -71,7 +72,7 @@ const getDroneInfosWithNoCommand = async () => {
     }
 
     const allDrones = dronesQueryResults[0];
-    return allDrones.filter(d => d.command == undefined);
+    return allDrones.filter(d => d.command === undefined);
 };
 
 const getJobsDroneWaitingForCommand = async (droneInfos) => {
@@ -131,66 +132,16 @@ const getJobsDroneMove = async (droneInfos, teamId) => {
                 latitude: get(droneInfo, 'location.latitude') || DEFAULT_LATITUDE,
                 longitude: get(droneInfo, 'location.longitude') || DEFAULT_LONGITUDE,
             },
-            command: {
-                ...droneInfo.command,
-                latitude: get(droneInfo, 'location.latitude') || DEFAULT_LATITUDE,
-                longitude: get(droneInfo, 'location.longitude') || DEFAULT_LONGITUDE,
-            },
         };
 
-        const currentLocation = turf.point([droneInfo.location.latitude, droneInfo.location.longitude]);
-        const dest = turf.point([droneInfo.command.location.latitude, droneInfo.command.location.longitude]);
-        const distance = turf.distance(currentLocation, dest, {});
-
-        if (droneAsReachItsDestination(distance)) {
-            console.log('drone has arrived at destination');
-            droneInfo.location.latitude = droneInfo.command.location.latitude;
-            droneInfo.location.longitude = droneInfo.command.location.longitude;
-            delete droneInfo.command;
-
-            try {
-                const deliveredParcel = searchIfALocationForADelivery(droneInfo);
-                if (deliveredParcel.parcelId) {
-                    console.log('--- this is a location for a delivery');
-                    removeParcelFromDrone(droneInfo, deliveredParcel);
-                    updateDroneScore(droneInfo, deliveredParcel);
-
-                    const data = JSON.stringify({ teamId, droneInfo, event: 'PARCEL_DELIVERED' });
-                    publishInTopic(data, topicName);
-                } else {
-                    const parcelsAroundDrone = await checkParcelAround(droneInfo.location, teamId);
-                    if (parcelsAroundDrone && parcelsAroundDrone.length > 0) {
-                        console.log("Parcel around drone detected !");
-                        droneInfo.parcels = droneInfo.parcels || [];
-                        droneInfo.parcels = [...droneInfo.parcels, ...parcelsAroundDrone];
-                        const data = JSON.stringify({ teamId, droneInfo, event: 'PARCEL_GRABBED' });
-
-                        // TODO : supprimer le paquet de la base de données
-
-                        publishInTopic(data, topicName);
-                    } else {
-                        const data = JSON.stringify({ teamId, droneInfo, event: 'DESTINATION_REACHED' });
-
-                        publishInTopic(data, topicName);
-                    }
-                }
-
-            } catch (err) {
-                console.log(`error: ${err}`);
-            }
-
-        } else {
-            // Continue moving to destination
-            const bearing = turf.bearing(currentLocation, dest);
-            console.log(`bearing for team ${JSON.stringify(droneInfo[datastore.KEY])}: ${bearing}`);
-            const destination = turf.destination(currentLocation, DISTANCE_PER_TICK, bearing, {});
-            console.log(`next point is: ${JSON.stringify(destination)}`);
-            droneInfo.location.latitude = destination.geometry.coordinates[0];
-            droneInfo.location.longitude = destination.geometry.coordinates[1];
-
-            const data = JSON.stringify({ teamId, location: droneInfo.location, command: droneInfo.command, event: 'MOVING' });
-
+        if (
+            droneInfo.command &&
+            (!droneInfo.command.location || !droneInfo.command.location.latitude || !droneInfo.command.location.longitude)
+        ) {
+            const data = JSON.stringify({ teamId, droneInfo, event: 'MOVE_LOCATION_ERROR' });
             publishInTopic(data, topicName);
+        } else {
+            await moveDrone(droneInfo, teamId);
         }
         upsertDrone(droneInfo);
     });
@@ -310,3 +261,65 @@ const areCloseToEAchOther = (itemALocation, itemBLocation) => {
 };
 
 const isCommandValid = (command = []) => some(COMMANDS, (entry) => entry === command);
+
+const moveDrone = async function (droneInfo, teamId) {
+    const currentLocation = turf.point([droneInfo.location.latitude, droneInfo.location.longitude]);
+    const dest = turf.point([droneInfo.command.location.latitude, droneInfo.command.location.longitude]);
+    const distance = turf.distance(currentLocation, dest, {});
+
+    if (droneAsReachItsDestination(distance)) {
+        console.log('drone has arrived at destination');
+        droneInfo.location.latitude = droneInfo.command.location.latitude;
+        droneInfo.location.longitude = droneInfo.command.location.longitude;
+        delete droneInfo.command;
+
+        try {
+            const deliveredParcel = searchIfALocationForADelivery(droneInfo);
+            if (deliveredParcel.parcelId) {
+                console.log('--- this is a location for a delivery');
+                removeParcelFromDrone(droneInfo, deliveredParcel);
+                updateDroneScore(droneInfo, deliveredParcel);
+
+                const data = JSON.stringify({teamId, droneInfo, event: 'PARCEL_DELIVERED'});
+                publishInTopic(data, topicName);
+            } else {
+                const parcelsAroundDrone = await checkParcelAround(droneInfo.location, teamId);
+                if (parcelsAroundDrone && parcelsAroundDrone.length > 0) {
+                    console.log("Parcel around drone detected !");
+                    droneInfo.parcels = droneInfo.parcels || [];
+                    droneInfo.parcels = [...droneInfo.parcels, ...parcelsAroundDrone];
+                    const data = JSON.stringify({teamId, droneInfo, event: 'PARCEL_GRABBED'});
+
+                    // TODO : supprimer le paquet de la base de données
+
+                    publishInTopic(data, topicName);
+                } else {
+                    const data = JSON.stringify({teamId, droneInfo, event: 'DESTINATION_REACHED'});
+
+                    publishInTopic(data, topicName);
+                }
+            }
+
+        } catch (err) {
+            console.log(`error: ${err}`);
+        }
+
+    } else {
+        // Continue moving to destination
+        const bearing = turf.bearing(currentLocation, dest);
+        console.log(`bearing for team ${JSON.stringify(droneInfo[datastore.KEY])}: ${bearing}`);
+        const destination = turf.destination(currentLocation, DISTANCE_PER_TICK, bearing, {});
+        console.log(`next point is: ${JSON.stringify(destination)}`);
+        droneInfo.location.latitude = destination.geometry.coordinates[0];
+        droneInfo.location.longitude = destination.geometry.coordinates[1];
+
+        const data = JSON.stringify({
+            teamId,
+            location: droneInfo.location,
+            command: droneInfo.command,
+            event: 'MOVING'
+        });
+
+        publishInTopic(data, topicName);
+    }
+};
