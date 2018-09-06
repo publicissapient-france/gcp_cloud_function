@@ -4,15 +4,15 @@
   "author": "@modulom",
   "private": true,
   "dependencies": {
-    "bluebird": "^3.5.2",
-    "google-map-react": "^1.0.1",
-    "lodash": "^4.17.10",
-    "material-design-icons": "^3.0.1",
-    "react": "^16.3.2",
-    "react-dom": "^16.3.2",
+    "bluebird": "3.5.2",
+    "google-map-react": "1.0.1",
+    "lodash": "4.17.10",
+    "material-design-icons": "3.0.1",
+    "react": "16.3.2",
+    "react-dom": "16.3.2",
     "react-scripts": "1.1.4",
-    "styled-components": "^3.2.6",
-    "svg-inline-react": "^3.0.0"
+    "styled-components": "3.2.6",
+    "svg-inline-react": "3.0.0"
   },
   "scripts": {
     "start": "react-scripts start",
