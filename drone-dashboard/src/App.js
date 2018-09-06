@@ -4,7 +4,6 @@ import GoogleMapReact from 'google-map-react';
 import {get} from 'lodash';
 
 import logo from './assets/logo.svg';
-import './App.css';
 import {COLORS} from './styles/variables';
 import Drone from './components/Drone';
 import Parcel from './components/Parcel';
@@ -19,6 +18,31 @@ import {
 import {
     GAME_PARAMETERS,
 } from './constants';
+
+const AppContainer = styled.div`
+    text-align: center;
+    padding: 0 40px;
+    .App-logo {
+      height: 40px;
+    }
+
+    .App-header {
+      display: flex;
+      flex: 1 1 950px;
+      height: 60px;
+      padding-top: 20px;
+      padding-bottom: 20px;
+      color: #333;
+    }
+
+    .App-title {
+      font-size: 1.5em;
+    }
+
+    .App-intro {
+      font-size: large;
+    }
+`;
 
 const Section = styled.div`
   display: flex;
