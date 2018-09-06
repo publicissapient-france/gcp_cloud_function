@@ -41,8 +41,8 @@ exports.droneStateUpdater = async (req, res) => {
         ...waitingForCommandJobs,
     ]);
 
-    // TODO improve response?
-    res.send('query datastore and require turf');
+
+    res.send('drone state updated');
 };
 
 const getDroneInfosForCommand = async (command) => {
@@ -272,6 +272,8 @@ const moveDrone = async function (droneInfo, teamId) {
                 removeParcelFromDrone(droneInfo, deliveredParcel);
                 updateDroneScore(droneInfo, deliveredParcel);
 
+                deleteParcel();
+
                 const data = JSON.stringify({ teamId, droneInfo, event: 'PARCEL_DELIVERED' });
                 publishInTopic(data, topicName);
             } else {
@@ -282,7 +284,7 @@ const moveDrone = async function (droneInfo, teamId) {
                     droneInfo.parcels = [...droneInfo.parcels, ...parcelsAroundDrone];
                     const data = JSON.stringify({ teamId, droneInfo, event: 'PARCEL_GRABBED' });
 
-                    // TODO : supprimer le paquet de la base de données
+                    updateParcelStatus(parcelsAroundDrone, 'GRABBED');
 
                     publishInTopic(data, topicName);
                 } else {
@@ -314,4 +316,27 @@ const moveDrone = async function (droneInfo, teamId) {
 
         publishInTopic(data, topicName);
     }
+};
+
+const deleteParcel = async (parcelId) => {
+    const parcelKey = datastore.key(['Parcel', parcelId]);
+    await datastore.delete(parcelKey);
+};
+
+const updateParcelStatus = async (parcels, status) => {
+    parcels = parcels.map(async (parcel) => {
+        parcel.status = status;
+        const parcelKey = parcel[datastore.KEY];
+        const parcelEntity = {
+            key: parcelKey,
+            data: parcel
+        };
+
+        try {
+            await datastore.upsert(parcelEntity);
+        } catch (err) {
+            console.error(`Cannot update parcel with status ${status}`, err);
+        }
+    });
+    await Promise.all(parcels);
 };
