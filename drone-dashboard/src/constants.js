@@ -1,7 +1,7 @@
 export const GAME_PARAMETERS = {
     step: 0.0004,
     speed: 3000,
-    drone: '25px',
+    drone: '22px',
     parcel: '20px',
     pin: '20px',
     map: {
@@ -17,6 +17,7 @@ export const GAME_PARAMETERS = {
         minLongitude: 2.25000,
         maxLongitude: 2.42000,
     },
+    showBoundaries: false,
     pinBoundaries: [
         {
             latitude: 48.900000,
