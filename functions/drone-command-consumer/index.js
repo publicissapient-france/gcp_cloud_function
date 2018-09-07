@@ -9,70 +9,43 @@ const datastore = new Datastore({});
  * @param {!Object} event The Cloud Functions event.
  * @param {!Function} The callback function.
  */
-exports.droneCommandConsumer = (event, callback) => {
+exports.droneCommandConsumer = async (event, context) => {
     try {
         // The Cloud Pub/Sub Message object.
         const pubsubMessage = event.data;
 
-        const message = Buffer.from(pubsubMessage.data, 'base64').toString();
+        const message = Buffer.from(pubsubMessage, 'base64').toString();
 
         console.log("message received " + message);
 
         const jsonMsg = JSON.parse(message);
-        const droneInfoKey = datastore.key(['DroneInfo', jsonMsg.teamId]);
-
         console.log(`jsonMsg.command = ${JSON.stringify(jsonMsg.command)}`);
 
-        getDroneInfoByKey(droneInfoKey)
-            .then((droneInfo) => updateDroneInfo(droneInfoKey, droneInfo, jsonMsg.command))
-            .then(() => {
-                console.log(`DroneInfo entity with key ${JSON.stringify(droneInfoKey)} upserted successfully.`);
-                // Don't forget to call the callback.
-                callback();
-            })
-            .catch(err => {
-                console.error('ERROR:', err);
-                callback(new Error(err));
-            });
+        const droneInfoKey = datastore.key(['DroneInfo', jsonMsg.teamId]);
+        const droneInfoFromDB = await findDroneByKey(droneInfoKey);
+        console.log(`receiveid drone: ${JSON.stringify(droneInfoFromDB)}`);
+
+        droneInfoFromDB.command = jsonMsg.command;
+        await updateDrone(droneInfoFromDB);
 
     } catch (err) {
-        console.error('ERROR:', err);
-        callback(new Error(err));
+        console.log('error', err)
     }
+
 };
 
-getDroneInfoByKey = (key) => {
-    console.log("getDroneInfoByKey");
-    const query = datastore
-        .createQuery('DroneInfo')
-        .filter('__key__', '>', key);
+const findDroneByKey = async (droneInfoKey) => {
+    const resultFromDB = await datastore.get(droneInfoKey);
+    return resultFromDB[0];
+};
 
-    return datastore.runQuery(query)
-        .then(results => {
-            if (results[0] && results[0].length == 1) {
-                console.log("getDroneInfoByKey return result");
-                return results[0][0];
-            } else {
-                return undefined;
-            }
-        });
-}
-
-updateDroneInfo = (key, droneInfo = {}, command) => {
-    console.log(`updateDroneInfo key = ${JSON.stringify(key)}`);
-    console.log(`updateDroneInfo droneInfo = ${JSON.stringify(droneInfo)}`);
-    console.log(`updateDroneInfo command = ${JSON.stringify(command)}`);
-
-    droneInfo['command'] = command;
-    console.log(`updateDroneInfo droneInfo bis = ${JSON.stringify(droneInfo)}`);
+const updateDrone = async (droneInfo) => {
+    const droneInfoKey = droneInfo[datastore.KEY];
 
     const droneInfoEntity = {
-        key: key,
+        key: droneInfoKey,
         data: droneInfo,
     };
-
-    console.log(`updateDroneInfo droneInfoEntity = ${JSON.stringify(droneInfoEntity)}`);
-
-    return datastore
-        .upsert(droneInfoEntity);
+    console.log(`will update drone with this: ${JSON.stringify(droneInfoEntity)}`);
+    await datastore.upsert(droneInfoEntity);
 }

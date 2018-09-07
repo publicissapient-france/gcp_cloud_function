@@ -2,7 +2,7 @@
 while [ true ]
 do
     echo 'calling updater'
-    curl https://us-central1-jbc-atl-sal-func-techevent.cloudfunctions.net/droneLocationUpdater
+    curl https://europe-west1-jbc-atl-sal-func-techevent.cloudfunctions.net/droneStateUpdater
     sleep 3
 done
 

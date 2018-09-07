@@ -50,7 +50,7 @@ const updateDroneInfoEvent = async (teamId, eventName) => {
 
         const droneInfoEntity = {
             key: droneInfoKey,
-            data
+            data: droneInfoFromDB
         };
 
         datastore.upsert(droneInfoEntity);
