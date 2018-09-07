@@ -203,7 +203,7 @@ const upsertDrone = (droneInfo) => {
 };
 
 const checkParcelAround = async (droneLocation, teamId) => {
-    console.log(`checking parcels around the point for teamId: ${teamId} and location ${JSON.stringify(droneLocation)}`);
+    console.log(`checkParcelAround : checking parcels around the point for teamId: ${teamId} and location ${JSON.stringify(droneLocation)}`);
     let parcelsResult = [];
 
     const droneLocationPoint = turf.point([droneLocation.latitude, droneLocation.longitude]);
@@ -263,7 +263,8 @@ const moveDrone = async function (droneInfo, teamId) {
 
         try {
             const deliveredParcel = searchIfALocationForADelivery(droneInfo);
-            if (deliveredParcel.parcelId) {
+            console.log(`deliveredParcel=${deliveredParcel}`);
+            if (deliveredParcel && deliveredParcel.parcelId) {
                 console.log('--- this is a location for a delivery');
                 removeParcelFromDrone(droneInfo, deliveredParcel);
                 updateDroneScore(droneInfo, deliveredParcel);
@@ -273,7 +274,11 @@ const moveDrone = async function (droneInfo, teamId) {
                 const data = JSON.stringify({ teamId, droneInfo, event: 'PARCEL_DELIVERED' });
                 publishInTopic(data, topicName);
             } else {
+                console.log('will checkParcelAround');
                 const parcelsAroundDrone = await checkParcelAround(droneInfo.location, teamId);
+                // TODO : vérifier que le parcel n'est pas déjà porté par le drone ou alors dans la query datastore 
+                // ne pas prendre les colis qui ont le status GRABBED
+                console.log(`parcelsAroundDrone:${parcelsAroundDrone}`);
                 if (parcelsAroundDrone && parcelsAroundDrone.length > 0) {
                     console.log("Parcel around drone detected !");
                     droneInfo.parcels = droneInfo.parcels || [];
