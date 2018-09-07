@@ -14,7 +14,7 @@ exports.droneEventsDispatcher = async (message, context) => {
 
 const publishInTeamTopic = async (data) => {
     const teamId = data.teamId;
-    const teamTopicUrl = get(data.droneInfo, 'command.topicUrl');
+    const teamTopicUrl = get(data.droneInfo, 'topicUrl');
     if (teamTopicUrl) {
         console.log(`publish event to team topic ${teamTopicUrl}.`);
         try {
@@ -39,7 +39,14 @@ const updateDroneInfoEvent = async (teamId, eventName) => {
         const droneInfoKey = datastore.key(['DroneInfo', teamId]);
         const droneInfoFromDB = await findDroneByKey(droneInfoKey);
 
-        const data = Object.assign(droneInfoFromDB, { command: { name: eventName } });
+        const data = {
+            ...droneInfoFromDB,
+            command: { name: eventName },
+        };
+
+        if (eventName === 'READY_FAILED' && data.topicUrl) {
+            delete data.topicUrl;
+        }
 
         const droneInfoEntity = {
             key: droneInfoKey,

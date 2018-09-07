@@ -10,9 +10,7 @@ export const getDronesAndParcels = async () => {
                         longitude: 2.3788396,
                         latitude: 48.8653487,
                     },
-                    topic: {
-                        url: 'projects/modulom-moludom/topics/drone-events',
-                    },
+                    topicUrl: 'projects/modulom-moludom/topics/drone-events',
                     score: 300,
                     parcels: [
                         {

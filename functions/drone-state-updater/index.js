@@ -100,6 +100,8 @@ const getJobsDroneReady = async (droneInfos) => {
             console.error(`No topic url found for team ${teamId}`);
             droneInfo.command = { name: 'NO_TOPIC_URL_FOUND' };
         } else {
+            delete droneInfo.command;
+            droneInfo.topicUrl = teamTopicUrl;
             const data = JSON.stringify({ teamId, droneInfo, event: 'WAITING_FOR_COMMAND' });
             publishInTopic(data, topicName);
         }
