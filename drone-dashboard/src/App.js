@@ -93,8 +93,8 @@ class App extends Component {
     startDrone = async () => {
         this.timer = setInterval(async () => {
             // this.moveDrones();
-            const {drones, parcels} = await getDronesAndParcels();
-            this.updateDrones({drones, parcels});
+            const dronesAndParcels = await getDronesAndParcels();
+            this.updateDrones(dronesAndParcels || {drones: [], parcels: []});
         }, this.props.speed);
     };
 
