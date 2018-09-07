@@ -9,7 +9,7 @@ import { Parcel } from './components/Parcel';
 import { Pin } from './components/Pin';
 import {
     Score,
-    ScoresContainer,
+    ScoreItem,
 } from './components/Score';
 import {
     getDronesAndParcels,
@@ -19,6 +19,7 @@ import {
 } from './services/drone.service';
 import {
     GAME_PARAMETERS,
+    STATUS,
 } from './constants';
 
 const AppContainer = styled.div`
@@ -32,7 +33,7 @@ const AppContainer = styled.div`
       display: flex;
       flex: 1 1 950px;
       height: 60px;
-      padding-top: 20px;
+      padding-top: 30px;
       padding-bottom: 20px;
       color: #333;
     }
@@ -63,6 +64,17 @@ const GoogleMapContainer = styled.div`
   overflow: hidden;
   height: 600px;
   border-radius: 15px;
+`;
+
+const ScoresContainer = styled.div`
+  display: flex;
+  flex: 0 1 200px;
+  flex-flow: column nowrap;
+  align-items: flex-start;
+  padding: 0 15px;
+  ${ScoreItem}:not(:last-of-type) {
+    margin-bottom: 10px;
+  }
 `;
 
 class App extends Component {
@@ -111,7 +123,7 @@ class App extends Component {
                 key={`boundary-${index}`}
                 lat={get(boundary, 'latitude')}
                 lng={get(boundary, 'longitude')}
-                status={'admin'}
+                status={STATUS.TOGGLE}
             />
         ))
     }
@@ -159,7 +171,11 @@ class App extends Component {
                     </GoogleMapContainer>
                     <ScoresContainer>
                         {parseScores(this.state.drones).map((drone, index) => (
-                            <Score {...drone} />
+                            <Score
+                                key={`score-${drone.teamId}-${index}`}
+                                index={index}
+                                {...drone}
+                            />
                         ))}
                     </ScoresContainer>
                 </Section>

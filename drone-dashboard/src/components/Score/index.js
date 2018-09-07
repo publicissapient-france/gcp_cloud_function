@@ -1,4 +1,4 @@
 export {
     Score,
-    ScoresContainer,
+    ScoreItem,
 } from './score.component';
