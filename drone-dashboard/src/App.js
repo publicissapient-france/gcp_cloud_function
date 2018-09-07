@@ -4,15 +4,19 @@ import GoogleMapReact from 'google-map-react';
 import {get} from 'lodash';
 
 import logo from './assets/logo.svg';
-import {COLORS} from './styles/variables';
-import DroneSprite from './components/DroneSprite';
-import ParcelSprite from './components/ParcelSprite';
+import { CustomMapElement } from './components/CustomMapElement';
+import { Drone } from './components/Drone';
+import { Parcel } from './components/Parcel';
+import { Pin, PinContainer } from './components/Pin';
 import PinSprite from './components/PinSprite';
+import {
+    Score,
+    ScoresContainer,
+} from './components/Score';
 import {
     getDronesAndParcels,
     parseDroneInfo,
     parseParcelInfo,
-    parseDroneTeamColor,
     parseScores,
 } from './services/drone.service';
 import {
@@ -63,115 +67,14 @@ const GoogleMapContainer = styled.div`
   border-radius: 15px;
 `;
 
-const DroneContainer = styled.div`
-  div {  
-    svg {
-      width: ${GAME_PARAMETERS.drone};
-      height: ${GAME_PARAMETERS.drone};
-      fill: ${(props) => COLORS[parseDroneTeamColor(props.teamId)]};
-      filter: drop-shadow(2px 4px 4px rgba(0,0,0,0.8));
-    }
-  }
-`;
-
-const ScoreItem = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  min-height: 50px;
-  font-size: 30px;
-  font-weight: bold;
-  color: ${(props) => COLORS[parseDroneTeamColor(props.teamId)]};
-  border: 1px solid ${(props) => COLORS[parseDroneTeamColor(props.teamId)]};
-  border-left: 20px solid ${(props) => COLORS[parseDroneTeamColor(props.teamId)]};
-  border-radius: 5px;
-`;
-
-const ScoresContainer = styled.div`
-  display: flex;
-  flex: 0 1 200px;
-  flex-flow: column nowrap;
-  align-items: flex-start;
-  //background: deepskyblue;
-  padding: 0 15px;
-  ${ScoreItem}:not(:last-of-type) {
-    margin-bottom: 10px;
-  }
-`;
-
-const ParcelContainer = styled.div`
-  div {  
-    svg {
-      width: ${GAME_PARAMETERS.parcel};
-      height: ${GAME_PARAMETERS.parcel};
-      fill: ${(props) => COLORS[parseDroneTeamColor(props.teamId)]};
-      filter: drop-shadow(2px 4px 3px rgba(0,0,0,0.8));
-    }
-  }
-`;
-
-const PinContainer = styled.div`
-  div {  
-    svg {
-      width: ${GAME_PARAMETERS.pin};
-      height: ${GAME_PARAMETERS.pin};
-      fill: ${(props) => COLORS[parseDroneTeamColor(props.teamId)]};
-      filter: drop-shadow(2px 6px 4px rgba(0,0,0,0.8));
-    }
-  }
-`;
-
-const CounterBubble = styled.div`
-  position: relative;
-  color: #fff;
-  font-weight: bold;
-  font-size: 12px;
-  padding: 2px;
-  //border: #fff solid 1px;
-  margin-top: -45px;
-  background: ${(props) => COLORS[parseDroneTeamColor(props.teamId)]};
-  &:before {
-    position: absolute;
-    top: -23px;
-    left: 50px;
-    width: 0; 
-    height: 0; 
-    border-left: 5px solid transparent;
-    border-right: 5px solid transparent;
-    border-bottom: 5px solid ${(props) => COLORS[parseDroneTeamColor(props.teamId)]};
-    z-index: 200;
-  }
-`;
-
-const CustomMapElement = styled.div`
-  position: relative;
-  width: 4px;
-  height: 4px;
-  ${DroneContainer} {
-    position: absolute;
-    top: calc(-${GAME_PARAMETERS.drone} / 2);
-    left: calc(-${GAME_PARAMETERS.drone} / 2);
-  }
-  ${ParcelContainer} {
-    position: absolute;
-    top: calc(-${GAME_PARAMETERS.parcel} / 2);
-    left: calc(-${GAME_PARAMETERS.parcel} / 2);
-  }
-  ${PinContainer} {
-    position: absolute;
-    top: calc(-${GAME_PARAMETERS.pin} / 2);
-    left: calc(-${GAME_PARAMETERS.pin} / 2);
-  }
-`;
-
 class App extends Component {
     static defaultProps = {
         ...GAME_PARAMETERS.map,
-        markers: [
-            {lat: 53.42728, lng: -6.24357},
-            {lat: 43.681583, lng: -79.61146}
-        ],
+        // data for polyline test
+        // markers: [
+        //     {lat: 53.42728, lng: -6.24357},
+        //     {lat: 43.681583, lng: -79.61146}
+        // ],
     };
 
     constructor() {
@@ -187,13 +90,23 @@ class App extends Component {
         this.startDrone();
     }
 
-    startDrone = () => {
+    startDrone = async () => {
         this.timer = setInterval(async () => {
             // this.moveDrones();
             const {drones, parcels} = await getDronesAndParcels();
             this.updateDrones({drones, parcels});
         }, this.props.speed);
     };
+
+    updateDrones = ({drones, parcels}) => {
+        const dronesNext = parseDroneInfo(drones || []);
+        const parcelsNext = parcels ? parseParcelInfo(parcels) : [];
+        this.setState({
+            drones: dronesNext,
+            parcels: parcelsNext,
+        }, console.log(this.state));
+    };
+
 
     // moveDrones() {
     //   const updatedDrones = this.state.drones.map((drone) => {
@@ -207,15 +120,6 @@ class App extends Component {
     // stopDrone = () => {
     //   clearInterval(this.timer);
     // }
-
-    updateDrones = ({drones, parcels}) => {
-        const dronesNext = parseDroneInfo(drones || []);
-        const parcelsNext = parcels ? parseParcelInfo(parcels) : [];
-        this.setState({
-            drones: dronesNext,
-            parcels: parcelsNext,
-        }, console.log(this.state));
-    };
 
     // renderPolylines(map, maps) {
     //     /** Example of rendering geodesic polyline */
@@ -251,86 +155,13 @@ class App extends Component {
     //     map.fitBounds(bounds)
     // }
 
-    renderDrone(drone) {
-        if (drone.latitude && drone.longitude) {
-            return (
-                <CustomMapElement
-                    key={drone.teamId}
-                    lat={drone.latitude}
-                    lng={drone.longitude}
-                    text={`${drone.teamId} is moving`}
-                >
-                    <DroneContainer {...drone} >
-                        <DroneSprite/>
-                        {this.renderDroneParcelsCounter(drone)}
-                    </DroneContainer>
-                </CustomMapElement>
-            )
-        }
-    }
-
-    renderDroneParcelsCounter(drone) {
-        return (
-            drone.parcels &&
-            drone.parcels.length > 0 &&
-            <CounterBubble {...drone}>
-                {drone.parcels.length}
-            </CounterBubble>
-        );
-    }
-
-    renderParcelScoreCounter(parcel) {
-        return (
-            parcel.score &&
-            <CounterBubble {...parcel}>
-                {parcel.score}
-            </CounterBubble>
-        );
-    }
-
-    renderParcel(parcel, index) {
-        const {location, teamId} = parcel;
-        return (
-            <CustomMapElement
-                key={`parcel-${teamId}-${index}`}
-                lat={get(location, 'pickup.latitude')}
-                lng={get(location, 'pickup.longitude')}
-            >
-                <ParcelContainer {...parcel}>
-                    <ParcelSprite/>
-                </ParcelContainer>
-            </CustomMapElement>
-        );
-    }
-
-    renderDeliveryPin(parcel, index) {
-        const {location, teamId, status} = parcel;
-        return (
-            status && status === 'grabbed' &&
-            <CustomMapElement
-                key={`delivery-pin-${teamId}-${index}`}
-                lat={get(location, 'delivery.latitude')}
-                lng={get(location, 'delivery.longitude')}
-            >
-                <PinContainer teamId={teamId}>
-                    <PinSprite/>
-                    {this.renderParcelScoreCounter(parcel)}
-                </PinContainer>
-            </CustomMapElement>
-        );
-    }
-
     renderBoundaries() {
-        return this.props.pinBoundaries.map((pin, index) => (
-            <CustomMapElement
+        return this.props.pinBoundaries.map((boundary, index) => (
+            <Pin
                 key={`boundary-${index}`}
-                lat={get(pin, 'latitude')}
-                lng={get(pin, 'longitude')}
-            >
-                <PinContainer>
-                    <PinSprite/>
-                </PinContainer>
-            </CustomMapElement>
+                lat={get(boundary, 'latitude')}
+                lng={get(boundary, 'longitude')}
+            />
         ))
     }
 
@@ -349,10 +180,26 @@ class App extends Component {
                             defaultZoom={this.props.zoom}
                             // onGoogleApiLoaded={({map, maps}) => this.renderPolylines(map, maps)}
                         >
-                            {this.state.drones.map((drone) => this.renderDrone(drone))}
+                            {this.state.drones.map((drone) =>
+                                <Drone
+                                    {...drone}
+                                    key={drone.teamId}
+                                    lat={drone.latitude}
+                                    lng={drone.longitude}
+                                />
+                            )}
                             {this.state.parcels.map((parcel, index) => [
-                                    this.renderParcel(parcel, index),
-                                    this.renderDeliveryPin(parcel, index)
+                                    <Parcel
+                                        key={`parcel-${parcel.teamId}-${index}`}
+                                        lat={get(parcel, 'location.pickup.latitude')}
+                                        lng={get(parcel, 'location.pickup.longitude')}
+                                        {...parcel}
+                                    />,
+                                    <Pin
+                                        key={`delivery-pin-${parcel.teamId}-${index}`}
+                                        lat={get(parcel, 'location.delivery.latitude')}
+                                        lng={get(parcel, 'location.delivery.longitude')}
+                                    />
                                 ]
                             )}
                             {this.props.showBoundaries ? this.renderBoundaries() : null}
@@ -360,9 +207,7 @@ class App extends Component {
                     </GoogleMapContainer>
                     <ScoresContainer>
                         {parseScores(this.state.drones).map((drone, index) => (
-                            <ScoreItem {...drone}>
-                                {drone.score}
-                            </ScoreItem>
+                            <Score {...drone} />
                         ))}
                     </ScoresContainer>
                 </Section>

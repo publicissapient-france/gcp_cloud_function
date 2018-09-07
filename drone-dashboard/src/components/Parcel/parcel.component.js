@@ -1,0 +1,32 @@
+import React, { Component } from 'react';
+import styled from 'styled-components';
+import {get} from "lodash";
+
+import {COLORS} from '../../styles/variables';
+import {GAME_PARAMETERS} from '../../constants';
+import { CustomMapElement } from '../CustomMapElement';
+import ParcelSprite from '../ParcelSprite';
+import {parseDroneTeamColor} from '../../services/drone.service';
+
+export const ParcelContainer = styled.div`
+  div {  
+    svg {
+      width: ${GAME_PARAMETERS.parcel};
+      height: ${GAME_PARAMETERS.parcel};
+      fill: ${(props) => COLORS[parseDroneTeamColor(props.teamId)]};
+      filter: drop-shadow(2px 4px 3px rgba(0,0,0,0.8));
+    }
+  }
+`;
+
+export class Parcel extends Component {
+    render() {
+        return (
+            <CustomMapElement>
+                <ParcelContainer {...this.props}>
+                    <ParcelSprite/>
+                </ParcelContainer>
+            </CustomMapElement>
+        );
+    }
+}
