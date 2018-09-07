@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 
 import {COLORS} from '../../styles/variables';
-import {GAME_PARAMETERS} from '../../constants';
+import {GAME_PARAMETERS, STATUS} from '../../constants';
 import { CustomMapElement } from '../CustomMapElement';
 import PinSprite from '../PinSprite';
 import {CounterBubble} from '../CounterBubble';
@@ -33,8 +33,8 @@ export class Pin extends Component {
         return (
             this.props.status &&
             (
-                this.props.status === 'admin' ||
-                this.props.status === 'grabbed'
+                this.props.status === STATUS.TOGGLE ||
+                this.props.status === STATUS.GRABBED
             ) ?
             <CustomMapElement>
                 <PinContainer {...this.props} >

@@ -45,6 +45,15 @@ export const TEAMS = [
     'green',
     'orange',
     'rose',
-    'violet',
+    'purple',
     'black',
+    'grey',
+    'pink',
 ];
+
+export const STATUS = {
+    READY_FAILED: 'READY_FAILED',
+    GRABBED: 'GRABBED',
+    TOGGLE: 'TOGGLE',
+    MOVE: 'MOVE',
+};
