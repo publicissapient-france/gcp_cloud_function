@@ -189,13 +189,7 @@ const upsertDrone = (droneInfo) => {
     console.log(`-- droneInfoKey : ${JSON.stringify(droneInfoKey)}`);
     const droneInfoEntity = {
         key: droneInfoKey,
-        data: {
-            command: droneInfo.command,
-            location: droneInfo.location,
-            parcels: droneInfo.parcels,
-            topic: droneInfo.topic,
-            score: droneInfo.score
-        },
+        data: droneInfo,
     };
 
     datastore
