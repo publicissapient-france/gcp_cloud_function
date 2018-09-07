@@ -41,4 +41,6 @@ export class Pin extends Component {
             : null
         );
     }
+
+
 }

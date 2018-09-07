@@ -4,11 +4,9 @@ import GoogleMapReact from 'google-map-react';
 import {get} from 'lodash';
 
 import logo from './assets/logo.svg';
-import { CustomMapElement } from './components/CustomMapElement';
 import { Drone } from './components/Drone';
 import { Parcel } from './components/Parcel';
-import { Pin, PinContainer } from './components/Pin';
-import PinSprite from './components/PinSprite';
+import { Pin } from './components/Pin';
 import {
     Score,
     ScoresContainer,
@@ -94,11 +92,11 @@ class App extends Component {
         this.timer = setInterval(async () => {
             // this.moveDrones();
             const dronesAndParcels = await getDronesAndParcels();
-            this.updateDrones(dronesAndParcels || {drones: [], parcels: []});
+            this.updateGame(dronesAndParcels || {drones: [], parcels: []});
         }, this.props.speed);
     };
 
-    updateDrones = ({drones, parcels}) => {
+    updateGame = ({drones, parcels}) => {
         const dronesNext = parseDroneInfo(drones || []);
         const parcelsNext = parcels ? parseParcelInfo(parcels) : [];
         this.setState({

@@ -11,6 +11,7 @@ export const CounterBubble = styled.div`
   padding: 2px;
   //border: #fff solid 1px;
   margin-top: -45px;
+  min-width: 20px;
   background: ${(props) => COLORS[parseDroneTeamColor(props.teamId)]};
   &:before {
     position: absolute;

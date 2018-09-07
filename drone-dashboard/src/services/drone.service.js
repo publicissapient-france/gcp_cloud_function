@@ -73,7 +73,7 @@ export const getDronesAndParcels = async () => {
             {
                 teamId: 'yellow',
                 data: {
-                    score: 1500,
+                    score: 15000000,
                     command: {
                         topicUrl: 'projects/jbc-some-tests/topics/drone-events-topic',
                         name: 'READY',
@@ -115,7 +115,7 @@ export const getDronesAndParcels = async () => {
                 score: 200,
             },
             {
-                score: 200,
+                score: 20000,
                 teamId: 'blue',
                 location: {
                     pickup: {
