@@ -31,7 +31,11 @@ export class Pin extends Component {
 
     render() {
         return (
-            this.props.status && this.props.status === 'grabbed' ?
+            this.props.status &&
+            (
+                this.props.status === 'admin' ||
+                this.props.status === 'grabbed'
+            ) ?
             <CustomMapElement>
                 <PinContainer {...this.props} >
                     <PinSprite/>

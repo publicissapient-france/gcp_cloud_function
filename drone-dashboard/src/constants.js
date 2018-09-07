@@ -1,16 +1,15 @@
 export const GAME_PARAMETERS = {
-    step: 0.0004,
     speed: 3000,
+    step: 0.0004,
     drone: '22px',
     parcel: '20px',
     pin: '20px',
-    map: {
-        center: {
-            lat: 48.86,
-            lng: 2.340,
-        },
-        zoom: 12,
+    // Google map params
+    center: {
+        lat: 48.86,
+        lng: 2.340,
     },
+    zoom: 12,
     boundaries: {
         minLatitude: 48.816000,
         maxLatitude: 48.900000,

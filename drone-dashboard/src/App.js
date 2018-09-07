@@ -67,7 +67,7 @@ const GoogleMapContainer = styled.div`
 
 class App extends Component {
     static defaultProps = {
-        ...GAME_PARAMETERS.map,
+        ...GAME_PARAMETERS,
         // data for polyline test
         // markers: [
         //     {lat: 53.42728, lng: -6.24357},
@@ -159,6 +159,7 @@ class App extends Component {
                 key={`boundary-${index}`}
                 lat={get(boundary, 'latitude')}
                 lng={get(boundary, 'longitude')}
+                status={'admin'}
             />
         ))
     }
