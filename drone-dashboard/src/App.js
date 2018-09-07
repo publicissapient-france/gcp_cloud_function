@@ -5,9 +5,9 @@ import {get} from 'lodash';
 
 import logo from './assets/logo.svg';
 import {COLORS} from './styles/variables';
-import Drone from './components/Drone';
-import Parcel from './components/Parcel';
-import Pin from './components/Pin';
+import DroneSprite from './components/DroneSprite';
+import ParcelSprite from './components/ParcelSprite';
+import PinSprite from './components/PinSprite';
 import {
     getDronesAndParcels,
     parseDroneInfo,
@@ -261,7 +261,7 @@ class App extends Component {
                     text={`${drone.teamId} is moving`}
                 >
                     <DroneContainer {...drone} >
-                        <Drone/>
+                        <DroneSprite/>
                         {this.renderDroneParcelsCounter(drone)}
                     </DroneContainer>
                 </CustomMapElement>
@@ -297,7 +297,7 @@ class App extends Component {
                 lng={get(location, 'pickup.longitude')}
             >
                 <ParcelContainer {...parcel}>
-                    <Parcel/>
+                    <ParcelSprite/>
                 </ParcelContainer>
             </CustomMapElement>
         );
@@ -313,7 +313,7 @@ class App extends Component {
                 lng={get(location, 'delivery.longitude')}
             >
                 <PinContainer teamId={teamId}>
-                    <Pin/>
+                    <PinSprite/>
                     {this.renderParcelScoreCounter(parcel)}
                 </PinContainer>
             </CustomMapElement>
@@ -328,7 +328,7 @@ class App extends Component {
                 lng={get(pin, 'longitude')}
             >
                 <PinContainer>
-                    <Pin/>
+                    <PinSprite/>
                 </PinContainer>
             </CustomMapElement>
         ))
