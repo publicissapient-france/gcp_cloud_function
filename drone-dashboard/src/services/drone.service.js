@@ -1,7 +1,11 @@
 import {get} from 'lodash';
+import { darken } from 'polished';
+
+import {COLORS} from "../styles/variables";
 
 export const getDronesAndParcels = async () => {
-    const mockData = {
+    const mockData_02 = {"drones":[{"teamId":"blue","data":{"location":{"latitude":48.8653487,"longitude":2.3788396}}},{"teamId":"red","data":{"location":{"latitude":48.80621744882436,"longitude":2.1723810610753986}}},{"teamId":"yellow","data":{"command":{"location":{"latitude":48.806294,"longitude":2.171485},"name":"MOVE"},"parcels":[{"teamId":"yellow","status":"GRABBED","location":{"pickup":{"latitude":48.804986,"longitude":2.188315},"delivery":{"longitude":2.171485,"latitude":48.806294}},"parcelId":"136e5a64-2050-4fa7-8cfc-72df26ca164d","score":100},{"parcelId":"136e5a64-2050-4fa7-8cfc-72df26ca164d","score":100,"teamId":"yellow","status":"GRABBED","location":{"pickup":{"latitude":48.804986,"longitude":2.188315},"delivery":{"latitude":48.806294,"longitude":2.171485}}},{"parcelId":"136e5a64-2050-4fa7-8cfc-72df26ca164d","score":100,"teamId":"yellow","status":"GRABBED","location":{"pickup":{"latitude":48.804986,"longitude":2.188315},"delivery":{"latitude":48.806294,"longitude":2.171485}}}],"location":{"latitude":48.805543474568886,"longitude":2.181142036232819},"topicUrl":"projects/jbc-some-tests/topics/drone-events-topic"}}],"parcels":[{"parcelId":"136e5a64-2050-4fa7-8cfc-72df26ca164d","score":100,"teamId":"yellow","status":"GRABBED","location":{"pickup":{"latitude":48.804986,"longitude":2.188315},"delivery":{"longitude":2.171485,"latitude":48.806294}}},{"score":200,"teamId":"yellow","location":{"pickup":{"latitude":48.810123,"longitude":2.190504},"delivery":{"latitude":48.806294,"longitude":2.171485}}},{"teamId":"blue","location":{"pickup":{"latitude":48.8753487,"longitude":2.3088396},"delivery":{"latitude":48.85,"longitude":2.2}},"score":200}]};
+    const mockData_01 = {
         drones: [
             {
                 teamId: 'blue',
@@ -34,6 +38,10 @@ export const getDronesAndParcels = async () => {
                 teamId: 'red',
                 data: {
                     score: 100,
+                    command: {
+                        name: 'MOVE',
+                    },
+                    topicUrl: 'some/topic',
                     location: {
                         latitude: 48.80621744882436,
                         longitude: 2.1723810610753986,
@@ -41,7 +49,7 @@ export const getDronesAndParcels = async () => {
                 },
             },
             {
-                teamId: 'violet',
+                teamId: 'purple',
                 data: {
                     score: 150,
                     location: {
@@ -63,21 +71,21 @@ export const getDronesAndParcels = async () => {
             {
                 teamId: 'pink',
                 data: {
-                    score: 200,
                     location: {
                         latitude: 48.80621744882436,
                         longitude: 2.1723810610753986,
                     },
+                    topicUrl: 'projects/jbc-some-tests/topics/drone-events-topic',
                 },
             },
             {
                 teamId: 'yellow',
                 data: {
-                    score: 15000000,
+                    score: 150000,
                     command: {
-                        topicUrl: 'projects/jbc-some-tests/topics/drone-events-topic',
-                        name: 'READY',
+                        name: 'READY_FAILED',
                     },
+                    topicUrl: 'projects/jbc-some-tests/topics/drone-events-topic',
                     location: {
                         latitude: 48.85621744882436,
                         longitude: 2.21723810610753986,
@@ -127,7 +135,7 @@ export const getDronesAndParcels = async () => {
                         latitude: 48.85,
                     },
                 },
-                status: 'grabbed',
+                status: 'GRABBED',
             },
         ],
     };
@@ -141,7 +149,8 @@ export const getDronesAndParcels = async () => {
             }
         );
         return await response.json();
-        // return mockData;
+        // return mockData_01;
+        // return mockData_02;
     } catch (error) {
         console.log(error);
     }
@@ -157,6 +166,7 @@ export const parseDroneInfo = (drones) => {
         let droneCommand = get(drone, 'data.command');
         let droneParcels = get(drone, 'data.parcels');
         let droneScore = get(drone, 'data.score');
+        let droneTopicUrl = get(drone, 'data.topicUrl');
         const droneBase = {
             teamId: drone.teamId,
         };
@@ -172,7 +182,8 @@ export const parseDroneInfo = (drones) => {
             ...dronePosition,
             command: droneCommand,
             parcels: droneParcels,
-            score: droneScore,
+            score: droneScore || 0,
+            topicUrl: droneTopicUrl,
         };
     })
 };
@@ -182,6 +193,10 @@ export const parseParcelInfo = (data) => {
 };
 
 export const parseDroneTeamColor = (teamId) => (teamId || 'default').match(/-/g) ? teamId.split('-')[0].toLowerCase() : (teamId || 'default');
+
+export const parseScoreColor = (props) => COLORS[props.failure ? 'grey' : parseDroneTeamColor(props.teamId)];
+
+export const parseScoreBorderColor = (props) => props.failure ? darken(0.2, COLORS[parseDroneTeamColor(props.teamId)]) : COLORS[parseDroneTeamColor(props.teamId)];
 
 /*****************************/
 /** random drones generator **/
