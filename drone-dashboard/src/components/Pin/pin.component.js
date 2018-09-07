@@ -7,7 +7,6 @@ import { CustomMapElement } from '../CustomMapElement';
 import PinSprite from '../PinSprite';
 import {CounterBubble} from '../CounterBubble';
 import {parseDroneTeamColor} from '../../services/drone.service';
-import {get} from "lodash";
 
 export const PinContainer = styled.div`
   div {  
@@ -42,6 +41,4 @@ export class Pin extends Component {
             : null
         );
     }
-
-
 }
