@@ -1,10 +1,4 @@
-import Bluebird from 'bluebird';
 import {get} from 'lodash';
-
-import {
-    GAME_PARAMETERS,
-    TEAMS,
-} from '../constants';
 
 export const getDronesAndParcels = async () => {
     const mockData = {
@@ -218,26 +212,4 @@ export const parseDroneTeamColor = (teamId) => (teamId || 'default').match(/-/g
 //         latitude: eval(`${drone.latitude} ${drone.latitudeOperator} ${GAME_PARAMETERS.step} * ${getRandomFloat(1.5, 2)}`),
 //         longitude: eval(`${drone.longitude} ${drone.longitudeOperator} ${GAME_PARAMETERS.step} * ${getRandomFloat(1.5, 2)}`),
 //     }
-// };
-
-// TODO to remove
-// export const getParcelInfo = async () => {
-//     return Bluebird.reduce(TEAMS, async (acc, teamId) => {
-//         try {
-//             const response = await fetch(
-//                 `https://europe-west1-jbc-atl-sal-func-techevent.cloudfunctions.net/parcelList?teamId=${teamId}`,
-//                 {
-//                     method: 'GET',
-//                     mode: 'cors',
-//                 }
-//             );
-//             const parcelData = await response.json();
-//             return [
-//                 ...acc,
-//                 ...parcelData,
-//             ];
-//         } catch (error) {
-//             console.log(error);
-//         }
-//     }, []);
 // };

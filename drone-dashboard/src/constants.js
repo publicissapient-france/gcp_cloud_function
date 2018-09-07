@@ -39,4 +39,13 @@ export const GAME_PARAMETERS = {
     operators: ['-', '+'],
 };
 
-export const TEAMS = ['blue', 'red', 'yellow'];
+export const TEAMS = [
+    'blue',
+    'red',
+    'yellow',
+    'green',
+    'orange',
+    'rose',
+    'violet',
+    'black',
+];
