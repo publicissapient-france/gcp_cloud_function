@@ -199,6 +199,7 @@ class App extends Component {
                                         key={`delivery-pin-${parcel.teamId}-${index}`}
                                         lat={get(parcel, 'location.delivery.latitude')}
                                         lng={get(parcel, 'location.delivery.longitude')}
+                                        {...parcel}
                                     />
                                 ]
                             )}
