@@ -7,11 +7,6 @@ import logo from './assets/logo.svg';
 import { Admin } from './containers/Admin';
 import { GameDashboard } from './containers/GameDashboard';
 import {
-    getDronesAndParcels,
-    parseDroneInfo,
-    parseParcelInfo,
-} from './services/drone.service';
-import {
     GAME_PARAMETERS,
 } from './constants';
 
@@ -70,51 +65,3 @@ class App extends Component {
 }
 
 export default App;
-
-
-// moveDrones() {
-//   const updatedDrones = this.state.drones.map((drone) => {
-//     return moveDrone(drone);
-//   });
-//   this.setState({
-//     drones: updatedDrones,
-//   });
-// }
-//
-// stopDrone = () => {
-//   clearInterval(this.timer);
-// }
-
-// renderPolylines(map, maps) {
-//     /** Example of rendering geodesic polyline */
-//     let geodesicPolyline = new maps.Polyline({
-//         path: this.props.markers,
-//         geodesic: true,
-//         strokeColor: '#00a1e1',
-//         strokeOpacity: 1.0,
-//         strokeWeight: 4
-//     })
-//     geodesicPolyline.setMap(map)
-//
-//     /** Example of rendering non geodesic polyline (straight line) */
-//     let nonGeodesicPolyline = new maps.Polyline({
-//         path: this.props.markers,
-//         geodesic: false,
-//         strokeColor: '#e4e4e4',
-//         strokeOpacity: 0.7,
-//         strokeWeight: 3
-//     })
-//     nonGeodesicPolyline.setMap(map)
-//
-//     this.fitBounds(map, maps)
-// }
-//
-// fitBounds(map, maps) {
-//     var bounds = new maps.LatLngBounds()
-//     for (let marker of this.props.markers) {
-//         bounds.extend(
-//             new maps.LatLng(marker.lat, marker.lng)
-//         )
-//     }
-//     map.fitBounds(bounds)
-// }
