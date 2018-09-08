@@ -210,7 +210,8 @@ const checkParcelAround = async (droneLocation, teamId) => {
 
     const query = datastore
         .createQuery('Parcel')
-        .filter('teamId', teamId);
+        .filter('teamId', '=', teamId)
+        .filter('status', '=', 'AVAILABLE');
 
     try {
         console.log('running query');
@@ -269,7 +270,7 @@ const moveDrone = async function (droneInfo, teamId) {
                 removeParcelFromDrone(droneInfo, deliveredParcel);
                 updateDroneScore(droneInfo, deliveredParcel);
 
-                deleteParcel();
+                deleteParcel(deliveredParcel.parcelId);
 
                 const data = JSON.stringify({ teamId, droneInfo, event: 'PARCEL_DELIVERED' });
                 publishInTopic(data, topicName);
@@ -320,6 +321,7 @@ const moveDrone = async function (droneInfo, teamId) {
 };
 
 const deleteParcel = async (parcelId) => {
+    console.log(`deleteParcel will delete parcel with Id ${parcelId}}`)
     const parcelKey = datastore.key(['Parcel', parcelId]);
     await datastore.delete(parcelKey);
 };

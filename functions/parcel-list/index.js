@@ -13,7 +13,8 @@ exports.parcelList = async (req, res) => {
     const teamId = req.query.teamId;
     const query = datastore
         .createQuery('Parcel')
-        .filter('teamId', teamId);
+        .filter('teamId', '=', teamId)
+        .filter('status', '=', 'AVAILABLE');
 
     // Enable CORS
     res.set('Access-Control-Allow-Origin', "*");
@@ -22,7 +23,7 @@ exports.parcelList = async (req, res) => {
     try {
         const results = await datastore.runQuery(query);
         const parcels = results[0];
-        
+
         const parcelsWithParcelId = parcels.map(p => {
             p.parcelId = p[datastore.KEY].name;
             return p;
