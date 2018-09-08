@@ -130,25 +130,38 @@ class App extends Component {
 
     renderLeaderBoard() {
         const scores = parseScores(this.state.drones);
-        let prevScore = 0;
+        let previousScore = 0;
         let nextScore = 0;
+        let previousDraw = false;
+        let previousIndex;
         return scores.map((drone, index) => {
             let scoreIndex = index;
             const currentScore = drone.score || 0;
             nextScore = scores[index + 1] ? (scores[index + 1].score || 0) : 0;
-            const isDraw = currentScore === prevScore || currentScore ===  nextScore;
+            const isDraw = currentScore === previousScore || currentScore ===  nextScore;
+            const isPreviousDraw = previousDraw;
             if (
                 isDraw &&
-                currentScore === prevScore
+                currentScore === previousScore
             ) {
-                scoreIndex = index - 1;
+                scoreIndex = previousIndex;
             }
-            prevScore = currentScore;
+            if (
+                isPreviousDraw &&
+                currentScore < previousScore
+            ) {
+                scoreIndex = previousIndex + 1;
+            }
+            console.log(currentScore, index, scoreIndex, previousIndex, previousScore, nextScore, isDraw, isPreviousDraw)
+            previousScore = currentScore;
+            previousDraw = isDraw;
+            previousIndex = scoreIndex;
             return (
                 <Score
                     key={`score-${drone.teamId}-${index}`}
                     index={scoreIndex}
                     draw={isDraw}
+                    isPreviousDraw={isPreviousDraw}
                     {...drone}
                 />
             );

@@ -37,7 +37,7 @@ export const getDronesAndParcels = async () => {
             {
                 teamId: 'red',
                 data: {
-                    score: 100,
+                    score: 300,
                     command: {
                         name: 'MOVE',
                     },
