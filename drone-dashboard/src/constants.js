@@ -53,6 +53,7 @@ export const TEAMS = [
 
 export const STATUS = {
     READY_FAILED: 'READY_FAILED',
+    AVAILABLE: 'AVAILABLE',
     GRABBED: 'GRABBED',
     TOGGLE: 'TOGGLE',
     MOVE: 'MOVE',

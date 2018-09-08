@@ -25,7 +25,8 @@ export class Parcel extends Component {
     render() {
         return (
             !this.props.status ||
-            (this.props.status && this.props.status !== STATUS.GRABBED) ?
+            (this.props.status && this.props.status !== STATUS.GRABBED) ||
+            (this.props.status && this.props.status === STATUS.AVAILABLE) ?
             <CustomMapElement>
                 <ParcelContainer {...this.props}>
                     <ParcelSprite/>
