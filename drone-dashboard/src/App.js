@@ -35,10 +35,10 @@ const AppContainer = styled.div`
       height: 60px;
       padding-top: 30px;
       padding-bottom: 20px;
-      color: #333;
     }
 
     .App-title {
+      color: #2C374A;
       font-size: 1.5em;
     }
 
@@ -133,7 +133,7 @@ class App extends Component {
             <AppContainer>
                 <header className="App-header">
                     <img src={logo} className="App-logo" alt="logo"/>
-                    <h1 className="App-title">Google Functions drones race</h1>
+                    <h1 className="App-title">Google Cloud Functions ‡ DDD (drones dash delivery)</h1>
                 </header>
                 <Section>
                     <GoogleMapContainer>

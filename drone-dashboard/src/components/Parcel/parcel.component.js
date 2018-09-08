@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
-import {get} from "lodash";
 
 import {COLORS} from '../../styles/variables';
 import {
