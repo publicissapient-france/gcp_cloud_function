@@ -3,7 +3,10 @@ import styled from 'styled-components';
 import {get} from "lodash";
 
 import {COLORS} from '../../styles/variables';
-import {GAME_PARAMETERS} from '../../constants';
+import {
+    GAME_PARAMETERS,
+    STATUS,
+} from '../../constants';
 import { CustomMapElement } from '../CustomMapElement';
 import ParcelSprite from '../ParcelSprite';
 import {parseDroneTeamColor} from '../../services/drone.service';
@@ -22,11 +25,14 @@ export const ParcelContainer = styled.div`
 export class Parcel extends Component {
     render() {
         return (
+            this.props.status &&
+            this.props.status !== STATUS.GRABBED ?
             <CustomMapElement>
                 <ParcelContainer {...this.props}>
                     <ParcelSprite/>
                 </ParcelContainer>
             </CustomMapElement>
+            : null
         );
     }
 }
