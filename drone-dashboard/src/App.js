@@ -154,13 +154,13 @@ class App extends Component {
                             {this.state.parcels.map((parcel, index) => [
                                     <Pin
                                         {...parcel}
-                                        key={`delivery-pin-${parcel.teamId}-${index}`}
+                                        key={`delivery-pin-${parcel.teamId}-${parcel.parcelId || index}`}
                                         lat={get(parcel, 'location.delivery.latitude')}
                                         lng={get(parcel, 'location.delivery.longitude')}
                                     />,
                                     <Parcel
                                         {...parcel}
-                                        key={`parcel-${parcel.teamId}-${index}`}
+                                        key={`parcel-${parcel.teamId}-${parcel.parcelId || index}`}
                                         lat={get(parcel, 'location.pickup.latitude')}
                                         lng={get(parcel, 'location.pickup.longitude')}
                                     />,
