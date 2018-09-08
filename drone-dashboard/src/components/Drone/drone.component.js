@@ -9,7 +9,7 @@ import DroneSprite from '../DroneSprite';
 import {parseDroneTeamColor} from '../../services/drone.service';
 
 export const DroneContainer = styled.div`
-  div {  
+  div {
     svg {
       width: ${GAME_PARAMETERS.drone};
       height: ${GAME_PARAMETERS.drone};

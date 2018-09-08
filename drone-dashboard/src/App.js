@@ -152,18 +152,18 @@ class App extends Component {
                                 />
                             )}
                             {this.state.parcels.map((parcel, index) => [
-                                    <Parcel
-                                        key={`parcel-${parcel.teamId}-${index}`}
-                                        lat={get(parcel, 'location.pickup.latitude')}
-                                        lng={get(parcel, 'location.pickup.longitude')}
-                                        {...parcel}
-                                    />,
                                     <Pin
+                                        {...parcel}
                                         key={`delivery-pin-${parcel.teamId}-${index}`}
                                         lat={get(parcel, 'location.delivery.latitude')}
                                         lng={get(parcel, 'location.delivery.longitude')}
+                                    />,
+                                    <Parcel
                                         {...parcel}
-                                    />
+                                        key={`parcel-${parcel.teamId}-${index}`}
+                                        lat={get(parcel, 'location.pickup.latitude')}
+                                        lng={get(parcel, 'location.pickup.longitude')}
+                                    />,
                                 ]
                             )}
                             {this.props.showBoundaries ? this.renderBoundaries() : null}

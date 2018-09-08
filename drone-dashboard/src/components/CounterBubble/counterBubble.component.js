@@ -9,20 +9,8 @@ export const CounterBubble = styled.div`
   font-weight: bold;
   font-size: 12px;
   padding: 2px;
-  //border: #fff solid 1px;
   margin-top: -45px;
   min-width: 20px;
   background: ${(props) => COLORS[parseDroneTeamColor(props.teamId)]};
-  &:before {
-    position: absolute;
-    top: -23px;
-    left: 50px;
-    width: 0; 
-    height: 0; 
-    border-left: 5px solid transparent;
-    border-right: 5px solid transparent;
-    border-bottom: 5px solid ${(props) => COLORS[parseDroneTeamColor(props.teamId)]};
-    z-index: 200;
-  }
 `;
 
