@@ -25,6 +25,9 @@ export const ScoreItem = styled.div`
       margin-right: 3px;
       margin-left: -26px;
     }
+    &.default {
+      color: darkgrey;
+    }
     &.failure {
       color: red;
       animation: blink 1s steps(1) infinite;
@@ -36,18 +39,21 @@ export const ScoreItem = styled.div`
       color: rgba(0,195,255,0.69);;
       animation: blink 2.5s steps(1) infinite;
     }
-    &.leader_board {
-      margin-left: 7px;
-    }
-    &.leader_1 {
-      color: deeppink;
-    }
+  }
+  .leader_board {
+    margin-left: 7px;
+    font-weight: bold;
+    color: deeppink;
   }
   @keyframes blink { 50% { color: transparent; } }
   @-webkit-keyframes blink { 50% { color: transparent; } }
 `;
 
 export class Score extends Component {
+    isDefaultStatus() {
+        return !this.hasTopicUrl() && !this.hasCommand();
+    }
+
     hasTopicUrl() {
         return !!this.props.topicUrl;
     }
@@ -58,6 +64,14 @@ export class Score extends Component {
                 ? this.props.command && this.props.command.name === status
                 : !!this.props.command && !!this.props.command.name
         );
+    }
+
+    renderDefaultStatus() {
+        return (
+            this.isDefaultStatus()
+            ? <i className="material-icons status default">live_help</i>
+            : null
+        )
     }
 
     renderReadyStatus() {
@@ -91,20 +105,40 @@ export class Score extends Component {
             default:
                 return null;
             case 0:
-                return <i className="material-icons leader_board leader_1">star</i>
+                return (
+                    <span className="leader_board leader_1">
+                        <i className="material-icons leader_board leader_1">star</i>
+                        1
+                    </span>
+                );
             case 1:
-                return <i className="material-icons leader_board leader_1">star_half</i>
+                return (
+                    <span className="leader_board leader_2">
+                        <i className="material-icons leader_board leader_2">star_half</i>
+                        2
+                    </span>
+                );
             case 2:
-                return <i className="material-icons leader_board leader_1">star_border</i>
+                return (
+                    <span className="leader_board leader_3">
+                        <i className="material-icons leader_board leader_3">star_border</i>
+                        3
+                    </span>
+                );
         }
     }
     render() {
         return (
-            <ScoreItem {...this.props} failure={this.hasCommand(STATUS.READY_FAILED)}>
+            <ScoreItem
+                {...this.props}
+                failure={this.hasCommand(STATUS.READY_FAILED)}
+                default={this.isDefaultStatus()}
+            >
                 {
                     this.renderMoveStatus() ||
                     this.renderReadyStatus() ||
-                    this.renderFailureStatus()
+                    this.renderFailureStatus() ||
+                    this.renderDefaultStatus()
                 }
                 {this.props.score || 0}
                 {this.renderLeaderBoard()}
