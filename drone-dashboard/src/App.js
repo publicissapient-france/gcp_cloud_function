@@ -152,7 +152,6 @@ class App extends Component {
             ) {
                 scoreIndex = previousIndex + 1;
             }
-            console.log(currentScore, index, scoreIndex, previousIndex, previousScore, nextScore, isDraw, isPreviousDraw)
             previousScore = currentScore;
             previousDraw = isDraw;
             previousIndex = scoreIndex;
