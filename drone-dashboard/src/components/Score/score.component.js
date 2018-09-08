@@ -21,16 +21,20 @@ export const ScoreItem = styled.div`
   border-radius: 5px;
   i {
     &.status {
-        margin-right: 3px;
-        margin-left: -26px;    
+      will-change: contents;
+      margin-right: 3px;
+      margin-left: -26px;
     }
     &.failure {
-      will-change: contents;
       color: red;
       animation: blink 1s steps(1) infinite;
     }
+    &.move {
+      color: rgba(86,200,66,0.89);;
+    }
     &.wait_for_command {
-      color: deepskyblue;;
+      color: rgba(0,195,255,0.69);;
+      animation: blink 2.5s steps(1) infinite;
     }
     &.leader_board {
       margin-left: 7px;
@@ -69,7 +73,7 @@ export class Score extends Component {
         return (
             this.hasTopicUrl() &&
             this.hasCommand(STATUS.MOVE)
-            ? <i className="material-icons status wait_for_command">arrow_forward</i>
+            ? <i className="material-icons status move">fast_forward</i>
             : null
         )
     }
@@ -95,15 +99,13 @@ export class Score extends Component {
         }
     }
     render() {
-        const failure = (this.props.command && this.props.command.name === STATUS.READY_FAILED )
-
         return (
-            <ScoreItem {...this.props} failure={failure}>
+            <ScoreItem {...this.props} failure={this.hasCommand(STATUS.READY_FAILED)}>
                 {
                     this.renderMoveStatus() ||
-                    this.renderReadyStatus()
+                    this.renderReadyStatus() ||
+                    this.renderFailureStatus()
                 }
-                {this.renderFailureStatus(failure)}
                 {this.props.score || 0}
                 {this.renderLeaderBoard()}
             </ScoreItem>
