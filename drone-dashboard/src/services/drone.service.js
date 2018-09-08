@@ -61,7 +61,7 @@ export const getDronesAndParcels = async () => {
             {
                 teamId: 'green',
                 data: {
-                    score: 800,
+                    score: 300,
                     location: {
                         latitude: 48.80621744882436,
                         longitude: 2.1723810610753986,
@@ -157,7 +157,7 @@ export const getDronesAndParcels = async () => {
 };
 
 export const parseScores = (scores) => {
-    return scores.sort((a, b) => a.score < b.score)
+    return scores.sort((a, b) => a.score < b.score);
 };
 
 export const parseDroneInfo = (drones) => {

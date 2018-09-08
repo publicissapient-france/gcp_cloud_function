@@ -106,27 +106,34 @@ export class Score extends Component {
                 return null;
             case 0:
                 return (
+                    this.props.score > 0 ?
                     <span className="leader_board leader_1">
                         <i className="material-icons leader_board leader_1">star</i>
                         1
                     </span>
+                    : null
                 );
             case 1:
                 return (
+                    this.props.score > 0 ?
                     <span className="leader_board leader_2">
                         <i className="material-icons leader_board leader_2">star_half</i>
                         2
                     </span>
+                    : null
                 );
             case 2:
                 return (
+                    this.props.score > 0 ?
                     <span className="leader_board leader_3">
                         <i className="material-icons leader_board leader_3">star_border</i>
                         3
                     </span>
+                    : null
                 );
         }
     }
+
     render() {
         return (
             <ScoreItem

@@ -128,6 +128,33 @@ class App extends Component {
         ))
     }
 
+    renderLeaderBoard() {
+        const scores = parseScores(this.state.drones);
+        let prevScore = 0;
+        let nextScore = 0;
+        return scores.map((drone, index) => {
+            let scoreIndex = index;
+            const currentScore = drone.score || 0;
+            nextScore = scores[index + 1] ? (scores[index + 1].score || 0) : 0;
+            const isDraw = currentScore === prevScore || currentScore ===  nextScore;
+            if (
+                isDraw &&
+                currentScore === prevScore
+            ) {
+                scoreIndex = index - 1;
+            }
+            prevScore = currentScore;
+            return (
+                <Score
+                    key={`score-${drone.teamId}-${index}`}
+                    index={scoreIndex}
+                    draw={isDraw}
+                    {...drone}
+                />
+            );
+        });
+    }
+
     render() {
         return (
             <AppContainer>
@@ -170,13 +197,7 @@ class App extends Component {
                         </GoogleMapReact>
                     </GoogleMapContainer>
                     <ScoresContainer>
-                        {parseScores(this.state.drones).map((drone, index) => (
-                            <Score
-                                key={`score-${drone.teamId}-${index}`}
-                                index={index}
-                                {...drone}
-                            />
-                        ))}
+                        {this.renderLeaderBoard()}
                     </ScoresContainer>
                 </Section>
                 {/*
