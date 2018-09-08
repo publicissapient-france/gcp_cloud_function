@@ -11,6 +11,7 @@
     "polished": "2.0.3",
     "react": "16.3.2",
     "react-dom": "16.3.2",
+    "react-router-dom": "4.3.1",
     "react-scripts": "1.1.4",
     "styled-components": "3.2.6",
     "svg-inline-react": "3.0.0"
