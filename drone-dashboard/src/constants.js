@@ -41,14 +41,14 @@ export const GAME_PARAMETERS = {
 export const TEAMS = [
     'blue',
     'red',
-    'yellow',
     'green',
     'orange',
-    'rose',
     'purple',
     'black',
     'grey',
     'pink',
+    'yellow',
+    'with',
 ];
 
 export const STATUS = {

@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import { BrowserRouter as Router, Route, Link } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import styled from 'styled-components';
 import {get} from 'lodash';
 
@@ -53,11 +53,16 @@ class App extends Component {
                         <img src={logo} className="App-logo" alt="logo"/>
                         <h1 className="App-title">Google Cloud Functions ‡ DDD (drones dash delivery)</h1>
                     </header>
-                    <Route
-                        exact path="/"
-                        component={GameDashboard}
-                    />
-                    <Route exact path="/admin" component={Admin} />
+                    <Switch>
+                        <Route
+                            exact path="/"
+                            component={GameDashboard}
+                        />
+                        <Route
+                            exact path="/admin" 
+                            component={Admin}
+                        />
+                    </Switch>
                 </AppContainer>
             </Router>
         );
