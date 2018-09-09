@@ -205,6 +205,17 @@ export const postDroneInfo = async (droneInfoData) => {
     });
 };
 
+export const postParcel = async (parcelsData) => {
+    return Bluebird.each(parcelsData, async (parcel) => {
+        console.log('parcel', parcel)
+        try {
+            return await axios.post(GAME_PARAMETERS.parcelHttpUpserterUrl, parcel);
+        } catch (error) {
+            console.log('Error while upserting parcel', error);
+        }
+    });
+};
+
 /*****************************/
 /** random drones generator **/
 /*****************************/

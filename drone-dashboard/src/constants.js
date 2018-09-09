@@ -11,7 +11,7 @@ export const GAME_PARAMETERS = {
     },
     zoom: 12,
     // Starting area radius in km
-    startingAreaDistance: 3,
+    startingAreaDistance: .5,
     // Game area boundaries
     boundaries: {
         minLatitude: 48.816000,
@@ -41,6 +41,7 @@ export const GAME_PARAMETERS = {
     // functions urls
     droneStateListUrl: 'https://europe-west1-jbc-atl-sal-func-techevent.cloudfunctions.net/droneStateList',
     droneHttpUpserterUrl: 'https://europe-west1-jbc-atl-sal-func-techevent.cloudfunctions.net/droneHttpUpserter',
+    parcelHttpUpserterUrl: 'https://europe-west1-jbc-atl-sal-func-techevent.cloudfunctions.net/parcelHttpUpserter',
     operators: ['-', '+'],
 };
 

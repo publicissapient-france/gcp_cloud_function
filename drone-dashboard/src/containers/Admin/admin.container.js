@@ -1,23 +1,32 @@
 import React, {Component} from 'react';
 import styled from 'styled-components';
 import {get} from 'lodash';
+import uuid from 'uuid';
 import {
+    along,
     bbox,
     coordAll,
+    getCoord,
     buffer,
     point,
     randomPoint,
+    featureCollection,
+    polygonToLine,
+    pointOnFeature,
 } from '@turf/turf';
 
 import {
     GAME_PARAMETERS,
     TEAMS,
+    STATUS,
 } from '../../constants';
 import {COLORS} from '../../styles/variables';
 import {
+    getRandomFloat,
     getRandomInteger,
-    postDroneInfo,
     parseDroneTeamColor,
+    postDroneInfo,
+    postParcel,
 } from '../../services/drone.service';
 
 const AdminContainer = styled.div`
@@ -71,7 +80,7 @@ const ResultLine = styled(Line)`
   flex-flow: column wrap;
   justify-content: flex-start;
   align-items: center;
-  max-height: 400px;
+  max-height: 150px;
 `;
 
 const Form = styled.div`
@@ -81,7 +90,7 @@ const Form = styled.div`
   align-items: center;
   padding: 20px;
   margin-left: 10px;
-  margin-rigth: 10px;
+  margin-right: 10px;
   border: #333333 1px solid;
 `;
 
@@ -110,40 +119,79 @@ export class Admin extends Component {
         super();
         this.state = {
             numberOfTeams: 3,
-            savedTeams: [],
-            savedTeamsMock: [
+            // savedTeams: [],
+            savedTeams: [
                 {
-                    "teamId": "blue-685",
+                    "teamId": "blue-622",
                     "location": {
-                        "latitude": 48.85053283676196,
-                        "longitude": 2.3267119368814093
+                        "latitude": 48.83503446744604,
+                        "longitude": 2.36116207743742
                     },
                     "parcels": [],
                     "score": 0
                 },
                 {
-                    "teamId": "red-135",
+                    "teamId": "red-647",
                     "location": {
-                        "latitude": 48.83455108760356,
-                        "longitude": 2.3412614191237373
+                        "latitude": 48.88089191757057,
+                        "longitude": 2.360009874973255
                     },
                     "parcels": [],
                     "score": 0
                 },
                 {
-                    "teamId": "green-715",
+                    "teamId": "green-876",
                     "location": {
-                        "latitude": 48.843957298798365,
-                        "longitude": 2.3643594318767516
+                        "latitude": 48.84003457564094,
+                        "longitude": 2.3170768545494402
+                    },
+                    "parcels": [],
+                    "score": 0
+                },
+                {
+                    "teamId": "orange-471",
+                    "location": {
+                        "latitude": 48.83988817014468,
+                        "longitude": 2.315606566387995
+                    },
+                    "parcels": [],
+                    "score": 0
+                },
+                {
+                    "teamId": "purple-339",
+                    "location": {
+                        "latitude": 48.87984385267196,
+                        "longitude": 2.355004483481937
+                    },
+                    "parcels": [],
+                    "score": 0
+                },
+                {
+                    "teamId": "black-667",
+                    "location": {
+                        "latitude": 48.865904849256,
+                        "longitude": 2.353661017140987
+                    },
+                    "parcels": [],
+                    "score": 0
+                },
+                {
+                    "teamId": "grey-642",
+                    "location": {
+                        "latitude": 48.87870635390388,
+                        "longitude": 2.343786525898337
                     },
                     "parcels": [],
                     "score": 0
                 }
             ],
-            generateParcelForTeam: '',
+            targetTeam: '',
+            savedParcels: [],
         };
         this.startingBBox = {};
         this.startingPoints = [];
+        this.parcelsBBox = {};
+        this.numberOfParcels = 0;
     }
 
     handleFormChange = (inputId, event) => {
@@ -153,6 +201,7 @@ export class Admin extends Component {
         });
     };
 
+    // admin teams
     setStartingBBox() {
         const center = point([this.props.center.lat, this.props.center.lng]);
         const distance = this.props.startingAreaDistance || 3;
@@ -173,8 +222,8 @@ export class Admin extends Component {
     async createTeams () {
         this.setTeamStartingPoints();
         let usedIds = [];
-        const iterate = Array.from(Array(this.state.numberOfTeams));
-        const teams = iterate.map((value, index) => {
+        const teamsIterate = Array.from(Array(parseInt(this.state.numberOfTeams, 10)));
+        const teams = teamsIterate.map((value, index) => {
             let id;
             let goodId = null;
             const teamColor = TEAMS[index];
@@ -212,9 +261,61 @@ export class Admin extends Component {
         this.createTeams();
     };
 
+    // Other generating method for drones POC
+    // this.startingLine = polygonToLine(startingBuffer);
+    // const teamsIterate = Array.from(Array(parseInt(this.state.numberOfTeams, 10)));
+    // this.startingPoints = teamsIterate.map(() => {
+    //     // return pointOnFeature(this.startingLine);
+    //     return getCoord(along(this.startingLine, getRandomFloat(1,4), {units: 'kilometers'}));
+    // });
+    
+    // admin parcels other POC
+    // setParcelsBBox() {
+    //     const boundariesPoints = this.props.pinBoundaries.map(boundary => {
+    //         return [boundary.latitude, boundary.longitude];
+    //     });
+    //     const bboxBoundaries = featureCollection(boundariesPoints);
+    //     console.log(bboxBoundaries);
+    // }
+    //
+    // setParcelsCoordinates() {
+    //     this.setParcelsBBox();
+    //     this.numberOfParcels = this.state.generateParcelForTeam === 'all' ? this.state.savedTeams.length : 1;
+    //     this.parcelsPoints = coordAll(randomPoint(this.numberOfParcels, {bbox: this.startingBBox}));
+    //     console.log(this.parcelsPoints)
+    // }
+
+    // admin parcels
+    async createParcels() {
+        // this.setParcelsCoordinates();
+        this.numberOfParcels = this.state.targetTeam === 'all' ? this.state.savedTeams.length : 1;
+        console.log(this.numberOfParcels)
+        const parcelsIterate = Array.from(Array(this.numberOfParcels || 1));
+        const parcels = parcelsIterate.map((value, index) => {
+            // const lat = this.parcelsPoints[index][0] || this.props.center.lat;
+            // const lng = this.parcelsPoints[index][1] || this.props.center.lng;
+            return {
+                parcelId: uuid.v4(),
+                teamId: this.numberOfParcels === 1 ? this.state.targetTeam : this.state.savedTeams[index],
+                score: 100,
+                status: STATUS.AVAILABLE,
+                pickup: {
+                    latitude: getRandomFloat(GAME_PARAMETERS.boundaries.minLatitude, GAME_PARAMETERS.boundaries.maxLatitude),
+                    longitude: getRandomFloat(GAME_PARAMETERS.boundaries.minLongitude, GAME_PARAMETERS.boundaries.maxLongitude),
+                },
+            };
+        });
+        console.log('createParcels', parcels);
+        const savedParcels = await postParcel(parcels);
+        this.setState({
+            savedParcels,
+        }, console.log('savedParcels',savedParcels));
+
+    }
+
     submitInitParcels = (event) => {
         event.preventDefault();
-        console.log('generate parcels');
+        this.createParcels();
     };
 
     renderTeams() {
@@ -250,6 +351,8 @@ export class Admin extends Component {
         // TODO
     }
 
+    // TODO Clear data store
+    // TODO Get data from data store (if page is reloaded)
     render() {
         return (
             <AdminContainer>
@@ -288,9 +391,9 @@ export class Admin extends Component {
                             <label>
                                 Generate Parcels for:{' '}
                                 <Select
-                                    id="generateParcelForTeam"
-                                    value={this.state.generateParcelForTeam}
-                                    onChange={this.handleFormChange.bind(this, 'generateParcelForTeam')}
+                                    id="targetTeam"
+                                    value={this.state.targetTeam}
+                                    onChange={this.handleFormChange.bind(this, 'targetTeam')}
                                 >
                                     <option value="all">all</option>
                                     {this.renderTeamsList()}

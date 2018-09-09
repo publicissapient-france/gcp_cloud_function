@@ -16,7 +16,8 @@
     "react-router-dom": "4.3.1",
     "react-scripts": "1.1.4",
     "styled-components": "3.2.6",
-    "svg-inline-react": "3.0.0"
+    "svg-inline-react": "3.0.0",
+    "uuid": "3.3.2"
   },
   "scripts": {
     "start": "react-scripts start",
