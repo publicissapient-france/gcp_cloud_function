@@ -51,7 +51,7 @@ class App extends Component {
                 <AppContainer>
                     <header className="App-header">
                         <img src={logo} className="App-logo" alt="logo"/>
-                        <h1 className="App-title">Google Cloud Functions ‡ DDD (drones dash delivery)</h1>
+                        <h1 className="App-title">Google Cloud Functions ‡ DDD (drones dash delivery) - beta</h1>
                     </header>
                     <Switch>
                         <Route
