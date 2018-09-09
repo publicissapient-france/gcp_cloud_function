@@ -13,9 +13,11 @@ import {
     GAME_PARAMETERS,
     TEAMS,
 } from '../../constants';
+import {COLORS} from '../../styles/variables';
 import {
     getRandomInteger,
     postDroneInfo,
+    parseDroneTeamColor,
 } from '../../services/drone.service';
 
 const AdminContainer = styled.div`
@@ -38,16 +40,50 @@ const Button = styled.button`
 `;
 
 const Line = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex: 1 1 auto;
   width: 100%;
   padding: 10px;
+  h3 {
+    margin: 0;
+    padding: 0;
+  }
+`;
+
+const LineTeams = styled(Line)`
+  display: flex;
+  flex: 1 1 auto;
+  flex-flow: column wrap;
+  justify-content: flex-start;
+  align-items: center;
+  max-height: 400px;
 `;
 
 const Form = styled.div`
   display: flex;
   flex: 0 1 70%;
   flex-flow: column;
+  align-items: center;
   padding: 30px;
   border: #333333 1px solid;
+`;
+
+const Team = styled.div`
+  display: flex;
+  flex: 0 1 auto;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.2em;
+  font-weight: bold;
+  color: #fff;
+  height: 30px;
+  width: 100px;
+  border-radius: 10px;
+  background: ${(props) => COLORS[parseDroneTeamColor(props.teamId)]};
+  padding: 5px;
+  margin-bottom: 5px;
 `;
 
 export class Admin extends Component {
@@ -59,10 +95,39 @@ export class Admin extends Component {
         super();
         this.state = {
             numberOfTeams: 3,
+            savedTeams: [],
+            savedTeamsMock: [
+                {
+                    "teamId": "blue-685",
+                    "location": {
+                        "latitude": 48.85053283676196,
+                        "longitude": 2.3267119368814093
+                    },
+                    "parcels": [],
+                    "score": 0
+                },
+                {
+                    "teamId": "red-135",
+                    "location": {
+                        "latitude": 48.83455108760356,
+                        "longitude": 2.3412614191237373
+                    },
+                    "parcels": [],
+                    "score": 0
+                },
+                {
+                    "teamId": "green-715",
+                    "location": {
+                        "latitude": 48.843957298798365,
+                        "longitude": 2.3643594318767516
+                    },
+                    "parcels": [],
+                    "score": 0
+                }
+            ],
         };
         this.startingBBox = {};
         this.startingPoints = [];
-        this.postDroneInfo = postDroneInfo;
     }
 
     handleFormChange = (inputId, event) => {
@@ -125,7 +190,25 @@ export class Admin extends Component {
             }
         });
         console.log('teams', teams);
-        await this.postDroneInfo(teams);
+        const savedTeams = await postDroneInfo(teams);
+        this.setState({
+            savedTeams,
+        }, console.log('savedTeams',savedTeams));
+    }
+
+    renderTeams() {
+        return (
+            this.state.savedTeams &&
+            this.state.savedTeams.length > 0 &&
+            this.state.savedTeams.map(team => (
+                <Team
+                    key={team.teamId}
+                    {...team}
+                >
+                    {team.teamId}
+                </Team>
+            ))
+        );
     }
 
     render() {
@@ -154,6 +237,9 @@ export class Admin extends Component {
                                 Save
                             </Button>
                         </Line>
+                        <LineTeams>
+                            {this.renderTeams()}
+                        </LineTeams>
                     </Form>
                 </div>
             </AdminContainer>

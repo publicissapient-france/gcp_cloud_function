@@ -39,10 +39,10 @@ exports.droneHttpUpserter = async (req, res) => {
                 data
             };
 
-            await datastore.upsert(droneInfoEntity)
+            await datastore.upsert(droneInfoEntity);
             console.log(`DroneInfo entity with id ${teamId} upserted successfully.`);
             if (res.status === 204) {
-                res.end();
+                res.send(data).end();
             }
             res.status(200).end();
         } catch (err) {

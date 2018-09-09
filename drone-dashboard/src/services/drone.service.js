@@ -196,7 +196,7 @@ export const parseScoreColor = (props) => COLORS[props.failure || props.default 
 export const parseScoreBorderColor = (props) => props.failure || props.default ? darken(0.2, COLORS[parseDroneTeamColor(props.teamId)]) : COLORS[parseDroneTeamColor(props.teamId)];
 
 export const postDroneInfo = async (droneInfoData) => {
-    return Bluebird.map(droneInfoData, async (droneInfo) => {
+    return Bluebird.each(droneInfoData, async (droneInfo) => {
         try {
             return await axios.post(GAME_PARAMETERS.droneHttpUpserterUrl, droneInfo);
         } catch (error) {
