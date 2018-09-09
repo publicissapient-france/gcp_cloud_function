@@ -4,11 +4,24 @@ const Datastore = require('@google-cloud/datastore');
 const datastore = new Datastore({});
 
 exports.droneHttpUpserter = async (req, res) => {
-    try {
-        console.log(JSON.stringify(req.body));
-        if (req.body.teamId === undefined) {
-            res.status(400).send('No body with a teamId to upsert defined!');
-        } else {
+    // Enable CORS
+    res.set('Access-Control-Allow-Origin', '*');
+    res.set('Access-Control-Allow-Headers', '*');
+    res.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+
+    console.log(JSON.stringify(req.body));
+
+    const methodCORS = req.get('Access-Control-Request-Method');
+    if (req.method === 'OPTIONS') {
+        console.log('Response to OPTIONS pre-flight CORS request');
+        res.status(204).send('');
+    }
+
+    if (req.method === 'POST' || methodCORS === 'POST') {
+        try {
+            if (req.body.teamId === undefined) {
+                res.status(400).send('No body with a teamId to upsert defined!');
+            }
             const jsonMsg = req.body;
             const teamId = jsonMsg.teamId;
             delete jsonMsg.teamId;
@@ -26,23 +39,19 @@ exports.droneHttpUpserter = async (req, res) => {
                 data
             };
 
-            datastore
-                .upsert(droneInfoEntity)
-                .then(() => {
-                    console.log(`DroneInfo entity with id ${teamId} upserted successfully.`);
-                    res.status(200).end();
-                })
-                .catch(err => {
-                    console.error('ERROR:', err);
-                    res.status(500).end();
-                });
+            await datastore.upsert(droneInfoEntity)
+            console.log(`DroneInfo entity with id ${teamId} upserted successfully.`);
+            if (res.status === 204) {
+                res.end();
+            }
+            res.status(200).end();
+        } catch (err) {
+            console.error('ERROR:', err);
+            if (res.status === 204) {
+                res.end();
+            }
+            res.status(500).end();
         }
-
-
-
-    } catch (err) {
-        console.error('ERROR:', err);
-        res.status(500).end();
     }
 };
 
