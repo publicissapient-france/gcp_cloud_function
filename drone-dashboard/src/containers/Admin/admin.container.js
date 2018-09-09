@@ -1,11 +1,19 @@
 import React, {Component} from 'react';
 import styled from 'styled-components';
+import {get} from 'lodash';
+import {
+    bbox,
+    coordAll,
+    buffer,
+    point,
+    randomPoint,
+} from '@turf/turf';
 
 import {
     GAME_PARAMETERS,
     TEAMS,
 } from '../../constants';
-import { getRandomInteger } from '../../services/drone.service';
+import {getRandomInteger} from '../../services/drone.service';
 
 const AdminContainer = styled.div`
   display: flex;
@@ -32,18 +40,21 @@ const Line = styled.div`
 `;
 
 export class Admin extends Component {
-    static defaultProps = {};
+    static defaultProps = {
+        ...GAME_PARAMETERS,
+    };
 
     constructor() {
         super();
         this.state = {
             numberOfTeams: 3,
-        }
+        };
+        this.startingBBox = {};
+        this.startingPoints = [];
     }
 
     submitInitTeams = (event) => {
         event.preventDefault();
-        console.log('submit');
         this.createTeams()
     };
 
@@ -54,35 +65,54 @@ export class Admin extends Component {
         });
     };
 
+    setStartingBBox() {
+        const center = point([this.props.center.lat, this.props.center.lng]);
+        const distance = this.props.startingAreaDistance || 3;
+        const options = {steps: 10, units: 'kilometers'};
+        const startingBuffer = buffer(center, distance, options);
+        this.startingBBox = bbox(startingBuffer);
+    }
+
+    setTeamStartingPoint() {
+        this.setStartingBBox();
+        this.startingPoints = coordAll(randomPoint(this.state.numberOfTeams, {bbox: this.startingBBox}));
+        console.log(this.startingPoints);
+    }
+
     generateTeamId() {
         return getRandomInteger(1, 999);
     }
 
     createTeams() {
+        this.setTeamStartingPoint();
         let usedIds = [];
         const iterate = Array.from(Array(this.state.numberOfTeams));
         const teams = iterate.map((value, index) => {
-        let id;
-        let goodId = null;
-        const teamColor = TEAMS[index];
-        while(!goodId) {
-            id = this.generateTeamId();
-            goodId = usedIds.some(usedId => usedId === id) ? null : id;
-        }
-        usedIds= [
-            ...usedIds,
-            goodId,
-        ];
-        if (this.state.numberOfTeams >= usedIds.length) {
-        return {
-            teamId: `${teamColor}-${id}`,
-            location: {
-                latitude: 48,
-                longitude: 2.3,
-            },
-        }
-        }
+            let id;
+            let goodId = null;
+            const teamColor = TEAMS[index];
+            while (!goodId) {
+                id = this.generateTeamId();
+                goodId = usedIds.some(usedId => usedId === id) ? null : id;
+            }
+            usedIds = [
+                ...usedIds,
+                goodId,
+            ];
+            console.log(this.startingPoints, index)
+            const lat = this.startingPoints[index][0] || this.props.center.lat;
+            const lng = this.startingPoints[index][1] || this.props.center.lng;
+            if (this.state.numberOfTeams >= usedIds.length) {
+                return {
+                    teamId: `${teamColor}-${id}`,
+                    location: {
+                        latitude: lat,
+                        longitude: lng,
+                    },
+                }
+            }
         });
+        // TODO upsert drones
         console.log('teams', teams);
     }
 
@@ -100,7 +130,7 @@ export class Admin extends Component {
                                     type="number"
                                     min="3" max="10"
                                     value={this.state.numberOfTeams}
-                                    onChange={this.handleFormChange.bind(this, 'numberOfTeams')} 
+                                    onChange={this.handleFormChange.bind(this, 'numberOfTeams')}
                                 />
                             </label>
                         </Line>

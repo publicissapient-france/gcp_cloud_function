@@ -10,6 +10,9 @@ export const GAME_PARAMETERS = {
         lng: 2.340,
     },
     zoom: 12,
+    // Starting area radius in km
+    startingAreaDistance: 3,
+    // Game area boundaries
     boundaries: {
         minLatitude: 48.816000,
         maxLatitude: 48.900000,
