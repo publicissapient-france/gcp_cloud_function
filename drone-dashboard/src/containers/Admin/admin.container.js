@@ -13,7 +13,10 @@ import {
     GAME_PARAMETERS,
     TEAMS,
 } from '../../constants';
-import {getRandomInteger} from '../../services/drone.service';
+import {
+    getRandomInteger,
+    postDroneInfo,
+} from '../../services/drone.service';
 
 const AdminContainer = styled.div`
   display: flex;
@@ -39,6 +42,14 @@ const Line = styled.div`
   padding: 10px;
 `;
 
+const Form = styled.div`
+  display: flex;
+  flex: 0 1 70%;
+  flex-flow: column;
+  padding: 30px;
+  border: #333333 1px solid;
+`;
+
 export class Admin extends Component {
     static defaultProps = {
         ...GAME_PARAMETERS,
@@ -51,12 +62,8 @@ export class Admin extends Component {
         };
         this.startingBBox = {};
         this.startingPoints = [];
+        this.postDroneInfo = postDroneInfo;
     }
-
-    submitInitTeams = (event) => {
-        event.preventDefault();
-        this.createTeams()
-    };
 
     handleFormChange = (inputId, event) => {
         event.preventDefault();
@@ -73,18 +80,22 @@ export class Admin extends Component {
         this.startingBBox = bbox(startingBuffer);
     }
 
-    setTeamStartingPoint() {
+    setTeamStartingPoints() {
         this.setStartingBBox();
         this.startingPoints = coordAll(randomPoint(this.state.numberOfTeams, {bbox: this.startingBBox}));
-        console.log(this.startingPoints);
     }
 
     generateTeamId() {
         return getRandomInteger(1, 999);
     }
 
-    createTeams() {
-        this.setTeamStartingPoint();
+    submitInitTeams = (event) => {
+        event.preventDefault();
+        this.createTeams();
+    };
+
+    async createTeams () {
+        this.setTeamStartingPoints();
         let usedIds = [];
         const iterate = Array.from(Array(this.state.numberOfTeams));
         const teams = iterate.map((value, index) => {
@@ -99,7 +110,6 @@ export class Admin extends Component {
                 ...usedIds,
                 goodId,
             ];
-            console.log(this.startingPoints, index)
             const lat = this.startingPoints[index][0] || this.props.center.lat;
             const lng = this.startingPoints[index][1] || this.props.center.lng;
             if (this.state.numberOfTeams >= usedIds.length) {
@@ -109,11 +119,13 @@ export class Admin extends Component {
                         latitude: lat,
                         longitude: lng,
                     },
+                    parcels: [],
+                    score: 0,
                 }
             }
         });
-        // TODO upsert drones
         console.log('teams', teams);
+        await this.postDroneInfo(teams);
     }
 
     render() {
@@ -121,7 +133,10 @@ export class Admin extends Component {
             <AdminContainer>
                 <h1>Admin</h1>
                 <div>
-                    <form id="teamsInit">
+                    <Form id="teamsInit">
+                        <Line>
+                            <h3>Init teams</h3>
+                        </Line>
                         <Line>
                             <label>
                                 Number of teams:{' '}
@@ -139,7 +154,7 @@ export class Admin extends Component {
                                 Save
                             </Button>
                         </Line>
-                    </form>
+                    </Form>
                 </div>
             </AdminContainer>
         )

@@ -38,6 +38,9 @@ export const GAME_PARAMETERS = {
             longitude: 2.25000,
         },
     ],
+    // functions urls
+    droneStateListUrl: 'https://europe-west1-jbc-atl-sal-func-techevent.cloudfunctions.net/droneStateList',
+    droneHttpUpserterUrl: 'https://europe-west1-jbc-atl-sal-func-techevent.cloudfunctions.net/droneHttpUpserter',
     operators: ['-', '+'],
 };
 
