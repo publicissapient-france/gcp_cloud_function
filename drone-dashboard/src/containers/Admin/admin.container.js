@@ -28,9 +28,22 @@ const AdminContainer = styled.div`
   flex-flow: column wrap;
 `;
 
+const FormsContainer = styled(AdminContainer)`
+  width: 100%;
+  flex-flow: row nowrap;
+  align-items: flex-start;
+`;
+
 const Input = styled.input`
   height: 20px;
   border: #333333 1px dotted;
+  border-radius: 3px;
+`;
+
+const Select = styled.select`
+  height: 20px;
+  border: #333333 1px dotted;
+  padding: 10px;
 `;
 
 const Button = styled.button`
@@ -52,7 +65,7 @@ const Line = styled.div`
   }
 `;
 
-const LineTeams = styled(Line)`
+const ResultLine = styled(Line)`
   display: flex;
   flex: 1 1 auto;
   flex-flow: column wrap;
@@ -66,7 +79,9 @@ const Form = styled.div`
   flex: 0 1 70%;
   flex-flow: column;
   align-items: center;
-  padding: 30px;
+  padding: 20px;
+  margin-left: 10px;
+  margin-rigth: 10px;
   border: #333333 1px solid;
 `;
 
@@ -125,6 +140,7 @@ export class Admin extends Component {
                     "score": 0
                 }
             ],
+            generateParcelForTeam: '',
         };
         this.startingBBox = {};
         this.startingPoints = [];
@@ -153,11 +169,6 @@ export class Admin extends Component {
     generateTeamId() {
         return getRandomInteger(1, 999);
     }
-
-    submitInitTeams = (event) => {
-        event.preventDefault();
-        this.createTeams();
-    };
 
     async createTeams () {
         this.setTeamStartingPoints();
@@ -196,6 +207,16 @@ export class Admin extends Component {
         }, console.log('savedTeams',savedTeams));
     }
 
+    submitInitTeams = (event) => {
+        event.preventDefault();
+        this.createTeams();
+    };
+
+    submitInitParcels = (event) => {
+        event.preventDefault();
+        console.log('generate parcels');
+    };
+
     renderTeams() {
         return (
             this.state.savedTeams &&
@@ -211,12 +232,30 @@ export class Admin extends Component {
         );
     }
 
+    renderTeamsList() {
+        return (
+            this.state.savedTeams &&
+            this.state.savedTeams.length > 0 &&
+            this.state.savedTeams.map(team => (
+                <option 
+                    key={`option-${team.teamId}`}
+                >
+                    {team.teamId}
+                </option>
+            ))
+        );
+    }
+
+    renderParcels() {
+        // TODO
+    }
+
     render() {
         return (
             <AdminContainer>
                 <h1>Admin</h1>
-                <div>
-                    <Form id="teamsInit">
+                <FormsContainer>
+                    <Form id="initTeams">
                         <Line>
                             <h3>Init teams</h3>
                         </Line>
@@ -237,11 +276,37 @@ export class Admin extends Component {
                                 Save
                             </Button>
                         </Line>
-                        <LineTeams>
+                        <ResultLine>
                             {this.renderTeams()}
-                        </LineTeams>
+                        </ResultLine>
                     </Form>
-                </div>
+                    <Form id="initParcels">
+                        <Line>
+                            <h3>Init parcels</h3>
+                        </Line>
+                        <Line>
+                            <label>
+                                Generate Parcels for:{' '}
+                                <Select
+                                    id="generateParcelForTeam"
+                                    value={this.state.generateParcelForTeam}
+                                    onChange={this.handleFormChange.bind(this, 'generateParcelForTeam')}
+                                >
+                                    <option value="all">all</option>
+                                    {this.renderTeamsList()}
+                                </Select>
+                            </label>
+                        </Line>
+                        <Line>
+                            <Button type="button" onClick={this.submitInitParcels}>
+                                Generate parcels
+                            </Button>
+                        </Line>
+                        <ResultLine>
+                            {this.renderParcels()}
+                        </ResultLine>
+                    </Form>
+                </FormsContainer>
             </AdminContainer>
         )
     }
