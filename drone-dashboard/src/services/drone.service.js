@@ -144,7 +144,14 @@ const mockData_01 = {
 
 export const getDronesAndParcels = async () => {
     try {
-        return await axios.get(GAME_PARAMETERS.droneHttpUpserterUrl);
+        const response = await fetch(
+            GAME_PARAMETERS.droneStateListUrl,
+            {
+                method: 'GET',
+                mode: 'cors',
+            }
+        );
+        return await response.json();
         // return mockData_01;
         // return mockData_02;
     } catch (error) {
