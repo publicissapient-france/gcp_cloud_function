@@ -427,8 +427,6 @@ export class Admin extends Component {
 
     // TODO Clear drones and parcels button
     // TODO Order parcels in columns by teamId
-    // TODO Exclude from parcel pickup zone, the map center
-    // TODO Limit the parcel delivery zone to the map center
     // TODO Other game play
     // FIXME check if team color is already taken before create new team
     render() {
