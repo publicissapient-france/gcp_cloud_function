@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import styled from 'styled-components';
-import {get, orderBy} from 'lodash';
+import {get, orderBy, flatten} from 'lodash';
 import uuid from 'uuid';
 import {
     along,
@@ -41,8 +41,15 @@ const AdminContainer = styled.div`
   align-items: center;
   flex-flow: column wrap;
   h1 {
+    display: flex;
+    height: 50px;
+    justify-content: center;
+    align-items: center;
     margin: 0;
     margin-bottom: 10px;
+    button {
+      margin-left: 10px;
+    }
   }
 `;
 
@@ -216,6 +223,7 @@ export class Admin extends Component {
             targetTeam: 'all',
             savedParcels: [],
             parcelScore: 'random',
+            numberOfParcelsPerTeam: 1,
         };
         this.startingBBox = {};
         this.startingPoints = [];
@@ -227,7 +235,7 @@ export class Admin extends Component {
         this.getData();
     }
 
-    async getData() {
+    getData = async () => {
         const dronesAndParcels = await getDronesAndParcels();
         const { drones, parcels } = dronesAndParcels || {drones: [], parcels: []};
         const dronesNext = parseDroneInfo(drones || []);
@@ -241,7 +249,7 @@ export class Admin extends Component {
             numberOfTeamsMin: newNumberOfTeamsMin,
             numberOfTeams: newNumberOfTeamsMin,
         }, console.log(this.state));
-    }
+    };
 
     handleFormChange = (inputId, event) => {
         event.preventDefault();
@@ -316,49 +324,35 @@ export class Admin extends Component {
     //     return getCoord(along(this.startingLine, getRandomFloat(1,4), {units: 'kilometers'}));
     // });
     
-    // admin parcels other POC
-    // setParcelsBBox() {
-    //     const boundariesPoints = this.props.pinBoundaries.map(boundary => {
-    //         return [boundary.latitude, boundary.longitude];
-    //     });
-    //     const bboxBoundaries = featureCollection(boundariesPoints);
-    //     console.log(bboxBoundaries);
-    // }
-    //
-    // setParcelsCoordinates() {
-    //     this.setParcelsBBox();
-    //     this.numberOfParcels = this.state.generateParcelForTeam === 'all' ? this.state.savedTeams.length : 1;
-    //     this.parcelsPoints = coordAll(randomPoint(this.numberOfParcels, {bbox: this.startingBBox}));
-    //     console.log(this.parcelsPoints)
-    // }
-
     // admin parcels
     async createParcels() {
-        // this.setParcelsCoordinates();
         this.numberOfParcels = this.state.targetTeam === 'all' ? this.state.savedTeams.length : 1;
         const parcelsIterate = Array.from(Array(this.numberOfParcels || 1));
         const parcels = parcelsIterate.map((value, index) => {
-            // const lat = this.parcelsPoints[index][0] || this.props.center.lat;
-            // const lng = this.parcelsPoints[index][1] || this.props.center.lng;
-            return {
-                parcelId: uuid.v4(),
-                teamId: this.numberOfParcels === 1 ? this.state.targetTeam : get(this.state, `savedTeams[${index}].teamId`),
-                score: this.state.parcelScore === 'random' ? getRadomScore() : parseInt(this.state.parcelScore, 10),
-                status: STATUS.AVAILABLE,
-                location: {
-                    pickup: {
-                        latitude: getRandomFloat(GAME_PARAMETERS.boundaries.minLatitude, GAME_PARAMETERS.boundaries.maxLatitude),
-                        longitude: getRandomFloat(GAME_PARAMETERS.boundaries.minLongitude, GAME_PARAMETERS.boundaries.maxLongitude),
+            const parcelsPerTeamNumber = parseInt(this.state.numberOfParcelsPerTeam, 10) > 0 ? parseInt(this.state.numberOfParcelsPerTeam, 10) : 1;
+            const parcelPerTeamIterate = Array.from(Array(parcelsPerTeamNumber));
+            const parcelsPerTeam = parcelPerTeamIterate.map(() => {
+                return {
+                    parcelId: uuid.v4(),
+                    teamId: this.numberOfParcels === 1 ? this.state.targetTeam : get(this.state, `savedTeams[${index}].teamId`),
+                    score: this.state.parcelScore === 'random' ? getRadomScore() : parseInt(this.state.parcelScore, 10),
+                    status: STATUS.AVAILABLE,
+                    location: {
+                        pickup: {
+                            latitude: getRandomFloat(GAME_PARAMETERS.boundaries.minLatitude, GAME_PARAMETERS.boundaries.maxLatitude),
+                            longitude: getRandomFloat(GAME_PARAMETERS.boundaries.minLongitude, GAME_PARAMETERS.boundaries.maxLongitude),
+                        },
+                        delivery: {
+                            latitude: getRandomFloat(GAME_PARAMETERS.boundaries.minLatitude, GAME_PARAMETERS.boundaries.maxLatitude),
+                            longitude: getRandomFloat(GAME_PARAMETERS.boundaries.minLongitude, GAME_PARAMETERS.boundaries.maxLongitude),
+                        },
                     },
-                    delivery: {
-                        latitude: getRandomFloat(GAME_PARAMETERS.boundaries.minLatitude, GAME_PARAMETERS.boundaries.maxLatitude),
-                        longitude: getRandomFloat(GAME_PARAMETERS.boundaries.minLongitude, GAME_PARAMETERS.boundaries.maxLongitude),
-                    },
-                },
-            };
+                };
+            });
+            return flatten(parcelsPerTeam);
         });
         console.log('createParcels', parcels);
-        await postParcel(parcels);
+        await postParcel(flatten(parcels));
         this.getData();
     }
 
@@ -420,16 +414,19 @@ export class Admin extends Component {
         );
     }
 
-    // TODO Clear drones and parcels
-    // TODO Set a specific number of parcels (option)
+    // TODO Clear drones and parcels button
     // TODO Order parcels in columns by teamId
     // TODO Exclude from parcel pickup zone, the map center
     // TODO Limit the parcel delivery zone to the map center
     // TODO Other game play
+    // FIXME check if team color is already taken before create new team
     render() {
         return (
             <AdminContainer>
-                <h1>Admin</h1>
+                <h1>
+                    Admin
+                    <Button onClick={this.getData}>Refresh</Button>
+                </h1>
                 <FormsContainer>
                     <Form id="initTeams">
                         <Line>
@@ -480,11 +477,27 @@ export class Admin extends Component {
                                     value={this.state.parcelScore}
                                     onChange={this.handleFormChange.bind(this, 'parcelScore')}
                                 >
-                                    {PARCEL_SCORES.map(score => (
-                                        <option value={score}>{score}</option>
+                                    {PARCEL_SCORES.map((score, index) => (
+                                        <option
+                                            key={`score-${index}`}
+                                            value={score}
+                                        >
+                                            {score}
+                                        </option>
                                     ))}
                                     <option value="random">random</option>
                                 </Select>
+                            </label>
+                            <label>
+                                Number of parcels:{' '}
+                                <Input
+                                    id="numberOfParcelsPerTeam"
+                                    type="number"
+                                    min="1"
+                                    max="5"
+                                    value={this.state.numberOfParcelsPerTeam}
+                                    onChange={this.handleFormChange.bind(this, 'numberOfParcelsPerTeam')}
+                                />
                             </label>
                         </Line>
                         <Line>
