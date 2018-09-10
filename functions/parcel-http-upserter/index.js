@@ -25,6 +25,9 @@ exports.parcelHttpUpserter = async (req, res) => {
             const parcelFromBody = req.body;
             console.log(JSON.stringify(req.body));
 
+            if (req.body.teamId === undefined) {
+                res.status(400).send('No body with a teamId to upsert defined!');
+            }
             if (parcelFromBody.parcelId === undefined) {
                 parcelFromBody.parcelId = uuidv4();
             }
