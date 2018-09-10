@@ -84,7 +84,7 @@ export const TEAMS = [
     'grey',
     'pink',
     'yellow',
-    'with',
+    'white',
 ];
 
 export const STATUS = {

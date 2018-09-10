@@ -100,6 +100,7 @@ const ResultLine = styled(Line)`
   justify-content: center;
   align-items: center;
   max-height: 350px;
+  overflow: scroll;
 `;
 
 const Form = styled.div`
