@@ -277,8 +277,6 @@ const moveDrone = async function (droneInfo, teamId) {
             } else {
                 console.log('will checkParcelAround');
                 const parcelsAroundDrone = await checkParcelAround(droneInfo.location, teamId);
-                // TODO : vérifier que le parcel n'est pas déjà porté par le drone ou alors dans la query datastore 
-                // ne pas prendre les colis qui ont le status GRABBED
                 console.log(`parcelsAroundDrone:${parcelsAroundDrone}`);
                 if (parcelsAroundDrone && parcelsAroundDrone.length > 0) {
                     console.log("Parcel around drone detected !");
