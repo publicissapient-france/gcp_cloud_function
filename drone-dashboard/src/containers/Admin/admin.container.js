@@ -30,6 +30,7 @@ import {
     getRadomScore,
     parseDroneInfo,
     parseDroneTeamColor,
+    parseDroneTeamId,
     parseParcelInfo,
     postDroneInfo,
     postParcel,
@@ -280,32 +281,40 @@ export class Admin extends Component {
 
     async createTeams () {
         this.setTeamStartingPoints();
-        let usedIds = [];
+        let usedIds = this.state.savedTeams.map(team => parseDroneTeamId(team.teamId));
+        let usedColors = this.state.savedTeams.map(team => parseDroneTeamColor(team.teamId));
         const teamsIterate = Array.from(Array(parseInt(this.state.numberOfTeams, 10)));
         const teams = teamsIterate.map((value, index) => {
             let id;
+            let color;
             let goodId = null;
-            const teamColor = TEAMS[index];
+            let goodColor = null;
             while (!goodId) {
                 id = this.generateTeamId();
                 goodId = usedIds.some(usedId => usedId === id) ? null : id;
             }
+            while (!goodColor) {
+                color = TEAMS[chance.integer({min: 0, max: TEAMS.length -1})];
+                goodColor = usedColors.some(usedColor => usedColor === color) ? null : color;
+            }
+            usedColors = [
+                ...usedColors,
+                goodColor,
+            ];
             usedIds = [
                 ...usedIds,
                 goodId,
             ];
             const lat = this.startingPoints[index][0] || this.props.center.lat;
             const lng = this.startingPoints[index][1] || this.props.center.lng;
-            if (parseInt(this.state.numberOfTeams, 10) >= usedIds.length) {
-                return {
-                    teamId: `${teamColor}-${id}`,
-                    location: {
-                        latitude: lat,
-                        longitude: lng,
-                    },
-                    parcels: [],
-                    score: 0,
-                }
+            return {
+                teamId: `${color}-${id}`,
+                location: {
+                    latitude: lat,
+                    longitude: lng,
+                },
+                parcels: [],
+                score: 0,
             }
         });
         console.log('teams', teams);
@@ -428,7 +437,7 @@ export class Admin extends Component {
     // TODO Clear drones and parcels button
     // TODO Order parcels in columns by teamId
     // TODO Other game play
-    // FIXME check if team color is already taken before create new team
+    // FIXME max and min teams is buggy
     render() {
         return (
             <AdminContainer>

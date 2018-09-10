@@ -198,6 +198,7 @@ export const parseDroneInfo = (drones) => {
 export const parseParcelInfo = (data) => data;
 
 export const parseDroneTeamColor = (teamId) => (teamId || 'default').match(/-/g) ? teamId.split('-')[0].toLowerCase() : (teamId || 'default');
+export const parseDroneTeamId = (teamId) => teamId.match(/-/g) ? parseInt(teamId.split('-')[1].toLowerCase(), 10) : parseInt(teamId, 10);
 export const parseScoreColor = (props) => COLORS[props.failure || props.default ? 'grey' : parseDroneTeamColor(props.teamId)];
 export const parseScoreBorderColor = (props) => props.failure || props.default ? darken(0.2, COLORS[parseDroneTeamColor(props.teamId)]) : COLORS[parseDroneTeamColor(props.teamId)];
 
