@@ -13,13 +13,13 @@ exports.parcelHttpUpserter = async (req, res) => {
 
     console.log(JSON.stringify(req.body));
 
-    const methodCORS = req.get('Access-Control-Request-Method');
+    // const methodCORS = req.get('Access-Control-Request-Method');
     if (req.method === 'OPTIONS') {
         console.log('Response to OPTIONS pre-flight CORS request');
         res.status(204).send('');
     }
 
-    if (req.method === 'POST' || methodCORS === 'POST') {
+    if (req.method === 'POST') {
 
         try {
             const parcelFromBody = req.body;
