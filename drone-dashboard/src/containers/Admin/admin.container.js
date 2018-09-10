@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import styled from 'styled-components';
 import {get, orderBy, flatten} from 'lodash';
+import Chance from 'chance';
 import uuid from 'uuid';
 import {
     along,
@@ -33,6 +34,7 @@ import {
     postDroneInfo,
     postParcel,
 } from '../../services/drone.service';
+const chance = new Chance();
 
 const AdminContainer = styled.div`
   display: flex;
@@ -332,6 +334,15 @@ export class Admin extends Component {
             const parcelsPerTeamNumber = parseInt(this.state.numberOfParcelsPerTeam, 10) > 0 ? parseInt(this.state.numberOfParcelsPerTeam, 10) : 1;
             const parcelPerTeamIterate = Array.from(Array(parcelsPerTeamNumber));
             const parcelsPerTeam = parcelPerTeamIterate.map(() => {
+                const pickupLatMax = getRandomFloat(GAME_PARAMETERS.innerBoundariesMinMax.maxLatitude, GAME_PARAMETERS.outerBoundariesMinMax.maxLatitude);
+                const pickupLatMin = getRandomFloat(GAME_PARAMETERS.outerBoundariesMinMax.minLatitude, GAME_PARAMETERS.innerBoundariesMinMax.minLatitude);
+                const pickupLat = [pickupLatMin, pickupLatMax];
+                const pickupLngMax = getRandomFloat(GAME_PARAMETERS.innerBoundariesMinMax.maxLongitude, GAME_PARAMETERS.outerBoundariesMinMax.maxLongitude);
+                const pickupLngMin = getRandomFloat(GAME_PARAMETERS.outerBoundariesMinMax.minLongitude, GAME_PARAMETERS.innerBoundariesMinMax.minLongitude);
+                const pickupLng = [pickupLngMin, pickupLngMax];
+
+                const deliveryLat = getRandomFloat(GAME_PARAMETERS.innerBoundariesMinMax.minLatitude, GAME_PARAMETERS.innerBoundariesMinMax.maxLatitude);
+                const deliveryLng = getRandomFloat(GAME_PARAMETERS.innerBoundariesMinMax.minLongitude, GAME_PARAMETERS.innerBoundariesMinMax.maxLongitude);
                 return {
                     parcelId: uuid.v4(),
                     teamId: this.numberOfParcels === 1 ? this.state.targetTeam : get(this.state, `savedTeams[${index}].teamId`),
@@ -339,12 +350,12 @@ export class Admin extends Component {
                     status: STATUS.AVAILABLE,
                     location: {
                         pickup: {
-                            latitude: getRandomFloat(GAME_PARAMETERS.boundaries.minLatitude, GAME_PARAMETERS.boundaries.maxLatitude),
-                            longitude: getRandomFloat(GAME_PARAMETERS.boundaries.minLongitude, GAME_PARAMETERS.boundaries.maxLongitude),
+                            latitude: pickupLat[chance.integer({min: 0, max: 1})],
+                            longitude: pickupLng[chance.integer({min: 0, max: 1})],
                         },
                         delivery: {
-                            latitude: getRandomFloat(GAME_PARAMETERS.boundaries.minLatitude, GAME_PARAMETERS.boundaries.maxLatitude),
-                            longitude: getRandomFloat(GAME_PARAMETERS.boundaries.minLongitude, GAME_PARAMETERS.boundaries.maxLongitude),
+                            latitude: deliveryLat,
+                            longitude: deliveryLng,
                         },
                     },
                 };

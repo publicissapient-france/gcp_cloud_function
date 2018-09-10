@@ -83,8 +83,9 @@ export class GameDashboard extends Component {
         }, console.log(this.state));
     };
 
-    renderBoundaries() {
-        return this.props.pinBoundaries.map((boundary, index) => (
+    renderBoundaries(type = 'inner') {
+        const boundaries = this.props[`${type}Boundaries`];
+        return boundaries.map((boundary, index) => (
             <Pin
                 key={`boundary-${index}`}
                 lat={get(boundary, 'latitude')}
@@ -166,7 +167,8 @@ export class GameDashboard extends Component {
                                 />,
                             ]
                         )}
-                        {this.props.showBoundaries ? this.renderBoundaries() : null}
+                        {this.props.showBoundaries ? this.renderBoundaries('inner') : null}
+                        {this.props.showBoundaries ? this.renderBoundaries('outer') : null}
                     </GoogleMapReact>
                 </GoogleMapContainer>
                 <ScoresContainer>
