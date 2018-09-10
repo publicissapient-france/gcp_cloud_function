@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import styled from 'styled-components';
-import {get} from 'lodash';
+import {get, orderBy} from 'lodash';
 import uuid from 'uuid';
 import {
     along,
@@ -22,9 +22,13 @@ import {
 } from '../../constants';
 import {COLORS} from '../../styles/variables';
 import {
+    getDronesAndParcels,
     getRandomFloat,
     getRandomInteger,
+    getRadomScore,
+    parseDroneInfo,
     parseDroneTeamColor,
+    parseParcelInfo,
     postDroneInfo,
     postParcel,
 } from '../../services/drone.service';
@@ -35,6 +39,10 @@ const AdminContainer = styled.div`
   justify-content: center;
   align-items: center;
   flex-flow: column wrap;
+  h1 {
+    margin: 0;
+    margin-bottom: 10px;
+  }
 `;
 
 const FormsContainer = styled(AdminContainer)`
@@ -77,21 +85,26 @@ const Line = styled.div`
 const ResultLine = styled(Line)`
   display: flex;
   flex: 1 1 auto;
-  flex-flow: column wrap;
-  justify-content: flex-start;
+  flex-flow: row wrap;
+  justify-content: center;
   align-items: center;
-  max-height: 150px;
+  max-height: 350px;
 `;
 
 const Form = styled.div`
   display: flex;
-  flex: 0 1 70%;
   flex-flow: column;
   align-items: center;
   padding: 20px;
   margin-left: 10px;
   margin-right: 10px;
   border: #333333 1px solid;
+  &#initTeams {
+    flex: 1 1 30%;
+  }
+  &#initParcels {
+    flex: 1 1 70%;
+  }
 `;
 
 const Team = styled.div`
@@ -107,7 +120,14 @@ const Team = styled.div`
   border-radius: 10px;
   background: ${(props) => COLORS[parseDroneTeamColor(props.teamId)]};
   padding: 5px;
-  margin-bottom: 5px;
+  &:not(:last-of-type){
+    margin-right: 5px;
+    margin-bottom: 5px;
+  }
+`;
+
+const Parcel = styled(Team)`
+  width: 150px;
 `;
 
 export class Admin extends Component {
@@ -118,80 +138,102 @@ export class Admin extends Component {
     constructor() {
         super();
         this.state = {
+            // savedTeams: [
+            //     {
+            //         "teamId": "blue-622",
+            //         "location": {
+            //             "latitude": 48.83503446744604,
+            //             "longitude": 2.36116207743742
+            //         },
+            //         "parcels": [],
+            //         "score": 0
+            //     },
+            //     {
+            //         "teamId": "red-647",
+            //         "location": {
+            //             "latitude": 48.88089191757057,
+            //             "longitude": 2.360009874973255
+            //         },
+            //         "parcels": [],
+            //         "score": 0
+            //     },
+            //     {
+            //         "teamId": "green-876",
+            //         "location": {
+            //             "latitude": 48.84003457564094,
+            //             "longitude": 2.3170768545494402
+            //         },
+            //         "parcels": [],
+            //         "score": 0
+            //     },
+            //     {
+            //         "teamId": "orange-471",
+            //         "location": {
+            //             "latitude": 48.83988817014468,
+            //             "longitude": 2.315606566387995
+            //         },
+            //         "parcels": [],
+            //         "score": 0
+            //     },
+            //     {
+            //         "teamId": "purple-339",
+            //         "location": {
+            //             "latitude": 48.87984385267196,
+            //             "longitude": 2.355004483481937
+            //         },
+            //         "parcels": [],
+            //         "score": 0
+            //     },
+            //     {
+            //         "teamId": "black-667",
+            //         "location": {
+            //             "latitude": 48.865904849256,
+            //             "longitude": 2.353661017140987
+            //         },
+            //         "parcels": [],
+            //         "score": 0
+            //     },
+            //     {
+            //         "teamId": "grey-642",
+            //         "location": {
+            //             "latitude": 48.87870635390388,
+            //             "longitude": 2.343786525898337
+            //         },
+            //         "parcels": [],
+            //         "score": 0
+            //     }
+            // ],
+            numberOfTeamsMax: 10,
+            numberOfTeamsMin: 3,
             numberOfTeams: 3,
-            // savedTeams: [],
-            savedTeams: [
-                {
-                    "teamId": "blue-622",
-                    "location": {
-                        "latitude": 48.83503446744604,
-                        "longitude": 2.36116207743742
-                    },
-                    "parcels": [],
-                    "score": 0
-                },
-                {
-                    "teamId": "red-647",
-                    "location": {
-                        "latitude": 48.88089191757057,
-                        "longitude": 2.360009874973255
-                    },
-                    "parcels": [],
-                    "score": 0
-                },
-                {
-                    "teamId": "green-876",
-                    "location": {
-                        "latitude": 48.84003457564094,
-                        "longitude": 2.3170768545494402
-                    },
-                    "parcels": [],
-                    "score": 0
-                },
-                {
-                    "teamId": "orange-471",
-                    "location": {
-                        "latitude": 48.83988817014468,
-                        "longitude": 2.315606566387995
-                    },
-                    "parcels": [],
-                    "score": 0
-                },
-                {
-                    "teamId": "purple-339",
-                    "location": {
-                        "latitude": 48.87984385267196,
-                        "longitude": 2.355004483481937
-                    },
-                    "parcels": [],
-                    "score": 0
-                },
-                {
-                    "teamId": "black-667",
-                    "location": {
-                        "latitude": 48.865904849256,
-                        "longitude": 2.353661017140987
-                    },
-                    "parcels": [],
-                    "score": 0
-                },
-                {
-                    "teamId": "grey-642",
-                    "location": {
-                        "latitude": 48.87870635390388,
-                        "longitude": 2.343786525898337
-                    },
-                    "parcels": [],
-                    "score": 0
-                }
-            ],
-            targetTeam: '',
+            savedTeams: [],
+            targetTeam: 'all',
             savedParcels: [],
         };
         this.startingBBox = {};
         this.startingPoints = [];
-        this.parcelsBBox = {};
+        // this.parcelsBBox = {};
         this.numberOfParcels = 0;
+    }
+
+    componentDidMount() {
+        this.getData();
+    }
+
+    async getData() {
+        const dronesAndParcels = await getDronesAndParcels();
+        const { drones, parcels } = dronesAndParcels || {drones: [], parcels: []};
+        const dronesNext = parseDroneInfo(drones || []);
+        const parcelsNext = parcels ? parseParcelInfo(parcels) : [];
+        const newNumberOfTeamsMax = this.state.numberOfTeamsMax - dronesNext.length || 0;
+        const newNumberOfTeamsMin = newNumberOfTeamsMax > this.state.numberOfTeamsMin ? this.state.numberOfTeamsMin : newNumberOfTeamsMax;
+        this.setState({
+            savedTeams: dronesNext,
+            savedParcels: parcelsNext,
+            numberOfTeamsMax: newNumberOfTeamsMax,
+            numberOfTeamsMin: newNumberOfTeamsMin,
+            numberOfTeams: newNumberOfTeamsMin,
+        }, console.log(this.state));
     }
 
     handleFormChange = (inputId, event) => {
@@ -237,7 +279,7 @@ export class Admin extends Component {
             ];
             const lat = this.startingPoints[index][0] || this.props.center.lat;
             const lng = this.startingPoints[index][1] || this.props.center.lng;
-            if (this.state.numberOfTeams >= usedIds.length) {
+            if (parseInt(this.state.numberOfTeams, 10) >= usedIds.length) {
                 return {
                     teamId: `${teamColor}-${id}`,
                     location: {
@@ -250,10 +292,8 @@ export class Admin extends Component {
             }
         });
         console.log('teams', teams);
-        const savedTeams = await postDroneInfo(teams);
-        this.setState({
-            savedTeams,
-        }, console.log('savedTeams',savedTeams));
+        await postDroneInfo(teams);
+        this.getData();
     }
 
     submitInitTeams = (event) => {
@@ -289,28 +329,30 @@ export class Admin extends Component {
     async createParcels() {
         // this.setParcelsCoordinates();
         this.numberOfParcels = this.state.targetTeam === 'all' ? this.state.savedTeams.length : 1;
-        console.log(this.numberOfParcels)
         const parcelsIterate = Array.from(Array(this.numberOfParcels || 1));
         const parcels = parcelsIterate.map((value, index) => {
             // const lat = this.parcelsPoints[index][0] || this.props.center.lat;
             // const lng = this.parcelsPoints[index][1] || this.props.center.lng;
             return {
                 parcelId: uuid.v4(),
-                teamId: this.numberOfParcels === 1 ? this.state.targetTeam : this.state.savedTeams[index],
-                score: 100,
+                teamId: this.numberOfParcels === 1 ? this.state.targetTeam : get(this.state, `savedTeams[${index}].teamId`),
+                score: getRadomScore(),
                 status: STATUS.AVAILABLE,
-                pickup: {
-                    latitude: getRandomFloat(GAME_PARAMETERS.boundaries.minLatitude, GAME_PARAMETERS.boundaries.maxLatitude),
-                    longitude: getRandomFloat(GAME_PARAMETERS.boundaries.minLongitude, GAME_PARAMETERS.boundaries.maxLongitude),
+                location: {
+                    pickup: {
+                        latitude: getRandomFloat(GAME_PARAMETERS.boundaries.minLatitude, GAME_PARAMETERS.boundaries.maxLatitude),
+                        longitude: getRandomFloat(GAME_PARAMETERS.boundaries.minLongitude, GAME_PARAMETERS.boundaries.maxLongitude),
+                    },
+                    delivery: {
+                        latitude: getRandomFloat(GAME_PARAMETERS.boundaries.minLatitude, GAME_PARAMETERS.boundaries.maxLatitude),
+                        longitude: getRandomFloat(GAME_PARAMETERS.boundaries.minLongitude, GAME_PARAMETERS.boundaries.maxLongitude),
+                    },
                 },
             };
         });
         console.log('createParcels', parcels);
-        const savedParcels = await postParcel(parcels);
-        this.setState({
-            savedParcels,
-        }, console.log('savedParcels',savedParcels));
-
+        await postParcel(parcels);
+        this.getData();
     }
 
     submitInitParcels = (event) => {
@@ -340,6 +382,7 @@ export class Admin extends Component {
             this.state.savedTeams.map(team => (
                 <option 
                     key={`option-${team.teamId}`}
+                    value={team.teamId}
                 >
                     {team.teamId}
                 </option>
@@ -348,11 +391,34 @@ export class Admin extends Component {
     }
 
     renderParcels() {
-        // TODO
+        const sortedParcels = (
+            this.state.savedParcels && this.state.savedParcels.length > 0
+                ? orderBy(this.state.savedParcels, ['teamId'], ['asc'])
+                : []
+        );
+        return (
+            sortedParcels.length > 0 &&
+            sortedParcels.map((parcel, index) => {
+                return (
+                    parcel.teamId ?
+                    <Parcel
+                        key={`parcel-${parcel.teamId}-${index}`}
+                        {...parcel}
+                    >
+                        {parcel.score} - {parcel.status}
+                    </Parcel>
+                    : null
+                );
+            })
+        );
     }
 
-    // TODO Clear data store
-    // TODO Get data from data store (if page is reloaded)
+    // TODO Clear drones and parcels
+    // TODO Set a specific score for parcels (option)
+    // TODO Order parcels in columns by teamId
+    // TODO Exclude from parcel pickup zone, the map center
+    // TODO Limit the parcel delivery zone to the map center
+    // TODO Other game play
     render() {
         return (
             <AdminContainer>
@@ -368,7 +434,8 @@ export class Admin extends Component {
                                 <Input
                                     id="numberOfTeams"
                                     type="number"
-                                    min="3" max="10"
+                                    min={this.state.numberOfTeamsMin}
+                                    max={this.state.numberOfTeamsMax}
                                     value={this.state.numberOfTeams}
                                     onChange={this.handleFormChange.bind(this, 'numberOfTeams')}
                                 />

@@ -7,6 +7,7 @@
     "@turf/turf": "5.1.6",
     "axios": "0.18.0",
     "bluebird": "3.5.2",
+    "chance": "1.0.16",
     "google-map-react": "1.0.1",
     "lodash": "4.17.10",
     "material-design-icons": "3.0.1",

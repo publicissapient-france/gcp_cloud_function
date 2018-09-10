@@ -65,3 +65,6 @@ export const STATUS = {
     TOGGLE: 'TOGGLE',
     MOVE: 'MOVE',
 };
+
+export const PARCEL_SCORES = [50, 100, 200];
+export const PARCEL_CHANCES = [50, 35, 15];

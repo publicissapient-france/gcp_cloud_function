@@ -42,7 +42,7 @@ exports.parcelHttpUpserter = async (req, res) => {
                 },
             };
 
-            await datastore.upsert(parcelEntity)
+            await datastore.upsert(parcelEntity);
             console.log(`Parcel entity with id ${parcelFromBody.parcelId} upserted successfully.`);
             if (res.status === 204) {
                 res.end();

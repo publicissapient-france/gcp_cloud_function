@@ -59,14 +59,14 @@ export class GameDashboard extends Component {
     }
 
     componentDidMount() {
-        this.startDrone();
+        this.initUpdater();
     }
 
     componentWillUnmount() {
         clearInterval(this.timer);
     }
 
-    startDrone = async () => {
+    initUpdater = async () => {
         this.timer = setInterval(async () => {
             // this.moveDrones();
             const dronesAndParcels = await getDronesAndParcels();
@@ -175,7 +175,7 @@ export class GameDashboard extends Component {
                 {/*
                 <Actions>
                   <button onClick={this.stopDrone}>Stop</button>
-                  <button onClick={this.startDrone}>Start</button>
+                  <button onClick={this.initUpdater}>Start</button>
                 </Actions>
                 */}
             </Section>

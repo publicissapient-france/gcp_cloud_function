@@ -2,9 +2,15 @@ import Bluebird from 'bluebird';
 import axios from 'axios';
 import {get} from 'lodash';
 import { darken } from 'polished';
+import Chance from 'chance';
 
 import {COLORS} from '../styles/variables';
-import { GAME_PARAMETERS } from '../constants';
+import {
+    GAME_PARAMETERS,
+    PARCEL_SCORES,
+    PARCEL_CHANCES,
+} from '../constants';
+const chance = new Chance();
 
 const mockData_02 = {"drones":[{"teamId":"blue","data":{"location":{"latitude":48.8653487,"longitude":2.3788396}}},{"teamId":"red","data":{"location":{"latitude":48.80621744882436,"longitude":2.1723810610753986}}},{"teamId":"yellow","data":{"command":{"location":{"latitude":48.806294,"longitude":2.171485},"name":"MOVE"},"parcels":[{"teamId":"yellow","status":"GRABBED","location":{"pickup":{"latitude":48.804986,"longitude":2.188315},"delivery":{"longitude":2.171485,"latitude":48.806294}},"parcelId":"136e5a64-2050-4fa7-8cfc-72df26ca164d","score":100},{"parcelId":"136e5a64-2050-4fa7-8cfc-72df26ca164d","score":100,"teamId":"yellow","status":"GRABBED","location":{"pickup":{"latitude":48.804986,"longitude":2.188315},"delivery":{"latitude":48.806294,"longitude":2.171485}}},{"parcelId":"136e5a64-2050-4fa7-8cfc-72df26ca164d","score":100,"teamId":"yellow","status":"GRABBED","location":{"pickup":{"latitude":48.804986,"longitude":2.188315},"delivery":{"latitude":48.806294,"longitude":2.171485}}}],"location":{"latitude":48.805543474568886,"longitude":2.181142036232819},"topicUrl":"projects/jbc-some-tests/topics/drone-events-topic"}}],"parcels":[{"parcelId":"136e5a64-2050-4fa7-8cfc-72df26ca164d","score":100,"teamId":"yellow","status":"GRABBED","location":{"pickup":{"latitude":48.804986,"longitude":2.188315},"delivery":{"longitude":2.171485,"latitude":48.806294}}},{"score":200,"teamId":"yellow","location":{"pickup":{"latitude":48.810123,"longitude":2.190504},"delivery":{"latitude":48.806294,"longitude":2.171485}}},{"teamId":"blue","location":{"pickup":{"latitude":48.8753487,"longitude":2.3088396},"delivery":{"latitude":48.85,"longitude":2.2}},"score":200}]};
 const mockData_01 = {
@@ -207,7 +213,6 @@ export const postDroneInfo = async (droneInfoData) => {
 
 export const postParcel = async (parcelsData) => {
     return Bluebird.each(parcelsData, async (parcel) => {
-        console.log('parcel', parcel)
         try {
             return await axios.post(GAME_PARAMETERS.parcelHttpUpserterUrl, parcel);
         } catch (error) {
@@ -223,7 +228,7 @@ export const getRandomFloat = (min, max) => Math.random() * (max - min) + min;
 export const getRandomInteger = (min, max) => Math.floor(Math.random() * (Math.floor(max) - Math.ceil(min) + 1)) + Math.ceil(min);
 export const getRandomColor = () => `hsla(${Math.random() * 360}, 100%, 42%, 1)`;
 export const getRandomOperator = () => GAME_PARAMETERS.operators[getRandomInteger(0, 1)];
-
+export const getRadomScore = () => chance.weighted(PARCEL_SCORES, PARCEL_CHANCES);
 // export const createDrones = (quantity) => Array
 //     .from(Array(quantity).keys())
 //     .map((value) => (
