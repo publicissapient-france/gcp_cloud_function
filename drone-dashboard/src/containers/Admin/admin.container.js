@@ -19,6 +19,7 @@ import {
     GAME_PARAMETERS,
     TEAMS,
     STATUS,
+    PARCEL_SCORES
 } from '../../constants';
 import {COLORS} from '../../styles/variables';
 import {
@@ -104,6 +105,11 @@ const Form = styled.div`
   }
   &#initParcels {
     flex: 1 1 70%;
+  }
+  label {
+    &:not(:first-of-type) {
+      margin-left: 10px;
+    }
   }
 `;
 
@@ -209,6 +215,7 @@ export class Admin extends Component {
             savedTeams: [],
             targetTeam: 'all',
             savedParcels: [],
+            parcelScore: 'random',
         };
         this.startingBBox = {};
         this.startingPoints = [];
@@ -225,7 +232,7 @@ export class Admin extends Component {
         const { drones, parcels } = dronesAndParcels || {drones: [], parcels: []};
         const dronesNext = parseDroneInfo(drones || []);
         const parcelsNext = parcels ? parseParcelInfo(parcels) : [];
-        const newNumberOfTeamsMax = this.state.numberOfTeamsMax - dronesNext.length || 0;
+        const newNumberOfTeamsMax = (this.state.numberOfTeamsMax - dronesNext.length) > 0 ? (this.state.numberOfTeamsMax - dronesNext.length) : 0;
         const newNumberOfTeamsMin = newNumberOfTeamsMax > this.state.numberOfTeamsMin ? this.state.numberOfTeamsMin : newNumberOfTeamsMax;
         this.setState({
             savedTeams: dronesNext,
@@ -336,7 +343,7 @@ export class Admin extends Component {
             return {
                 parcelId: uuid.v4(),
                 teamId: this.numberOfParcels === 1 ? this.state.targetTeam : get(this.state, `savedTeams[${index}].teamId`),
-                score: getRadomScore(),
+                score: this.state.parcelScore === 'random' ? getRadomScore() : parseInt(this.state.parcelScore, 10),
                 status: STATUS.AVAILABLE,
                 location: {
                     pickup: {
@@ -414,7 +421,7 @@ export class Admin extends Component {
     }
 
     // TODO Clear drones and parcels
-    // TODO Set a specific score for parcels (option)
+    // TODO Set a specific number of parcels (option)
     // TODO Order parcels in columns by teamId
     // TODO Exclude from parcel pickup zone, the map center
     // TODO Limit the parcel delivery zone to the map center
@@ -443,7 +450,7 @@ export class Admin extends Component {
                         </Line>
                         <Line>
                             <Button type="button" onClick={this.submitInitTeams}>
-                                Save
+                                Create teams
                             </Button>
                         </Line>
                         <ResultLine>
@@ -464,6 +471,19 @@ export class Admin extends Component {
                                 >
                                     <option value="all">all</option>
                                     {this.renderTeamsList()}
+                                </Select>
+                            </label>
+                            <label>
+                                Score:{' '}
+                                <Select
+                                    id="parcelScore"
+                                    value={this.state.parcelScore}
+                                    onChange={this.handleFormChange.bind(this, 'parcelScore')}
+                                >
+                                    {PARCEL_SCORES.map(score => (
+                                        <option value={score}>{score}</option>
+                                    ))}
+                                    <option value="random">random</option>
                                 </Select>
                             </label>
                         </Line>
