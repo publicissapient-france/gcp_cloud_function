@@ -62,7 +62,7 @@ export const GAME_PARAMETERS = {
     // Starting area radius in km
     startingAreaDistance: .5,
     // Game area boundaries
-    showBoundaries: true,
+    showBoundaries: false,
     innerBoundariesMinMax,
     innerBoundaries,
     outerBoundariesMinMax,
