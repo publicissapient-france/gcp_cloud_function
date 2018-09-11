@@ -7,7 +7,7 @@ const datastore = new Datastore({});
 const pubsub = new PubSub();
 
 const topicName = 'projects/jbc-atl-sal-func-techevent/topics/drone-events';
-const DISTANCE_PER_TICK = 0.1;
+const DISTANCE_PER_TICK = 0.3;
 const DEFAULT_LATITUDE = 48.8753487;
 const DEFAULT_LONGITUDE = 2.3088396;
 const COMMANDS = ['MOVE', 'READY'];
