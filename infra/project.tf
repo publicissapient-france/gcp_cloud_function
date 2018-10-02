@@ -1,41 +1,51 @@
-resource "google_project" "project" {
+resource "google_project" "project-drone" {
+
   count = "${length(local.projects)}"
-  name = "${lookup(local.projects[count.index], "name")}"
   project_id = "${lookup(local.projects[count.index], "name")}"
-  policy_data = "${data.google_iam_policy.role.policy_data}"
-  folder_id = "??"
-  billing_account = "??"
+
+  name = "${lookup(local.projects[count.index], "name")}"
+
+  folder_id = "114471209490"
+  billing_account = "01ED3C-B7175E-FDF392"
+}
+
+resource "google_project_iam_policy" "project-iam" {
+  project     = "${lookup(local.projects[count.index], "name")}"
+  policy_data = "${data.google_iam_policy.specific-role.policy_data}"
 }
 
 
-data "google_iam_policy" "role" {
+data "google_iam_policy" "specific-role" {
   binding {
-    role = "roles/editor"
+    role = "roles/cloudfunctions.developer"
 
-    members = "${lookup(local.projects[count.index], "user")}"
+    members = [
+       "${lookup(local.projects[count.index], "user")}",
+    ]
   }
+  binding {
+    role = "roles/pubsub.admin"
+
+    members = [
+      "${lookup(local.projects[count.index], "user")}",
+    ]
+  }
+  binding {
+    role = "roles/owner"
+
+    members = [
+      "${lookup(local.projects[count.index], "user")}",
+    ]
+  }
+
 }
 
 # Enable Services APIs on the project
 resource "google_project_services" "project_services" {
-  project = "${google_project.project.project_id}"
+  project = "${lookup(local.projects[count.index], "name")}"
 
   services = [
-    "pubsub.googleapis.com",
     "bigquery-json.googleapis.com",
   ]
 }
 
-locals {
-
-  projects = [
-    {
-      name = "tc-drone-jb"
-      user = "jbclaramonte@xebia.fr"
-    },
-    {
-      name = "tc-drone-nicol"
-      user = "ndechandon@xebia.fr"
-    }
-  ]
-}

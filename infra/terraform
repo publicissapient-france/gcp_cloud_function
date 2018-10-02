@@ -1,0 +1,8 @@
+#!/bin/sh
+TERRAFORM_CMD="docker run -i --rm \
+			-v `pwd`:/root/terraform \
+			-e GOOGLE_CREDENTIALS=/root/terraform/account.json\
+			-w /root/terraform \
+			hashicorp/terraform:0.11.7"
+
+${TERRAFORM_CMD} $@

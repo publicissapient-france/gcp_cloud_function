@@ -1,5 +1,5 @@
 provider "google" {
   region  = "europe-west1"
-  credentials = "${file("account.json")}"
-  version = "~> 1.15"
+  version = "~> 1.16"
+  project = "deploy-techevent-drone"
 }

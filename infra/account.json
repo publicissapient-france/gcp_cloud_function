@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "deploy-techevent-drone",
+  "private_key_id": "4e3f5be0c88f0c0f269d3e9ec864904d8f793f76",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCyWYu8md8ZsV+k\n9UsQae5USQbhvP3F8/ynqa1HJXuIC2AHxxLbBMQTBct+Q62ouLOuX+vID3NSPrLM\nqlcy575wQpmu+UohUhhZPcO3CpfQLFvUhSANqm7XhKkbTMmCZTqWBrEOX3cRIOi/\nx99fMcHBLW5ywUV9PVQYfObFXOXECKYmGg+7w14gn6Q3YoCBkp2vuUA+az7TMNBP\nBdkwLIXRqzmPtWm07HpCPCO8/QfDe0Q+2uIB2ceqWdIkuBkEdn5iT5KnkwZIuYBd\nN8ZWXj9EUapnPz+4i5Cq1hfpEw4XFviULHwjK6geybep7U1t4vIrhruauZfwY1A6\n31avuwbLAgMBAAECggEAAw+Y0VvxXfOhQdJKlLzCBWFpQLbJifwWyhpPESCGx+VJ\nMaOlImwMaBpIlJMux+2GQbY4ZkeZKPkyR7i6ebovXcKIoyTqmDsjd55oFkbptaiZ\nrt7WCXCsKamj+yKFdtfIXfU94yC0+v0N78oERbzB4KVvTCvJOIa00cga/kTRx84N\ne7LxenkuTNywNHFxn7nqSg+h6aP0ehUdw5hxWVAvdfS7YrqvDLS7jfuoXpspwbPe\nffi08lg2YXmP58UL1+2TU3BOh+qgnl4uU3ZPk/RKtXSkAc6DgFw/qxgclAN1v7h8\ntAFwRwhVLViS6GaN/Z4GIciRK4iV0Pexg8u5LZECQQKBgQDuqnJarTpGJw19fqvH\nislvmMO1uNWoXSmjTMGoJKRLCLqi8H7iyt1Wex83xLowuHoZXZFKOkF7cp0DC6Y1\nMcAM/M4W5x9PZ1ST6N6i9RFXcQBYGL2ADv8/DXnLcEXJK7R5IpHVvvWAoBzerJbT\nuzQHDLeh+4A+FEGAX358Svdg4QKBgQC/TaIg66NyGEyxTOLCtk2DeHdBC788ujLP\nE1CLlZ1YxU4N7m1t1xDtMW4R0V81H4Xw091GDzPJPdhc/pp2YN4dNNUR/j9YelY5\nfW8HgHxsn+bM4avPWEaXNStp9KIUReQIUmP8mGu4GCJ1laYlzPr+fCSjTCEyQg6V\nbeYbRQjhKwKBgELICst4oU+z6cBty19AZHEHi+uzVoWP2/DHr4B/EEG2pZKmPLr1\nDM4AEZInR/oOBIxIdDkS5/PE9E4/2jgUParkqj4aWdZ8EVx50qJCdKHFCtWbxpqo\nl59rA+N6/Ov3gL5MgAYRMtzU8H8WR/Xi8gHu+wsmNpIoVNO45MmeqG3BAoGAYb18\ndG1wWL7pkDzELs+N0vodk/I4hwJrKzmnEWojtlM4ig2jg1c6orV6k0fx6OZuPJlC\nmKTzxIIApaK/sHPVh/6STlskakQ3AbCApciTybv44/z5Fzr29hKIV95RYSJEW6wc\nwdXuU2ShVopbFT0hkBxFa9ldrJvrb5Vy18PxwXkCgYEAk4iir4AgKie6WQhkS8aq\nDVrbcG4xbjUnuDIBSOCjLS2+S/Thu5n/BmOK3oz5viWSKqWDJruuHTxYfZB0UDG2\ncDO7HaE7J4YRVFagedjfzWNEDtO6cT3TXaXQsZoYZERh+TdlPV1wyW83vmAbugUZ\nb5/6/jvrO0SxwhMf1FUOyJU=\n-----END PRIVATE KEY-----\n",
+  "client_email": "deploy-techevent-drone@deploy-techevent-drone.iam.gserviceaccount.com",
+  "client_id": "106541422215341183707",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/deploy-techevent-drone%40deploy-techevent-drone.iam.gserviceaccount.com"
+}
