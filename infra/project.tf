@@ -9,43 +9,45 @@ resource "google_project" "project-drone" {
   billing_account = "01ED3C-B7175E-FDF392"
 }
 
-resource "google_project_iam_policy" "project-iam" {
-  project     = "${lookup(local.projects[count.index], "name")}"
-  policy_data = "${data.google_iam_policy.specific-role.policy_data}"
-}
-
-
-data "google_iam_policy" "specific-role" {
-  binding {
-    role = "roles/cloudfunctions.developer"
-
-    members = [
-       "${lookup(local.projects[count.index], "user")}",
-    ]
-  }
-  binding {
-    role = "roles/pubsub.admin"
-
-    members = [
-      "${lookup(local.projects[count.index], "user")}",
-    ]
-  }
-  binding {
-    role = "roles/owner"
-
-    members = [
-      "${lookup(local.projects[count.index], "user")}",
-    ]
-  }
-
-}
-
 # Enable Services APIs on the project
 resource "google_project_services" "project_services" {
   project = "${lookup(local.projects[count.index], "name")}"
 
   services = [
-    "bigquery-json.googleapis.com",
+    "pubsub.googleapis.com",
+    "cloudfunctions.googleapis.com "
   ]
 }
 
+
+resource "google_project_iam_binding" "pubsub" {
+  count = "${length(local.projects)}"
+  project     = "${lookup(local.projects[count.index], "name")}"
+  role = "roles/pubsub.admin"
+
+  members = [
+    "${lookup(local.projects[count.index], "user")}",
+  ]
+}
+
+resource "google_project_iam_binding" "cloudfunctions" {
+  count = "${length(local.projects)}"
+  project     = "${lookup(local.projects[count.index], "name")}"
+  role = "roles/cloudfunctions.developer"
+
+  members = [
+    "${lookup(local.projects[count.index], "user")}",
+  ]
+}
+
+
+
+resource "google_project_iam_binding" "owner" {
+  count = "${length(local.projects)}"
+  project     = "${lookup(local.projects[count.index], "name")}"
+  role = "roles/cloudfunctions.developer"
+
+  members = [
+    "user:jbclaramonte@xebia.fr","user:ndechandon@xebia.fr","user:aletaxin@xebia.fr"
+  ]
+}
