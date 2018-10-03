@@ -11,6 +11,7 @@ resource "google_project" "project-drone" {
 
 # Enable Services APIs on the project
 resource "google_project_services" "project_services" {
+  count = "${length(local.projects)}"
   project = "${lookup(local.projects[count.index], "name")}"
 
   services = [
@@ -40,12 +41,10 @@ resource "google_project_iam_binding" "cloudfunctions" {
   ]
 }
 
-
-
 resource "google_project_iam_binding" "owner" {
   count = "${length(local.projects)}"
   project     = "${lookup(local.projects[count.index], "name")}"
-  role = "roles/cloudfunctions.developer"
+  role = "roles/owner"
 
   members = [
     "user:jbclaramonte@xebia.fr","user:ndechandon@xebia.fr","user:aletaxin@xebia.fr"
