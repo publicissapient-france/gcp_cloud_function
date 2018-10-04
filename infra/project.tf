@@ -50,3 +50,11 @@ resource "google_project_iam_binding" "owner" {
     "user:jbclaramonte@xebia.fr","user:ndechandon@xebia.fr","user:aletaxin@xebia.fr"
   ]
 }
+
+module "project-test-jbc" {
+  source          = "modules/project"
+  project-name    = "jbc-j20181004"
+  folder-id       = "114471209490"
+  billing-account = "01ED3C-B7175E-FDF392"
+  users           = ["jeanbaptiste.claramonte@gmail.com"]
+}
