@@ -16,7 +16,7 @@ resource "google_project_services" "project_services" {
 
   services = [
     "pubsub.googleapis.com",
-    "cloudfunctions.googleapis.com "
+    "cloudfunctions.googleapis.com"
   ]
 }
 
@@ -51,10 +51,11 @@ resource "google_project_iam_binding" "owner" {
   ]
 }
 
-module "project-test-jbc" {
-  source          = "modules/project"
-  project-name    = "jbc-j20181004"
-  folder-id       = "114471209490"
-  billing-account = "01ED3C-B7175E-FDF392"
-  users           = ["jeanbaptiste.claramonte@gmail.com"]
-}
+//module "project-test-jbc" {
+//  count = "${length(local.projects)}"
+//  project-name = "${lookup(local.projects[count.index], "name")}"
+//  source          = "modules/project"
+//  folder-id       = "114471209490"
+//  billing-account = "01ED3C-B7175E-FDF392"
+//  users           = ["${lookup(local.projects[count.index], "user")}""]
+//}

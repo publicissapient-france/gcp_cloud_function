@@ -2,11 +2,8 @@ locals {
 
   projects = [
     {
-      name = "jbclaramonte-111"
+      name = "jbclaramonte-666"
       user = "user:jbclaramonte@xebia.fr"
-    },{
-      name = "nicolas-222"
-      user = "user:nicolas.dechandon@gmail.com"
     }
   ]
 }

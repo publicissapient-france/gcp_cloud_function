@@ -15,7 +15,7 @@ resource "google_project_services" "project_services" {
 
   services = [
     "pubsub.googleapis.com",
-    "cloudfunctions.googleapis.com "
+    "cloudfunctions.googleapis.com",
   ]
 }
 

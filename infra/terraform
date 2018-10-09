@@ -4,6 +4,6 @@ TERRAFORM_CMD="docker run -i --rm \
 			-v $HOME/.ssh:/root/.ssh \
 			-e GOOGLE_CREDENTIALS=/root/.ssh/deploy-techevent-drone.json \
 			-w /root/terraform \
-			hashicorp/terraform:0.11.7"
+			hashicorp/terraform:0.11.8"
 
 ${TERRAFORM_CMD} $@
