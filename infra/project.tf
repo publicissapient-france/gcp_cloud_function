@@ -16,7 +16,10 @@ resource "google_project_services" "project_services" {
 
   services = [
     "pubsub.googleapis.com",
-    "cloudfunctions.googleapis.com"
+    "cloudfunctions.googleapis.com",
+    "storage-api.googleapis.com",
+    "logging.googleapis.com",
+    "storage-component.googleapis.com"
   ]
 }
 
@@ -39,6 +42,14 @@ resource "google_project_iam_binding" "cloudfunctions" {
   members = [
     "${lookup(local.projects[count.index], "user")}",
   ]
+}
+resource "google_project_iam_member" "editor" {
+  count = "${length(local.projects)}"
+  project     = "${lookup(local.projects[count.index], "name")}"
+  role = "roles/editor"
+
+  member = "${lookup(local.projects[count.index], "user")}",
+
 }
 
 resource "google_project_iam_binding" "owner" {
