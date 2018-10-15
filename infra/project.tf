@@ -43,6 +43,17 @@ resource "google_project_iam_binding" "cloudfunctions" {
     "${lookup(local.projects[count.index], "user")}",
   ]
 }
+//
+//resource "google_project_iam_binding" "project" {
+//  count = "${length(local.projects)}"
+//  project     = "${lookup(local.projects[count.index], "name")}"
+//  role    = "roles/pubsub.publisher"
+//
+//  members = [
+//    "group:allUsers",
+//  ]
+//}
+
 resource "google_project_iam_member" "editor" {
   count = "${length(local.projects)}"
   project     = "${lookup(local.projects[count.index], "name")}"
