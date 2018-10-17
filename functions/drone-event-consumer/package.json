@@ -1,7 +1,0 @@
-{
-    "name": "drone-event-consumer",
-    "version": "0.0.1",
-    "dependencies": {
-        "@google-cloud/datastore": "1.4.0"
-    }
-}
