@@ -280,24 +280,18 @@ const moveDrone = async function (droneInfo, teamId) {
             }
 
         } catch (err) {
-            console.log(`error: ${err}`);
+            console.error(`[${teamId}][moveDrone] error: ${err}`);
         }
 
     } else {
         // Continue moving to destination
         const bearing = turf.bearing(currentLocation, dest);
-        console.log(`bearing for team ${JSON.stringify(droneInfo[datastore.KEY])}: ${bearing}`);
+        console.log(`[${teamId}][moveDrone] bearing for team: ${bearing}`);
         const destination = turf.destination(currentLocation, DISTANCE_PER_TICK, bearing, {});
-        console.log(`next point is: ${JSON.stringify(destination)}`);
+        console.log(`[${teamId}][moveDrone] next point is: ${JSON.stringify(destination)}`);
         droneInfo.location.latitude = destination.geometry.coordinates[0];
         droneInfo.location.longitude = destination.geometry.coordinates[1];
-
-        const data = JSON.stringify({
-            teamId,
-            location: droneInfo.location,
-            command: droneInfo.command,
-            event: 'MOVING'
-        });
+        const data = JSON.stringify({ teamId, droneInfo, event: 'MOVING' });
 
         publishInTopic(data, topicName, teamId);
     }

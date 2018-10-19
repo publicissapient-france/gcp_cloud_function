@@ -11,6 +11,7 @@ exports.droneEventsDispatcher = async (message, context) => {
     console.log('event received with data: ', data);
 
     await publishInTeamTopic(data);
+    console.log('end -- ');
 };
 
 const publishInTeamTopic = async (data) => {
@@ -31,7 +32,11 @@ const publishInTeamTopic = async (data) => {
     } else if (teamTopicUrl.startsWith("http")) {
       console.log(`[${teamId}][publishInTeamTopic] will post event to team url ${teamTopicUrl}.`);
       try {
-        await fetch(teamTopicUrl, {method: 'POST', body: JSON.stringify(data)});
+        await fetch(teamTopicUrl, {
+          method: 'POST',
+          body: JSON.stringify(data),
+          headers: { 'Content-Type': 'application/json' },
+        });
       } catch (err) {
         console.error(`[${teamId}][publishInTeamTopic] Oups cannot post event to ${teamTopicUrl} and data: ${JSON.stringify(data, null, 2)}`, err);
       }
