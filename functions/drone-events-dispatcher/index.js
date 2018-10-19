@@ -1,6 +1,7 @@
 const PubSub = require('@google-cloud/pubsub');
 const Datastore = require('@google-cloud/datastore');
 const { get } = require('lodash');
+const fetch = require('node-fetch');
 
 const pubsub = new PubSub();
 const datastore = new Datastore({});
@@ -15,26 +16,33 @@ exports.droneEventsDispatcher = async (message, context) => {
 const publishInTeamTopic = async (data) => {
     const teamId = data.teamId;
     const teamTopicUrl = get(data.droneInfo, 'topicUrl');
-    if (teamTopicUrl) {
-        console.log(`publish event to team topic ${teamTopicUrl}.`);
-        try {
-            const dataBuffer = Buffer.from(JSON.stringify(data));
+    if (teamTopicUrl.startsWith("projects")) {
+      console.log(`[${teamId}][publishInTeamTopic] will publish event to team topic ${teamTopicUrl}.`);
+      try {
+        const dataBuffer = Buffer.from(JSON.stringify(data));
 
-            const messageId = await pubsub.topic(teamTopicUrl).publisher().publish(dataBuffer);
+        const messageId = await pubsub.topic(teamTopicUrl).publisher().publish(dataBuffer);
 
-            console.log(`Message ${messageId} published in team topic ${teamTopicUrl}.`);
-        } catch (err) {
-            console.error(`Cannot push to ${teamTopicUrl}`, err);
-            console.error(`publishOnTeamTopic : Oups cannot publish event for teamId ${teamId} and droneInfo ${JSON.stringify(data, null, 2)}`, err);
-            await updateDroneInfoEvent(teamId, 'READY_FAILED');
-        }
+        console.log(`[${teamId}][publishInTeamTopic] Message ${messageId} published in team topic ${teamTopicUrl}.`);
+      } catch (err) {
+        console.error(`[${teamId}][publishInTeamTopic] Oups cannot publish event to ${teamTopicUrl} and data: ${JSON.stringify(data, null, 2)}`, err);
+        await updateDroneInfoEvent(teamId, 'READY_FAILED');
+      }
+    } else if (teamTopicUrl.startsWith("http")) {
+      console.log(`[${teamId}][publishInTeamTopic] will post event to team url ${teamTopicUrl}.`);
+      try {
+        await fetch(teamTopicUrl, {method: 'POST', body: JSON.stringify(data)});
+      } catch (err) {
+        console.error(`[${teamId}][publishInTeamTopic] Oups cannot post event to ${teamTopicUrl} and data: ${JSON.stringify(data, null, 2)}`, err);
+      }
     } else {
-        console.log(`team ${teamId} has no topic set.`);
+        console.log(`[${teamId}][publishInTeamTopic] has no topic set.`);
     }
 };
 
 
 const updateDroneInfoEvent = async (teamId, eventName) => {
+    console.log(`[${teamId}][updateDroneInfoEvent]`);
     try {
         const droneInfoKey = datastore.key(['DroneInfo', teamId]);
         const droneInfoFromDB = await findDroneByKey(droneInfoKey);
@@ -54,10 +62,10 @@ const updateDroneInfoEvent = async (teamId, eventName) => {
         };
 
         datastore.upsert(droneInfoEntity);
-        console.log(`DroneInfo entity with id ${teamId} upserted successfully.`);
+        console.log(`[${teamId}][updateDroneInfoEvent] DroneInfo entity with id ${teamId} upserted successfully.`);
 
     } catch (err) {
-        console.error('ERROR:', err);
+        console.error(`[${teamId}][updateDroneInfoEvent] error:  ${err}`);
     }
 };
 
