@@ -39,6 +39,7 @@ exports.parcelHttpUpserter = async (req, res) => {
                     score: parcelFromBody.score,
                     location: parcelFromBody.location,
                     status: parcelFromBody.status,
+                    type: parcelFromBody.type,
                 },
             };
 

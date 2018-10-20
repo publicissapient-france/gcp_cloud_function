@@ -358,6 +358,7 @@ export class Admin extends Component {
                     teamId: this.numberOfParcels === 1 ? this.state.targetTeam : get(this.state, `savedTeams[${index}].teamId`),
                     score: this.state.parcelScore === 'random' ? getRadomScore() : parseInt(this.state.parcelScore, 10),
                     status: STATUS.AVAILABLE,
+                    type: 'CLASSIC',
                     location: {
                         pickup: {
                             latitude: pickupLat[chance.integer({min: 0, max: 1})],

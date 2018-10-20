@@ -76,7 +76,7 @@ const getJobsDroneWaitingForCommand = async (droneInfos) => {
         const teamId = getTeamId(droneInfo);
         console.log(`[${teamId}][getJobsDroneReady] droneInfo before update : ${JSON.stringify(droneInfo)}`);
 
-        const data = JSON.stringify({ teamId, droneInfo, event: 'WAITING_FOR_COMMAND' });
+        const data = { teamId, droneInfo, event: 'WAITING_FOR_COMMAND' };
         publishInTopic(data, topicName, teamId);
     });
 };
@@ -93,11 +93,11 @@ const getJobsDroneReady = async (droneInfos) => {
         } else {
             delete droneInfo.command;
             droneInfo.topicUrl = teamTopicUrl;
-            const data = JSON.stringify({ teamId, droneInfo, event: 'WAITING_FOR_COMMAND' });
+            const data = { teamId, droneInfo, event: 'WAITING_FOR_COMMAND' };
             publishInTopic(data, topicName, teamId);
         }
 
-        upsertDrone(droneInfo);
+        await upsertDrone(droneInfo);
     });
 };
 
@@ -125,12 +125,12 @@ const getJobsDroneMove = async (droneInfos) => {
             droneInfo.command &&
             (!droneInfo.command.location || !droneInfo.command.location.latitude || !droneInfo.command.location.longitude)
         ) {
-            const data = JSON.stringify({ teamId, droneInfo, event: 'MOVE_LOCATION_ERROR' });
+            const data = { teamId, droneInfo, event: 'MOVE_LOCATION_ERROR' };
             publishInTopic(data, topicName, teamId);
         } else {
             await moveDrone(droneInfo, teamId);
         }
-        upsertDrone(droneInfo);
+        await upsertDrone(droneInfo);
     });
 };
 
@@ -143,9 +143,13 @@ const updateDroneScore = (droneInfo, deliveredParcel) => {
     droneInfo.score = droneInfo.score + deliveredParcel.score;
 };
 
-const publishInTopic = (message, topicName, teamId = "unknownTeam") => {
-    console.log(`[${teamId}][publishInTopic] will send to topic ${topicName} : ${message}`)
-    const dataBuffer = Buffer.from(message);
+const publishInTopic = async (message, topicName, teamId = "unknownTeam") => {
+    const availableParcelsForTeam = await getAllAvailableParcelsForTeam(teamId);
+    console.log(`[${teamId}][publishInTopic] availableParcelsForTeam ${JSON.stringify(availableParcelsForTeam)}`);
+    message.availableParcelsForTeam = availableParcelsForTeam;
+    const data = JSON.stringify(message);
+    console.log(`[${teamId}][publishInTopic] will send to topic ${topicName} : ${data}`);
+    const dataBuffer = Buffer.from(data);
     pubsub
         .topic(topicName)
         .publisher()
@@ -158,9 +162,15 @@ const publishInTopic = (message, topicName, teamId = "unknownTeam") => {
         });
 };
 
-const droneAsReachItsDestination = (distanceToDestination) => {
-    return distanceToDestination < DISTANCE_PER_TICK;
+const droneHasReachItsDestination = (distanceToDestination, droneInfo) => {
+    return distanceToDestination < getDistancePerTickForDrone(droneInfo);
 };
+
+const getDistancePerTickForDrone = (droneInfo) => {
+  droneInfo.distancePerTick = droneInfo.distancePerTick || DISTANCE_PER_TICK;
+  return droneInfo.distancePerTick;
+};
+
 
 const searchIfALocationForADelivery = (droneInfo) => {
     const teamId = getTeamId(droneInfo);
@@ -168,7 +178,7 @@ const searchIfALocationForADelivery = (droneInfo) => {
     if (droneInfo.parcels) {
         for (let i = 0; i < droneInfo.parcels.length; i++) {
             const parcel = droneInfo.parcels[i];
-            if (areCloseToEAchOther(droneInfo.location, parcel.location.delivery)) {
+            if (areCloseToEAchOther(droneInfo.location, parcel.location.delivery, getDistancePerTickForDrone(droneInfo))) {
                 console.log(`[${teamId}][searchIfALocationForADelivery] => true`);
                 return parcel;
             }
@@ -177,7 +187,7 @@ const searchIfALocationForADelivery = (droneInfo) => {
     return undefined;
 };
 
-const upsertDrone = (droneInfo) => {
+const upsertDrone = async (droneInfo) => {
     const teamId = getTeamId(droneInfo);
     console.log(`[${teamId}][upsertDrone]`);
     const droneInfoKey = droneInfo[datastore.KEY];
@@ -186,34 +196,50 @@ const upsertDrone = (droneInfo) => {
         data: droneInfo,
     };
 
-    datastore
-        .upsert(droneInfoEntity)
-        .then(() => {
-            console.log(`[${teamId}][upsertDrone] DroneInfo entity upserted successfully.`);
-        })
-        .catch(err => {
-            console.error('ERROR:', err);
-        });
+    try {
+        await datastore.upsert(droneInfoEntity);
+        console.log(`[${teamId}][upsertDrone] DroneInfo entity upserted successfully.`);
+    } catch (err) {
+        console.error(`[${teamId}][upsertDrone] error`, err);
+    }
 };
 
-const checkParcelAround = async (droneLocation, teamId) => {
-    console.log(`[${teamId}][checkParcelAround] checking parcels around location ${JSON.stringify(droneLocation)}`);
+const getAllAvailableParcelsForTeam = async (teamId) => {
+    console.log(`[${teamId}][getAllAvailableParcelsForTeam] start`);
     let parcelsResult = [];
 
-    const droneLocationPoint = turf.point([droneLocation.latitude, droneLocation.longitude]);
-
-    const query = datastore
+    const queryTeam = datastore
         .createQuery('Parcel')
         .filter('teamId', '=', teamId)
         .filter('status', '=', 'AVAILABLE');
 
+    const queryAll = datastore
+        .createQuery('Parcel')
+        .filter('teamId', '=', 'all')
+        .filter('status', '=', 'AVAILABLE');
+
     try {
-        const results = await datastore.runQuery(query);
-        const parcels = results[0];
+        const resultsTeam = datastore.runQuery(queryTeam);
+        const resultsAll = datastore.runQuery(queryAll);
+        const results = await Promise.all([resultsTeam, resultsAll]);
+        parcelsResult = [...results[0][0], ...results[1][0]];
+        console.log(`[${teamId}][getAllAvailableParcelsForTeam] parcelsResult= ${JSON.stringify(parcelsResult)}`);
+    } catch (err) {
+        console.error(`[${teamId}][getAllAvailableParcelsForTeam] error`, err);
+    }
+    return parcelsResult;
+}
+
+const checkParcelAround = async (droneInfo, teamId) => {
+    const droneLocation = droneInfo.location;
+    console.log(`[${teamId}][checkParcelAround] checking parcels around location ${JSON.stringify(droneLocation)}`);
+    let parcelsResult = [];
+    try {
+        const parcels = await getAllAvailableParcelsForTeam(teamId);
         console.log(`[${teamId}][checkParcelAround] parcels before filter=${JSON.stringify(parcels)}`);
         parcelsResult = parcels
             .filter(p => {
-                return areCloseToEAchOther(droneLocation, p.location.pickup);
+                return areCloseToEAchOther(droneLocation, p.location.pickup, getDistancePerTickForDrone(droneInfo));
             })
             .map(p => {
                 p.parcelId = p[datastore.KEY].name;
@@ -228,11 +254,11 @@ const checkParcelAround = async (droneLocation, teamId) => {
     return parcelsResult;
 };
 
-const areCloseToEAchOther = (itemALocation, itemBLocation) => {
+const areCloseToEAchOther = (itemALocation, itemBLocation, distancePerTick) => {
     const itemATurfLocation = turf.point([itemALocation.latitude, itemALocation.longitude]);
     const itemBTurfLocation = turf.point([itemBLocation.latitude, itemBLocation.longitude]);
     const distance = turf.distance(itemATurfLocation, itemBTurfLocation, {});
-    return distance < DISTANCE_PER_TICK;
+    return distance < distancePerTick;
 };
 
 const isCommandValid = (command = []) => some(COMMANDS, (entry) => entry === command);
@@ -242,7 +268,7 @@ const moveDrone = async function (droneInfo, teamId) {
     const dest = turf.point([droneInfo.command.location.latitude, droneInfo.command.location.longitude]);
     const distance = turf.distance(currentLocation, dest, {});
 
-    if (droneAsReachItsDestination(distance)) {
+    if (droneHasReachItsDestination(distance, droneInfo)) {
         console.log(`[${teamId}][moveDrone] drone has arrived at destination`);
         droneInfo.location.latitude = droneInfo.command.location.latitude;
         droneInfo.location.longitude = droneInfo.command.location.longitude;
@@ -257,23 +283,30 @@ const moveDrone = async function (droneInfo, teamId) {
 
                 deleteParcel(deliveredParcel.parcelId);
 
-                const data = JSON.stringify({ teamId, droneInfo, event: 'PARCEL_DELIVERED' });
+                const data = { teamId, droneInfo, event: 'PARCEL_DELIVERED' };
                 publishInTopic(data, topicName, teamId);
             } else {
-                console.log(`[${teamId}][moveDrone] will checkParcelAround`);
-                const parcelsAroundDrone = await checkParcelAround(droneInfo.location, teamId);
-                console.log(`[${teamId}][moveDrone] parcelsAroundDrone:${parcelsAroundDrone}`);
+                const parcelsAroundDrone = await checkParcelAround(droneInfo, teamId);
                 if (parcelsAroundDrone && parcelsAroundDrone.length > 0) {
                     console.log(`[${teamId}][moveDrone] Parcel around drone detected !`);
-                    droneInfo.parcels = droneInfo.parcels || [];
-                    droneInfo.parcels = [...droneInfo.parcels, ...parcelsAroundDrone];
-                    const data = JSON.stringify({ teamId, droneInfo, event: 'PARCEL_GRABBED' });
 
-                    updateParcelStatus(parcelsAroundDrone, 'GRABBED');
+                    // handle speedboost parcels
+                    const speedBoostParcels = parcelsAroundDrone.filter(parcel => parcel.type === "SPEED_BOOST");
+                    speedBoostParcels.forEach(parcel => {
+                        droneInfo.distancePerTick = droneInfo.distancePerTick + parcel.score;
+                        deleteParcel(parcel.parcelId);
+                    });
+
+                    // Handle classic parcels:
+                    const classicParcels = parcelsAroundDrone.filter(parcel => parcel.type === "CLASSIC");
+                    droneInfo.parcels = droneInfo.parcels || [];
+                    droneInfo.parcels = [...droneInfo.parcels, ...classicParcels];
+                    const data = { teamId, droneInfo, event: 'PARCEL_GRABBED' };
+                    await updateParcelStatus(parcelsAroundDrone, 'GRABBED');
 
                     publishInTopic(data, topicName, teamId);
                 } else {
-                    const data = JSON.stringify({ teamId, droneInfo, event: 'DESTINATION_REACHED' });
+                    const data = { teamId, droneInfo, event: 'DESTINATION_REACHED' };
 
                     publishInTopic(data, topicName, teamId);
                 }
@@ -291,7 +324,7 @@ const moveDrone = async function (droneInfo, teamId) {
         console.log(`[${teamId}][moveDrone] next point is: ${JSON.stringify(destination)}`);
         droneInfo.location.latitude = destination.geometry.coordinates[0];
         droneInfo.location.longitude = destination.geometry.coordinates[1];
-        const data = JSON.stringify({ teamId, droneInfo, event: 'MOVING' });
+        const data = { teamId, droneInfo, event: 'MOVING' };
 
         publishInTopic(data, topicName, teamId);
     }

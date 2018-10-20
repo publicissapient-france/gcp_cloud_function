@@ -8,7 +8,7 @@ const datastore = new Datastore({});
 
 exports.droneEventsDispatcher = async (message, context) => {
     const data = JSON.parse(Buffer.from(message.data, 'base64').toString());
-    console.log('event received with data: ', data);
+    console.log('event received with data: ', message.data);
 
     await publishInTeamTopic(data);
     console.log('end -- ');
@@ -30,7 +30,7 @@ const publishInTeamTopic = async (data) => {
         await updateDroneInfoEvent(teamId, 'READY_FAILED');
       }
     } else if (teamTopicUrl.startsWith("http")) {
-      console.log(`[${teamId}][publishInTeamTopic] will post event to team url ${teamTopicUrl}.`);
+      console.log(`[${teamId}][] will post event to team url ${teamTopicUrl}.`);
       try {
         await fetch(teamTopicUrl, {
           method: 'POST',
@@ -66,7 +66,7 @@ const updateDroneInfoEvent = async (teamId, eventName) => {
             data: droneInfoFromDB
         };
 
-        datastore.upsert(droneInfoEntity);
+        await datastore.upsert(droneInfoEntity);
         console.log(`[${teamId}][updateDroneInfoEvent] DroneInfo entity with id ${teamId} upserted successfully.`);
 
     } catch (err) {
