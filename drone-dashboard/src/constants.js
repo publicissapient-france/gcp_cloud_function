@@ -89,6 +89,8 @@ export const GAME_PARAMETERS = {
     startingAreaDistance: .5,
     // Speed boost bonus value
     speedBoostValue: .1,
+    // max team number
+    maxTeams: 10,
     // Game area boundaries
     showBoundaries: false,
     innerBoundariesMinMax,

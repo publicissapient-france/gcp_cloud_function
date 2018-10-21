@@ -270,15 +270,26 @@ export class Admin extends Component {
     updateGame = ({drones, parcels}) => {
         const dronesNext = parseDroneInfo(drones || []);
         const parcelsNext = parcels ? parseParcelInfo(parcels) : [];
-        const newNumberOfTeamsMax = (this.state.numberOfTeamsMax - dronesNext.length) > 0 ? (this.state.numberOfTeamsMax - dronesNext.length) : 0;
-        const newNumberOfTeamsMin = newNumberOfTeamsMax > this.state.numberOfTeamsMin ? this.state.numberOfTeamsMin : newNumberOfTeamsMax;
+        const newNumberOfTeamsMax = this.props.maxTeams > dronesNext.length
+            ? this.props.maxTeams - dronesNext.length
+            : 0;
+        const newNumberOfTeamsMin = newNumberOfTeamsMax === 0
+            ? 0
+            : newNumberOfTeamsMax > 0
+            ? 1
+            : this.state.numberOfTeamsMin;
         this.setState({
             savedTeams: dronesNext,
             savedParcels: parcelsNext,
             numberOfTeamsMax: newNumberOfTeamsMax,
             numberOfTeamsMin: newNumberOfTeamsMin,
             numberOfActiveTeams: dronesNext.length,
-            numberOfTeams: this.state.numberOfTeams <= newNumberOfTeamsMin ? this.state.numberOfTeams : newNumberOfTeamsMin, 
+            numberOfTeams: (
+                newNumberOfTeamsMax >= this.state.numberOfTeams
+                || this.state.numberOfTeams <= newNumberOfTeamsMin
+                    ? this.state.numberOfTeams
+                    : newNumberOfTeamsMin
+            ), 
         }, console.log(this.state));
     };
 
@@ -286,6 +297,13 @@ export class Admin extends Component {
         event.preventDefault();
         this.setState({
             [inputId]: event.target.value,
+        });
+    };
+
+    handleFormChangeInt = (inputId, event) => {
+        event.preventDefault();
+        this.setState({
+            [inputId]: parseInt(event.target.value, 10),
         });
     };
 
@@ -512,7 +530,6 @@ export class Admin extends Component {
     // TODO Clear drones and parcels button
     // TODO Order parcels in columns by teamId
     // TODO Other game play
-    // FIXME max and min teams is buggy
     render() {
         return (
             <AdminContainer>
@@ -534,7 +551,7 @@ export class Admin extends Component {
                                     min={this.state.numberOfTeamsMin}
                                     max={this.state.numberOfTeamsMax}
                                     value={this.state.numberOfTeams}
-                                    onChange={this.handleFormChange.bind(this, 'numberOfTeams')}
+                                    onChange={this.handleFormChangeInt.bind(this, 'numberOfTeams')}
                                 />
                             </label>
                         </Line>
