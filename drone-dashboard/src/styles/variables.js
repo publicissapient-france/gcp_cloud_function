@@ -9,4 +9,6 @@ export const COLORS = {
     black: '#1f1f1f',
     grey: '#777777',
     white: '#eeeeee',
+    all: 'linear-gradient(to left, #00C3FF, darkblue)',
+    speedBoost: ['#00C3FF','darkblue'],
 };

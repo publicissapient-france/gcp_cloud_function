@@ -1,7 +1,7 @@
 const innerBoundariesMinMax = {
+    maxLatitude: 48.900000, // horizontal
     minLatitude: 48.816000,
-    maxLatitude: 48.900000,
-    minLongitude: 2.25000,
+    minLongitude: 2.25000, // vertical
     maxLongitude: 2.42000,
 };
 const innerBoundaries = [
@@ -46,6 +46,32 @@ const outerBoundaries = [
         longitude: outerBoundariesMinMax.minLongitude,
     },
 ];
+const topAndBotomSpace = (outerBoundariesMinMax.maxLatitude - innerBoundariesMinMax.maxLatitude) * 2;
+const centerBoundariesMinMax = {
+    maxLatitude: outerBoundariesMinMax.maxLatitude,
+    minLatitude: outerBoundariesMinMax.minLatitude,
+    minLongitude: innerBoundariesMinMax.minLongitude - topAndBotomSpace,
+    maxLongitude: innerBoundariesMinMax.maxLongitude + topAndBotomSpace,
+};
+
+const centerBoundaries = [
+    {
+        latitude: centerBoundariesMinMax.maxLatitude,
+        longitude: centerBoundariesMinMax.minLongitude,
+    },
+    {
+        latitude: centerBoundariesMinMax.maxLatitude,
+        longitude: centerBoundariesMinMax.maxLongitude,
+    },
+    {
+        latitude: centerBoundariesMinMax.minLatitude,
+        longitude: centerBoundariesMinMax.maxLongitude,
+    },
+    {
+        latitude: centerBoundariesMinMax.minLatitude,
+        longitude: centerBoundariesMinMax.minLongitude,
+    },
+];
 
 export const GAME_PARAMETERS = {
     speed: 3000,
@@ -61,12 +87,16 @@ export const GAME_PARAMETERS = {
     zoom: 12,
     // Starting area radius in km
     startingAreaDistance: .5,
+    // Speed boost bonus value
+    speedBoostValue: .1,
     // Game area boundaries
     showBoundaries: false,
     innerBoundariesMinMax,
     innerBoundaries,
     outerBoundariesMinMax,
     outerBoundaries,
+    centerBoundariesMinMax,
+    centerBoundaries,
     // functions urls
     droneStateListUrl: 'https://europe-west1-jbc-atl-sal-func-techevent.cloudfunctions.net/droneStateList',
     droneHttpUpserterUrl: 'https://europe-west1-jbc-atl-sal-func-techevent.cloudfunctions.net/droneHttpUpserter',
@@ -95,5 +125,9 @@ export const STATUS = {
     MOVE: 'MOVE',
 };
 
+export const PARCEL_TYPES = {
+    CLASSIC: 'CLASSIC',
+    SPEED_BOOST: 'SPEED_BOOST',
+};
 export const PARCEL_SCORES = [50, 100, 200];
 export const PARCEL_CHANCES = [50, 35, 15];

@@ -13,7 +13,8 @@ import {
 } from '../../components/Score';
 import {
     getDronesAndParcels,
-    parseDroneInfo, parseParcelInfo,
+    parseDroneInfo,
+    parseParcelInfo,
     parseScores,
 } from '../../services/drone.service';
 import {
@@ -91,6 +92,7 @@ export class GameDashboard extends Component {
                 lat={get(boundary, 'latitude')}
                 lng={get(boundary, 'longitude')}
                 status={STATUS.TOGGLE}
+                teamId={type === 'inner' ? 'green' : type === 'center' ? 'orange' : 'red'}
             />
         ))
     }
@@ -169,6 +171,7 @@ export class GameDashboard extends Component {
                         )}
                         {this.props.showBoundaries ? this.renderBoundaries('inner') : null}
                         {this.props.showBoundaries ? this.renderBoundaries('outer') : null}
+                        {this.props.showBoundaries ? this.renderBoundaries('center') : null}
                     </GoogleMapReact>
                 </GoogleMapContainer>
                 <ScoresContainer>

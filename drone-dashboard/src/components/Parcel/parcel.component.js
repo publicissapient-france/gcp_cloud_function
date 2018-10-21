@@ -5,9 +5,11 @@ import {COLORS} from '../../styles/variables';
 import {
     GAME_PARAMETERS,
     STATUS,
+    PARCEL_TYPES,
 } from '../../constants';
 import { CustomMapElement } from '../CustomMapElement';
 import ParcelSprite from '../ParcelSprite';
+import ParcelCustomSprite from '../ParcelCustomSprite';
 import {parseDroneTeamColor} from '../../services/drone.service';
 
 export const ParcelContainer = styled.div`
@@ -29,7 +31,14 @@ export class Parcel extends Component {
             (this.props.status && this.props.status === STATUS.AVAILABLE) ?
             <CustomMapElement>
                 <ParcelContainer {...this.props}>
-                    <ParcelSprite/>
+                { this.props.type === PARCEL_TYPES.SPEED_BOOST
+                    ? <ParcelCustomSprite/>
+                    : null
+                }
+                { this.props.type === PARCEL_TYPES.CLASSIC
+                    ? <ParcelSprite/>
+                    : null
+                }
                 </ParcelContainer>
             </CustomMapElement>
             : null

@@ -20,7 +20,8 @@ import {
     GAME_PARAMETERS,
     TEAMS,
     STATUS,
-    PARCEL_SCORES
+    PARCEL_TYPES,
+    PARCEL_SCORES,
 } from '../../constants';
 import {COLORS} from '../../styles/variables';
 import {
@@ -91,6 +92,9 @@ const Line = styled.div`
     margin: 0;
     padding: 0;
   }
+  & > button:not(:first-child) {
+    margin-left: 10px;
+  }
 `;
 
 const ResultLine = styled(Line)`
@@ -127,11 +131,11 @@ const Form = styled.div`
 const Team = styled.div`
   display: flex;
   flex: 0 1 auto;
+  flex-flow: column wrap;
   justify-content: center;
   align-items: center;
-  font-size: 1.2em;
-  font-weight: bold;
   color: #fff;
+  font-size: .5rem;
   height: 30px;
   width: 100px;
   border-radius: 10px;
@@ -141,10 +145,23 @@ const Team = styled.div`
     margin-right: 5px;
     margin-bottom: 5px;
   }
+  strong {
+    font-size: 1.2rem;
+    font-weight: bold;
+  }
+  div {
+    display: flex;
+    flex: 1 1 auto;
+  }
 `;
 
 const Parcel = styled(Team)`
-  width: 150px;
+  height: auto;
+  width: auto;
+  &:not(:last-of-type){
+    margin-right: 5px;
+    margin-bottom: 0;
+  }
 `;
 
 export class Admin extends Component {
@@ -234,14 +251,23 @@ export class Admin extends Component {
         // this.parcelsBBox = {};
         this.numberOfParcels = 0;
     }
-
+        
     componentDidMount() {
-        this.getData();
+        this.initUpdater();
     }
 
-    getData = async () => {
-        const dronesAndParcels = await getDronesAndParcels();
-        const { drones, parcels } = dronesAndParcels || {drones: [], parcels: []};
+    componentWillUnmount() {
+        clearInterval(this.timer);
+    }
+
+    initUpdater = async () => {
+        this.timer = setInterval(async () => {
+            const dronesAndParcels = await getDronesAndParcels();
+            this.updateGame(dronesAndParcels || {drones: [], parcels: []});
+        }, this.props.speed);
+    };
+
+    updateGame = ({drones, parcels}) => {
         const dronesNext = parseDroneInfo(drones || []);
         const parcelsNext = parcels ? parseParcelInfo(parcels) : [];
         const newNumberOfTeamsMax = (this.state.numberOfTeamsMax - dronesNext.length) > 0 ? (this.state.numberOfTeamsMax - dronesNext.length) : 0;
@@ -251,7 +277,8 @@ export class Admin extends Component {
             savedParcels: parcelsNext,
             numberOfTeamsMax: newNumberOfTeamsMax,
             numberOfTeamsMin: newNumberOfTeamsMin,
-            numberOfTeams: newNumberOfTeamsMin,
+            numberOfActiveTeams: dronesNext.length,
+            numberOfTeams: this.state.numberOfTeams <= newNumberOfTeamsMin ? this.state.numberOfTeams : newNumberOfTeamsMin, 
         }, console.log(this.state));
     };
 
@@ -320,7 +347,6 @@ export class Admin extends Component {
         });
         console.log('teams', teams);
         await postDroneInfo(teams);
-        this.getData();
     }
 
     submitInitTeams = (event) => {
@@ -337,32 +363,80 @@ export class Admin extends Component {
     // });
     
     // admin parcels
-    async createParcels() {
+    getScore({ type }) {
+        if (type === PARCEL_TYPES.CLASSIC) {
+            return this.state.parcelScore === 'random' ? getRadomScore() : parseInt(this.state.parcelScore, 10);
+        }
+        if (type === PARCEL_TYPES.SPEED_BOOST) {
+            return this.props.speedBoostValue;
+        }
+    };
+    
+    getTeamId({ type, index }) {
+        if (type === PARCEL_TYPES.CLASSIC) {
+            return this.numberOfParcels === 1 ? this.state.targetTeam : get(this.state, `savedTeams[${index}].teamId`)
+        }
+        if (type === PARCEL_TYPES.SPEED_BOOST) {
+            return 'all';
+        }
+    }
+
+    getPickupLocation({ type = PARCEL_TYPES.CLASSIC }) {
+        let pickupLng;
+        const pickupZoneMin = type === PARCEL_TYPES.CLASSIC ? 'inner' : 'center';
+        const pickupZoneMax = type === PARCEL_TYPES.CLASSIC ? 'center' : 'outer';
+        const pickupLat1 = getRandomFloat(this.props.outerBoundariesMinMax.minLatitude, this.props.outerBoundariesMinMax.maxLatitude);
+        const pickupLat2 = getRandomFloat(this.props.outerBoundariesMinMax.minLatitude, this.props.outerBoundariesMinMax.maxLatitude);
+        const pickupLat = [pickupLat1, pickupLat2][chance.integer({min: 0, max: 1})];
+
+        if (type === PARCEL_TYPES.CLASSIC) {
+            if (this.isLatitudeInInnerZone(pickupLat)) {
+                const pickupLngMin = getRandomFloat(this.props[`${pickupZoneMax}BoundariesMinMax`].minLongitude, this.props[`${pickupZoneMin}BoundariesMinMax`].minLongitude);
+                const pickupLngMax = getRandomFloat(this.props[`${pickupZoneMin}BoundariesMinMax`].maxLongitude, this.props[`${pickupZoneMax}BoundariesMinMax`].maxLongitude);
+                pickupLng = [pickupLngMin, pickupLngMax][chance.integer({min: 0, max: 1})];
+            } else {
+                pickupLng = getRandomFloat(this.props[`${pickupZoneMax}BoundariesMinMax`].minLongitude, this.props[`${pickupZoneMax}BoundariesMinMax`].maxLongitude);
+            }
+        }
+        if (type === PARCEL_TYPES.SPEED_BOOST) {
+            const pickupLngMin = getRandomFloat(this.props[`${pickupZoneMax}BoundariesMinMax`].minLongitude, this.props[`${pickupZoneMin}BoundariesMinMax`].minLongitude);
+            const pickupLngMax = getRandomFloat(this.props[`${pickupZoneMin}BoundariesMinMax`].maxLongitude, this.props[`${pickupZoneMax}BoundariesMinMax`].maxLongitude);
+            pickupLng = [pickupLngMin, pickupLngMax][chance.integer({min: 0, max: 1})];
+        }
+        return {
+            pickupLat,
+            pickupLng,
+        }
+    }
+
+    isLatitudeInInnerZone(latitude) {
+        return (
+            this.props.innerBoundariesMinMax.maxLatitude >= latitude
+            && latitude >= this.props.innerBoundariesMinMax.minLatitude
+        );
+    }
+    
+    createParcels = async (type = PARCEL_TYPES.CLASSIC) => {
         this.numberOfParcels = this.state.targetTeam === 'all' ? this.state.savedTeams.length : 1;
         const parcelsIterate = Array.from(Array(this.numberOfParcels || 1));
         const parcels = parcelsIterate.map((value, index) => {
             const parcelsPerTeamNumber = parseInt(this.state.numberOfParcelsPerTeam, 10) > 0 ? parseInt(this.state.numberOfParcelsPerTeam, 10) : 1;
             const parcelPerTeamIterate = Array.from(Array(parcelsPerTeamNumber));
             const parcelsPerTeam = parcelPerTeamIterate.map(() => {
-                const pickupLatMax = getRandomFloat(GAME_PARAMETERS.innerBoundariesMinMax.maxLatitude, GAME_PARAMETERS.outerBoundariesMinMax.maxLatitude);
-                const pickupLatMin = getRandomFloat(GAME_PARAMETERS.outerBoundariesMinMax.minLatitude, GAME_PARAMETERS.innerBoundariesMinMax.minLatitude);
-                const pickupLat = [pickupLatMin, pickupLatMax];
-                const pickupLngMax = getRandomFloat(GAME_PARAMETERS.innerBoundariesMinMax.maxLongitude, GAME_PARAMETERS.outerBoundariesMinMax.maxLongitude);
-                const pickupLngMin = getRandomFloat(GAME_PARAMETERS.outerBoundariesMinMax.minLongitude, GAME_PARAMETERS.innerBoundariesMinMax.minLongitude);
-                const pickupLng = [pickupLngMin, pickupLngMax];
+                const { pickupLat, pickupLng } = this.getPickupLocation({ type });
 
-                const deliveryLat = getRandomFloat(GAME_PARAMETERS.innerBoundariesMinMax.minLatitude, GAME_PARAMETERS.innerBoundariesMinMax.maxLatitude);
-                const deliveryLng = getRandomFloat(GAME_PARAMETERS.innerBoundariesMinMax.minLongitude, GAME_PARAMETERS.innerBoundariesMinMax.maxLongitude);
+                const deliveryLat = getRandomFloat(this.props.innerBoundariesMinMax.minLatitude, this.props.innerBoundariesMinMax.maxLatitude);
+                const deliveryLng = getRandomFloat(this.props.innerBoundariesMinMax.minLongitude, this.props.innerBoundariesMinMax.maxLongitude);
                 return {
                     parcelId: uuid.v4(),
-                    teamId: this.numberOfParcels === 1 ? this.state.targetTeam : get(this.state, `savedTeams[${index}].teamId`),
-                    score: this.state.parcelScore === 'random' ? getRadomScore() : parseInt(this.state.parcelScore, 10),
+                    teamId: this.getTeamId({ type, index }),
+                    score: this.getScore({ type }),
                     status: STATUS.AVAILABLE,
-                    type: 'CLASSIC',
+                    type,
                     location: {
                         pickup: {
-                            latitude: pickupLat[chance.integer({min: 0, max: 1})],
-                            longitude: pickupLng[chance.integer({min: 0, max: 1})],
+                            latitude: pickupLat,
+                            longitude: pickupLng,
                         },
                         delivery: {
                             latitude: deliveryLat,
@@ -375,13 +449,7 @@ export class Admin extends Component {
         });
         console.log('createParcels', parcels);
         await postParcel(flatten(parcels));
-        this.getData();
     }
-
-    submitInitParcels = (event) => {
-        event.preventDefault();
-        this.createParcels();
-    };
 
     renderTeams() {
         return (
@@ -392,7 +460,7 @@ export class Admin extends Component {
                     key={team.teamId}
                     {...team}
                 >
-                    {team.teamId}
+                    <strong>{team.teamId}</strong>
                 </Team>
             ))
         );
@@ -403,7 +471,7 @@ export class Admin extends Component {
             this.state.savedTeams &&
             this.state.savedTeams.length > 0 &&
             this.state.savedTeams.map(team => (
-                <option 
+                <option
                     key={`option-${team.teamId}`}
                     value={team.teamId}
                 >
@@ -428,7 +496,12 @@ export class Admin extends Component {
                         key={`parcel-${parcel.teamId}-${index}`}
                         {...parcel}
                     >
-                        {parcel.score} - {parcel.status}
+                        <div>
+                            <strong>{parcel.score}</strong>
+                        </div>
+                        <div>
+                            {parcel.status}
+                        </div>
                     </Parcel>
                     : null
                 );
@@ -445,7 +518,7 @@ export class Admin extends Component {
             <AdminContainer>
                 <h1>
                     Admin
-                    <Button onClick={this.getData}>Refresh</Button>
+                    {/*<Button onClick={this.getData}>Refresh</Button>*/}
                 </h1>
                 <FormsContainer>
                     <Form id="initTeams">
@@ -469,6 +542,9 @@ export class Admin extends Component {
                             <Button type="button" onClick={this.submitInitTeams}>
                                 Create teams
                             </Button>
+                        </Line>
+                        <Line>
+                            <strong>{this.state.numberOfActiveTeams || '0'} teams are actives</strong>
                         </Line>
                         <ResultLine>
                             {this.renderTeams()}
@@ -521,8 +597,11 @@ export class Admin extends Component {
                             </label>
                         </Line>
                         <Line>
-                            <Button type="button" onClick={this.submitInitParcels}>
+                            <Button type="button" onClick={() => this.createParcels()}>
                                 Generate parcels
+                            </Button>
+                            <Button type="button" onClick={() => this.createParcels(PARCEL_TYPES.SPEED_BOOST)}>
+                                Generate speed boost parcels
                             </Button>
                         </Line>
                         <ResultLine>

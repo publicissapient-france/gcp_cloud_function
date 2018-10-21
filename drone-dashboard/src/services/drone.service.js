@@ -221,7 +221,6 @@ export const postParcel = async (parcelsData) => {
         }
     });
 };
-
 /*****************************/
 /** random drones generator **/
 /*****************************/
