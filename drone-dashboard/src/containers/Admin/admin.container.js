@@ -435,7 +435,12 @@ export class Admin extends Component {
     }
     
     createParcels = async (type = PARCEL_TYPES.CLASSIC) => {
-        this.numberOfParcels = this.state.targetTeam === 'all' ? this.state.savedTeams.length : 1;
+        this.numberOfParcels = (
+            type === PARCEL_TYPES.CLASSIC
+            && this.state.targetTeam === 'all'
+                ? this.state.savedTeams.length
+                : 1
+        );
         const parcelsIterate = Array.from(Array(this.numberOfParcels || 1));
         const parcels = parcelsIterate.map((value, index) => {
             const parcelsPerTeamNumber = parseInt(this.state.numberOfParcelsPerTeam, 10) > 0 ? parseInt(this.state.numberOfParcelsPerTeam, 10) : 1;
@@ -443,9 +448,7 @@ export class Admin extends Component {
             const parcelsPerTeam = parcelPerTeamIterate.map(() => {
                 const { pickupLat, pickupLng } = this.getPickupLocation({ type });
 
-                const deliveryLat = getRandomFloat(this.props.innerBoundariesMinMax.minLatitude, this.props.innerBoundariesMinMax.maxLatitude);
-                const deliveryLng = getRandomFloat(this.props.innerBoundariesMinMax.minLongitude, this.props.innerBoundariesMinMax.maxLongitude);
-                return {
+                const newParcel = {
                     parcelId: uuid.v4(),
                     teamId: this.getTeamId({ type, index }),
                     score: this.getScore({ type }),
@@ -456,12 +459,21 @@ export class Admin extends Component {
                             latitude: pickupLat,
                             longitude: pickupLng,
                         },
-                        delivery: {
-                            latitude: deliveryLat,
-                            longitude: deliveryLng,
-                        },
                     },
                 };
+
+                let deliveryLat;
+                let deliveryLng;
+                if (type === PARCEL_TYPES.CLASSIC) {
+                    deliveryLat = getRandomFloat(this.props.innerBoundariesMinMax.minLatitude, this.props.innerBoundariesMinMax.maxLatitude);
+                    deliveryLng = getRandomFloat(this.props.innerBoundariesMinMax.minLongitude, this.props.innerBoundariesMinMax.maxLongitude);
+                    newParcel.location.delivery = {
+                        latitude: deliveryLat,
+                        longitude: deliveryLng,
+                    };
+                }
+                
+                return newParcel;
             });
             return flatten(parcelsPerTeam);
         });
