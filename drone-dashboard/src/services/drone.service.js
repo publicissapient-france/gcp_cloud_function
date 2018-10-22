@@ -165,7 +165,7 @@ export const getDronesAndParcels = async () => {
     }
 };
 
-export const parseScores = (scores) => scores.sort((a, b) => a.score < b.score);
+export const parseScores = (scores) => scores.sort((a, b) => parseInt(a.score, 10) < parseInt(b.score, 10));
 
 export const parseDroneInfo = (drones) => {
     return drones.map((drone = {}) => {
