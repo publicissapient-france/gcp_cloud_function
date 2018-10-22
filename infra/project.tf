@@ -1,7 +1,7 @@
 resource "google_project" "project-drone" {
 
   count = "${length(local.projects)}"
-  project_id = "${lookup(local.projects[count.index], "name")}"
+  project_id = "${lookup(local.projects[count.index], "project_id")}"
 
   name = "${lookup(local.projects[count.index], "name")}"
 
@@ -26,7 +26,7 @@ resource "google_project_services" "project_services" {
 
 resource "google_project_iam_binding" "pubsub" {
   count = "${length(local.projects)}"
-  project     = "${lookup(local.projects[count.index], "name")}"
+  project     = "${lookup(local.projects[count.index], "project_id")}"
   role = "roles/pubsub.admin"
 
   members = [
@@ -36,27 +36,17 @@ resource "google_project_iam_binding" "pubsub" {
 
 resource "google_project_iam_binding" "cloudfunctions" {
   count = "${length(local.projects)}"
-  project     = "${lookup(local.projects[count.index], "name")}"
+  project     = "${lookup(local.projects[count.index], "project_id")}"
   role = "roles/cloudfunctions.developer"
 
   members = [
     "${lookup(local.projects[count.index], "user")}",
   ]
 }
-//
-//resource "google_project_iam_binding" "project" {
-//  count = "${length(local.projects)}"
-//  project     = "${lookup(local.projects[count.index], "name")}"
-//  role    = "roles/pubsub.publisher"
-//
-//  members = [
-//    "group:allUsers",
-//  ]
-//}
 
 resource "google_project_iam_member" "editor" {
   count = "${length(local.projects)}"
-  project     = "${lookup(local.projects[count.index], "name")}"
+  project     = "${lookup(local.projects[count.index], "project_id")}"
   role = "roles/editor"
 
   member = "${lookup(local.projects[count.index], "user")}",
@@ -65,19 +55,10 @@ resource "google_project_iam_member" "editor" {
 
 resource "google_project_iam_binding" "owner" {
   count = "${length(local.projects)}"
-  project     = "${lookup(local.projects[count.index], "name")}"
+  project     = "${lookup(local.projects[count.index], "project_id")}"
   role = "roles/owner"
 
   members = [
     "user:jbclaramonte@xebia.fr","user:ndechandon@xebia.fr","user:aletaxin@xebia.fr"
   ]
 }
-
-//module "project-test-jbc" {
-//  count = "${length(local.projects)}"
-//  project-name = "${lookup(local.projects[count.index], "name")}"
-//  source          = "modules/project"
-//  folder-id       = "114471209490"
-//  billing-account = "01ED3C-B7175E-FDF392"
-//  users           = ["${lookup(local.projects[count.index], "user")}""]
-//}
