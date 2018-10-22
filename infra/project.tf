@@ -6,7 +6,7 @@ resource "google_project" "project-drone" {
   name = "${lookup(local.projects[count.index], "name")}"
 
   folder_id = "114471209490"
-  billing_account = "01ED3C-B7175E-FDF392"
+  billing_account = "01B705-4E0341-A7506B"
 }
 
 # Enable Services APIs on the project
