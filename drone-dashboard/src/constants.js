@@ -77,8 +77,8 @@ export const GAME_PARAMETERS = {
     speed: 3000,
     step: 0.0004,
     drone: '22px',
-    parcel: '20px',
-    pin: '20px',
+    parcel: '16px',
+    pin: '18px',
     // Google map params
     center: {
         lat: 48.86,

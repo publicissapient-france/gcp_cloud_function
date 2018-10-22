@@ -174,6 +174,7 @@ export const parseDroneInfo = (drones) => {
         let droneParcels = get(drone, 'data.parcels');
         let droneScore = get(drone, 'data.score');
         let droneTopicUrl = get(drone, 'data.topicUrl');
+        let droneDistancePerTick = get(drone, 'data.distancePerTick');
         const droneBase = {
             teamId: drone.teamId,
         };
@@ -191,6 +192,7 @@ export const parseDroneInfo = (drones) => {
             parcels: droneParcels,
             score: droneScore || 0,
             topicUrl: droneTopicUrl,
+            distancePerTick: droneDistancePerTick,
         };
     })
 };

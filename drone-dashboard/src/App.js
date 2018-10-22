@@ -12,7 +12,7 @@ import {
 
 const AppContainer = styled.div`
     text-align: center;
-    padding: 0 40px;
+    padding: 0 20px;
     .App-logo {
       height: 40px;
     }
