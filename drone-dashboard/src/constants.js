@@ -133,3 +133,12 @@ export const PARCEL_TYPES = {
 };
 export const PARCEL_SCORES = [50, 100, 200];
 export const PARCEL_CHANCES = [50, 35, 15];
+
+export const GAME_STATE = {
+    STARTED: 'STARTED',
+    STOPPED: 'STOPPED',
+    PAUSED: 'PAUSED',
+    STEP_1: 'STEP_1',
+    STEP_2: 'STEP_2',
+    STEP_3: 'STEP_3',
+};
