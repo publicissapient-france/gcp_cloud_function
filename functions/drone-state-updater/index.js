@@ -168,6 +168,8 @@ const droneHasReachItsDestination = (distanceToDestination, droneInfo) => {
 
 const getDistancePerTickForDrone = (droneInfo) => {
   droneInfo.distancePerTick = droneInfo.distancePerTick || DISTANCE_PER_TICK;
+  const teamId = getTeamId(droneInfo);
+  console.log(`[${teamId}][getDistancePerTickForDrone] ${droneInfo.distancePerTick}`);
   return droneInfo.distancePerTick;
 };
 
@@ -320,7 +322,7 @@ const moveDrone = async function (droneInfo, teamId) {
         // Continue moving to destination
         const bearing = turf.bearing(currentLocation, dest);
         console.log(`[${teamId}][moveDrone] bearing for team: ${bearing}`);
-        const destination = turf.destination(currentLocation, DISTANCE_PER_TICK, bearing, {});
+        const destination = turf.destination(currentLocation, getDistancePerTickForDrone(droneInfo), bearing, {});
         console.log(`[${teamId}][moveDrone] next point is: ${JSON.stringify(destination)}`);
         droneInfo.location.latitude = destination.geometry.coordinates[0];
         droneInfo.location.longitude = destination.geometry.coordinates[1];
