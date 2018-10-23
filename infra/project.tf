@@ -12,7 +12,7 @@ resource "google_project" "project-drone" {
 # Enable Services APIs on the project
 resource "google_project_services" "project_services" {
   count = "${length(local.projects)}"
-  project = "${lookup(local.projects[count.index], "name")}"
+  project = "${lookup(local.projects[count.index], "project_id")}"
 
   services = [
     "pubsub.googleapis.com",
