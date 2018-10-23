@@ -22,6 +22,10 @@ import {
     GAME_PARAMETERS,
     STATUS,
 } from '../../constants';
+import {
+    mockedDronesAndParcels_1,
+    mockedDronesAndParcels_2,
+} from '../../mockedDroneAndParcels';
 
 const Actions = Section.extend`
   height: 50px;
@@ -72,6 +76,7 @@ export class GameDashboard extends Component {
         this.timer = setInterval(async () => {
             // this.moveDrones();
             const dronesAndParcels = await getDronesAndParcels();
+            // const dronesAndParcels = await Promise.resolve(mockedDronesAndParcels_2);
             this.updateGame(dronesAndParcels || {drones: [], parcels: []});
         }, this.props.speed);
     };
