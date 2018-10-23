@@ -2,26 +2,26 @@ locals {
 
   projects = [
     {
-      name = "black-894"
+      name = "red-657"
       project_id = "black-23-10-2018"
       user = "user:nicolas.dechandon@gmail.com"
     },
     {
-      name = "blue-564"
+      name = "blue-625"
       project_id = "blue-23-10-2018"
-      user = "user:nicolas.dechandon@gmail.com"
+      user = "user:ibeauvais@xebia.fr"
     },
     {
-      name = "green-421"
+      name = "green-671"
       project_id = "green-23-10-2018"
-      user = "user:nicolas.dechandon@gmail.com"
+      user = "user:eacquarone@gmail.com"
   }
-//    ,
-//    {
-//      name = "grey-830"
-//      project_id = "grey-23-10-2018"
-//      user = "user:nicolas.dechandon@gmail.com"
-//    },
+    ,
+    {
+      name = "purple-40"
+      project_id = "grey-23-10-2018"
+      user = "user:jeanbaptiste.claramonte@gmail.com"
+    }
 //    {
 //      name = "orange-730"
 //      project_id = "orange-23-10-2018"
