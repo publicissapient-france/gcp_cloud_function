@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import styled from 'styled-components';
 
 import {STATUS} from '../../constants';
+import {COLORS} from '../../styles/variables';
 import {
     parseScoreColor,
     parseScoreBorderColor,
@@ -41,12 +42,24 @@ export const ScoreItem = styled.div`
     }
   }
   .leader_board {
-    margin-left: 7px;
+    margin-left: 3px;
     font-weight: bold;
     color: deeppink;
   }
-  @keyframes blink { 50% { color: transparent; } }
-  @-webkit-keyframes blink { 50% { color: transparent; } }
+    @keyframes blink { 50% { color: transparent; } }
+    @-webkit-keyframes blink { 50% { color: transparent; } }
+`;
+
+const Speed = styled.span`
+  font-size: 1.1rem;
+  color: ${COLORS.speedBoost[0]};
+  padding-left: 5px;
+  i {
+    font-size: 1.2rem;
+  }
+  span {
+    margin-top: -5px;
+  }
 `;
 
 export class Score extends Component {
@@ -69,8 +82,8 @@ export class Score extends Component {
     renderDefaultStatus() {
         return (
             this.isDefaultStatus()
-            ? <i className="material-icons status default">live_help</i>
-            : null
+                ? <i className="material-icons status default">live_help</i>
+                : null
         )
     }
 
@@ -78,8 +91,8 @@ export class Score extends Component {
         return (
             this.hasTopicUrl() &&
             !this.hasCommand()
-            ? <i className="material-icons status wait_for_command">timelapse</i>
-            : null
+                ? <i className="material-icons status wait_for_command">timelapse</i>
+                : null
         )
     }
 
@@ -87,52 +100,63 @@ export class Score extends Component {
         return (
             this.hasTopicUrl() &&
             this.hasCommand(STATUS.MOVE)
-            ? <i className="material-icons status move">fast_forward</i>
-            : null
+                ? <i className="material-icons status move">fast_forward</i>
+                : null
         )
     }
 
     renderFailureStatus() {
         return (
             this.hasCommand(STATUS.READY_FAILED)
-            ? <i className="material-icons status failure">broken_image</i>
-            : null
+                ? <i className="material-icons status failure">broken_image</i>
+                : null
+        );
+    }
+
+    renderSpeed() {
+        return (
+            this.props.distancePerTick && this.props.distancePerTick > 0
+                ? <Speed>
+                    <i className="material-icons">flash_on</i>
+                    <span>{this.props.distancePerTick ? Math.round(this.props.distancePerTick / 0.1) : 0}</span>
+                </Speed>
+                : null
         );
     }
 
     renderLeaderBoard() {
-        switch(this.props.index) {
+        switch (this.props.index) {
             default:
                 return null;
             case 0:
                 return (
                     this.props.score > 0 &&
                     (this.props.isPreviousDraw || this.props.index === 0) ?
-                    <span className="leader_board leader_1">
+                        <span className="leader_board leader_1">
                         <i className="material-icons leader_board leader_1">star</i>
                         1
                     </span>
-                    : null
+                        : null
                 );
             case 1:
                 return (
                     this.props.score > 0 &&
                     (this.props.isPreviousDraw || this.props.index === 1) ?
-                    <span className="leader_board leader_2">
+                        <span className="leader_board leader_2">
                         <i className="material-icons leader_board leader_2">star_half</i>
                         2
                     </span>
-                    : null
+                        : null
                 );
             case 2:
                 return (
                     this.props.score > 0 &&
                     (this.props.isPreviousDraw || this.props.index === 2) ?
-                    <span className="leader_board leader_3">
+                        <span className="leader_board leader_3">
                         <i className="material-icons leader_board leader_3">star_border</i>
                         3
                     </span>
-                    : null
+                        : null
                 );
         }
     }
@@ -151,6 +175,7 @@ export class Score extends Component {
                     this.renderDefaultStatus()
                 }
                 {this.props.score || 0}
+                {this.renderSpeed()}
                 {this.renderLeaderBoard()}
             </ScoreItem>
         );

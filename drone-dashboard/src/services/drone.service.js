@@ -12,142 +12,6 @@ import {
 } from '../constants';
 const chance = new Chance();
 
-const mockData_02 = {"drones":[{"teamId":"blue","data":{"location":{"latitude":48.8653487,"longitude":2.3788396}}},{"teamId":"red","data":{"location":{"latitude":48.80621744882436,"longitude":2.1723810610753986}}},{"teamId":"yellow","data":{"command":{"location":{"latitude":48.806294,"longitude":2.171485},"name":"MOVE"},"parcels":[{"teamId":"yellow","status":"GRABBED","location":{"pickup":{"latitude":48.804986,"longitude":2.188315},"delivery":{"longitude":2.171485,"latitude":48.806294}},"parcelId":"136e5a64-2050-4fa7-8cfc-72df26ca164d","score":100},{"parcelId":"136e5a64-2050-4fa7-8cfc-72df26ca164d","score":100,"teamId":"yellow","status":"GRABBED","location":{"pickup":{"latitude":48.804986,"longitude":2.188315},"delivery":{"latitude":48.806294,"longitude":2.171485}}},{"parcelId":"136e5a64-2050-4fa7-8cfc-72df26ca164d","score":100,"teamId":"yellow","status":"GRABBED","location":{"pickup":{"latitude":48.804986,"longitude":2.188315},"delivery":{"latitude":48.806294,"longitude":2.171485}}}],"location":{"latitude":48.805543474568886,"longitude":2.181142036232819},"topicUrl":"projects/jbc-some-tests/topics/drone-events-topic"}}],"parcels":[{"parcelId":"136e5a64-2050-4fa7-8cfc-72df26ca164d","score":100,"teamId":"yellow","status":"GRABBED","location":{"pickup":{"latitude":48.804986,"longitude":2.188315},"delivery":{"longitude":2.171485,"latitude":48.806294}}},{"score":200,"teamId":"yellow","location":{"pickup":{"latitude":48.810123,"longitude":2.190504},"delivery":{"latitude":48.806294,"longitude":2.171485}}},{"teamId":"blue","location":{"pickup":{"latitude":48.8753487,"longitude":2.3088396},"delivery":{"latitude":48.85,"longitude":2.2}},"score":200}]};
-const mockData_01 = {
-    drones: [
-        {
-            teamId: 'blue',
-            data: {
-                location: {
-                    longitude: 2.3788396,
-                    latitude: 48.8653487,
-                },
-                topicUrl: 'projects/modulom-moludom/topics/drone-events',
-                score: 300,
-                parcels: [
-                    {
-                        score: 200,
-                        teamId: 'blue',
-                        location: {
-                            pickup: {
-                                longitude: 2.3088396,
-                                latitude: 48.8753487,
-                            },
-                            delivery: {
-                                longitude: 2.2,
-                                latitude: 48.85,
-                            },
-                        },
-                    },
-                ],
-            },
-        },
-        {
-            teamId: 'red',
-            data: {
-                score: 300,
-                command: {
-                    name: 'MOVE',
-                },
-                topicUrl: 'some/topic',
-                location: {
-                    latitude: 48.80621744882436,
-                    longitude: 2.1723810610753986,
-                },
-            },
-        },
-        {
-            teamId: 'purple',
-            data: {
-                score: 150,
-                location: {
-                    latitude: 48.80621744882436,
-                    longitude: 2.1723810610753986,
-                },
-            },
-        },
-        {
-            teamId: 'green',
-            data: {
-                score: 300,
-                location: {
-                    latitude: 48.80621744882436,
-                    longitude: 2.1723810610753986,
-                },
-            },
-        },
-        {
-            teamId: 'pink',
-            data: {
-                location: {
-                    latitude: 48.80621744882436,
-                    longitude: 2.1723810610753986,
-                },
-                topicUrl: 'projects/jbc-some-tests/topics/drone-events-topic',
-            },
-        },
-        {
-            teamId: 'yellow',
-            data: {
-                score: 150000,
-                command: {
-                    name: 'READY_FAILED',
-                },
-                topicUrl: 'projects/jbc-some-tests/topics/drone-events-topic',
-                location: {
-                    latitude: 48.85621744882436,
-                    longitude: 2.21723810610753986,
-                },
-            },
-        },
-    ],
-    parcels: [
-        {
-            score: 100,
-            teamId: 'yellow',
-            location: {
-                pickup: {
-                    longitude: 2.188315,
-                    latitude: 48.804986,
-                },
-                delivery: {
-                    latitude: 48.806294,
-                    longitude: 2.171485,
-                },
-            },
-        },
-        {
-            teamId: 'yellow',
-            location: {
-                pickup: {
-                    latitude: 48.810123,
-                    longitude: 2.190504,
-                },
-                delivery: {
-                    longitude: 2.171485,
-                    latitude: 48.806294,
-                },
-            },
-            score: 200,
-        },
-        {
-            score: 20000,
-            teamId: 'blue',
-            location: {
-                pickup: {
-                    longitude: 2.3088396,
-                    latitude: 48.8753487,
-                },
-                delivery: {
-                    longitude: 2.2,
-                    latitude: 48.85,
-                },
-            },
-            status: 'GRABBED',
-        },
-    ],
-};
-
 export const getDronesAndParcels = async () => {
     try {
         const response = await fetch(
@@ -158,14 +22,12 @@ export const getDronesAndParcels = async () => {
             }
         );
         return await response.json();
-        // return mockData_01;
-        // return mockData_02;
     } catch (error) {
         console.log(error);
     }
 };
 
-export const parseScores = (scores) => scores.sort((a, b) => a.score < b.score);
+export const parseScores = (scores) => scores.sort((a, b) => parseInt(a.score, 10) < parseInt(b.score, 10));
 
 export const parseDroneInfo = (drones) => {
     return drones.map((drone = {}) => {
@@ -174,6 +36,7 @@ export const parseDroneInfo = (drones) => {
         let droneParcels = get(drone, 'data.parcels');
         let droneScore = get(drone, 'data.score');
         let droneTopicUrl = get(drone, 'data.topicUrl');
+        let droneDistancePerTick = get(drone, 'data.distancePerTick');
         const droneBase = {
             teamId: drone.teamId,
         };
@@ -191,6 +54,7 @@ export const parseDroneInfo = (drones) => {
             parcels: droneParcels,
             score: droneScore || 0,
             topicUrl: droneTopicUrl,
+            distancePerTick: droneDistancePerTick,
         };
     })
 };

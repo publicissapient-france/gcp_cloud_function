@@ -16,11 +16,16 @@ import {
     parseDroneInfo,
     parseParcelInfo,
     parseScores,
+    parseDroneTeamColor,
 } from '../../services/drone.service';
 import {
     GAME_PARAMETERS,
     STATUS,
 } from '../../constants';
+import {
+    mockedDronesAndParcels_1,
+    mockedDronesAndParcels_2,
+} from '../../mockedDroneAndParcels';
 
 const Actions = Section.extend`
   height: 50px;
@@ -71,6 +76,7 @@ export class GameDashboard extends Component {
         this.timer = setInterval(async () => {
             // this.moveDrones();
             const dronesAndParcels = await getDronesAndParcels();
+            // const dronesAndParcels = await Promise.resolve(mockedDronesAndParcels_2);
             this.updateGame(dronesAndParcels || {drones: [], parcels: []});
         }, this.props.speed);
     };
@@ -146,32 +152,38 @@ export class GameDashboard extends Component {
                         defaultZoom={this.props.zoom}
                         // onGoogleApiLoaded={({map, maps}) => this.renderPolylines(map, maps)}
                     >
-                        {this.state.drones.map((drone) =>
+                        {this.state.parcels.map((parcel, index) => [
+                            <Pin
+                                {...parcel}
+                                key={`delivery-pin-${parcel.teamId}-${parcel.parcelId || index}`}
+                                lat={get(parcel, 'location.delivery.latitude')}
+                                lng={get(parcel, 'location.delivery.longitude')}
+                            />,
+                            <Parcel
+                                {...parcel}
+                                key={`parcel-${parcel.teamId}-${parcel.parcelId || index}`}
+                                lat={get(parcel, 'location.pickup.latitude')}
+                                lng={get(parcel, 'location.pickup.longitude')}
+                            />,
+                        ])}
+                        {this.props.showBoundaries ? this.renderBoundaries('inner') : null}
+                        {this.props.showBoundaries ? this.renderBoundaries('outer') : null}
+                        {this.props.showBoundaries ? this.renderBoundaries('center') : null}
+                        {this.state.drones.map((drone) => [
                             <Drone
                                 {...drone}
                                 key={drone.teamId}
                                 lat={drone.latitude}
                                 lng={drone.longitude}
+                            />,
+                            <Pin
+                                key={`move-location-${drone.teamId}`}
+                                lat={get(drone, 'command.location.latitude')}
+                                lng={get(drone, 'command.location.longitude')}
+                                teamId={parseDroneTeamColor(drone.teamId)}
+                                status={STATUS.TOGGLE}
                             />
-                        )}
-                        {this.state.parcels.map((parcel, index) => [
-                                <Pin
-                                    {...parcel}
-                                    key={`delivery-pin-${parcel.teamId}-${parcel.parcelId || index}`}
-                                    lat={get(parcel, 'location.delivery.latitude')}
-                                    lng={get(parcel, 'location.delivery.longitude')}
-                                />,
-                                <Parcel
-                                    {...parcel}
-                                    key={`parcel-${parcel.teamId}-${parcel.parcelId || index}`}
-                                    lat={get(parcel, 'location.pickup.latitude')}
-                                    lng={get(parcel, 'location.pickup.longitude')}
-                                />,
-                            ]
-                        )}
-                        {this.props.showBoundaries ? this.renderBoundaries('inner') : null}
-                        {this.props.showBoundaries ? this.renderBoundaries('outer') : null}
-                        {this.props.showBoundaries ? this.renderBoundaries('center') : null}
+                        ])}
                     </GoogleMapReact>
                 </GoogleMapContainer>
                 <ScoresContainer>
