@@ -6,7 +6,7 @@ import {GAME_PARAMETERS, STATUS} from '../../constants';
 import { CustomMapElement } from '../CustomMapElement';
 import PinSprite from '../PinSprite';
 import {CounterBubble} from '../CounterBubble';
-import {parseDroneTeamColor} from '../../services/drone.service';
+import {parseDroneTeamColor} from '../../services/data.service';
 
 export const PinContainer = styled.div`
   div {  

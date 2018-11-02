@@ -17,7 +17,7 @@ import {
     parseParcelInfo,
     parseScores,
     parseDroneTeamColor,
-} from '../../services/drone.service';
+} from '../../services/data.service';
 import {
     GAME_PARAMETERS,
     STATUS,
@@ -75,11 +75,15 @@ export class GameDashboard extends Component {
     initUpdater = async () => {
         this.timer = setInterval(async () => {
             // this.moveDrones();
-            const dronesAndParcels = await getDronesAndParcels();
-            // const dronesAndParcels = await Promise.resolve(mockedDronesAndParcels_2);
+            // const dronesAndParcels = await getDronesAndParcels();
+            const dronesAndParcels = await Promise.resolve(mockedDronesAndParcels_2);
             this.updateGame(dronesAndParcels || {drones: [], parcels: []});
         }, this.props.speed);
     };
+
+    log() {
+        this.props.logLevel && this.props.logLevel === 'debug' && console.log(this.state);
+    }
 
     updateGame = ({drones, parcels}) => {
         const dronesNext = parseDroneInfo(drones || []);
@@ -87,7 +91,7 @@ export class GameDashboard extends Component {
         this.setState({
             drones: dronesNext,
             parcels: parcelsNext,
-        }, console.log(this.state));
+        }, this.log);
     };
 
     renderBoundaries(type = 'inner') {

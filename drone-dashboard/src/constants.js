@@ -74,6 +74,7 @@ const centerBoundaries = [
 ];
 
 export const GAME_PARAMETERS = {
+    logLevel: 'debug',
     speed: 3000,
     step: 0.0004,
     drone: '22px',
@@ -88,7 +89,7 @@ export const GAME_PARAMETERS = {
     // Starting area radius in km
     startingAreaDistance: .5,
     // Speed boost bonus value
-    speedBoostValue: .1,
+    speedBoostValue: .05,
     // max team number
     maxTeams: 10,
     // Game area boundaries
@@ -131,7 +132,11 @@ export const PARCEL_TYPES = {
     CLASSIC: 'CLASSIC',
     SPEED_BOOST: 'SPEED_BOOST',
 };
-export const PARCEL_SCORES = [50, 100, 200];
+export const PARCEL_SCORES = {
+    50: 50,
+    200: 200,
+    100: 100,
+};
 export const PARCEL_CHANCES = [50, 35, 15];
 
 export const GAME_STATE = {

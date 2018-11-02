@@ -6,7 +6,7 @@ import {COLORS} from '../../styles/variables';
 import {
     parseScoreColor,
     parseScoreBorderColor,
-} from '../../services/drone.service';
+} from '../../services/data.service';
 
 export const ScoreItem = styled.div`
   display: flex;
