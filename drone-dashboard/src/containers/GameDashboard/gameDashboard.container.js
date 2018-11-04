@@ -7,6 +7,7 @@ import { Section } from '../../components/Section';
 import { Drone } from '../../components/Drone';
 import { Parcel } from '../../components/Parcel';
 import { Pin } from '../../components/Pin';
+import { PinDestination } from '../../components/PinDestination';
 import {
     Score,
     ScoreItem,
@@ -180,7 +181,7 @@ export class GameDashboard extends Component {
                                 lat={drone.latitude}
                                 lng={drone.longitude}
                             />,
-                            <Pin
+                            <PinDestination
                                 key={`move-location-${drone.teamId}`}
                                 lat={get(drone, 'command.location.latitude')}
                                 lng={get(drone, 'command.location.longitude')}
