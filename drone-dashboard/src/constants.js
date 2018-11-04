@@ -134,16 +134,37 @@ export const PARCEL_TYPES = {
 };
 export const PARCEL_SCORES = {
     50: 50,
-    200: 200,
     100: 100,
+    200: 200,
 };
 export const PARCEL_CHANCES = [50, 35, 15];
 
 export const GAME_STATE = {
-    STARTED: 'STARTED',
-    STOPPED: 'STOPPED',
-    PAUSED: 'PAUSED',
-    STEP_1: 'STEP_1',
-    STEP_2: 'STEP_2',
-    STEP_3: 'STEP_3',
+    STOPPED: {
+        label: 'STOPPED',
+        level: -1,
+    },
+    PAUSED: {
+        label: 'PAUSED',
+    },
+    STARTED: {
+        label: 'STARTED',
+        level: 0,
+    },
+    STEP_1: {
+        label: 'STEP_1',
+        level: 1,
+    },
+    STEP_2: {
+        label: 'STEP_2',
+        level: 2,
+    },
+    STEP_3: {
+        label: 'STEP_3',
+        level: 3,
+    },
+    STEP_4: {
+        label: 'STEP_4',
+        level: 4,
+    },
 };

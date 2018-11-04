@@ -7,7 +7,7 @@ import {
     STATUS
 } from '../constants';
 
-export const getTeamsReadyForStep = ({ teams, parcels }) => teams
+export const getTeamsReadyForNextStep = ({ teams, parcels }) => teams
     .filter(team => {
         const hasTeamAvailableParcel = some(
             parcels,
@@ -30,60 +30,81 @@ export const updateValidatedTeams = ({teams = [], team, gameState}) => {
     return updated;
 };
 
-export const updateTeamGameState = ({team, gameState}) => {
+export const getUpdatedTeamGameState = ({team, gameStep}) => {
     return {
         ...team,
-        gameState,
+        gameStep,
     };
 };
 
-export const createStep = (parcels, createParcelsFn) => parcels.map(parcel => createParcelsFn(parcel));
+export const createStep = async (parcels, createParcelsFn) => await parcels.map(parcel => createParcelsFn(parcel));
 
-export const createStepStarted = async (createParcelsFn) => {
-    await createStep([
-        {
-            type: PARCEL_TYPES.CLASSIC,
-            targetTeam: 'all',
-            score: PARCEL_SCORES['50'],
-        },
-    ], createParcelsFn);
-};
-
-export const createStep1 = async (createParcelsFn, team) => {
-    await createStep([
-        {
-            type: PARCEL_TYPES.CLASSIC,
-            targetTeam: team.teamId,
-            number: 2,
-            score: PARCEL_SCORES['50'],
-        },
-        {
-            type: PARCEL_TYPES.CLASSIC,
-            targetTeam: team.teamId,
-            number: 1,
-            score: PARCEL_SCORES['100'],
-        },
-    ], createParcelsFn);
-};
-
-export const createStep2 = async (createParcelsFn, team) => {
-    await createStep([
-        {
-            type: PARCEL_TYPES.CLASSIC,
-            targetTeam: team.teamId,
-            number: 2,
-            score: PARCEL_SCORES['100'],
-        },
-        {
-            type: PARCEL_TYPES.CLASSIC,
-            targetTeam: team.teamId,
-            number: 1,
-            score: PARCEL_SCORES['200'],
-        },
-        {
-            type: PARCEL_TYPES.SPEED_BOOST,
-            number: 1,
-            score: PARCEL_SCORES['200'],
-        },
-    ], createParcelsFn);
+export const createStepLevel = {
+    0: async (createParcelsFn, team) => {
+        console.log(`create parcels for team ${team.teamId}, step 0`)
+        await createStep([
+            {
+                type: PARCEL_TYPES.CLASSIC,
+                targetTeam: team.teamId,
+                score: PARCEL_SCORES['50'],
+            },
+        ], createParcelsFn);
+    },
+    1: async (createParcelsFn, team) => {
+        console.log(`create parcels for team ${team.teamId}, step 1`)
+        await createStep([
+            {
+                type: PARCEL_TYPES.CLASSIC,
+                targetTeam: team.teamId,
+                number: 2,
+                score: PARCEL_SCORES['50'],
+            },
+            {
+                type: PARCEL_TYPES.CLASSIC,
+                targetTeam: team.teamId,
+                number: 1,
+                score: PARCEL_SCORES['100'],
+            },
+        ], createParcelsFn);
+    },
+    2: async (createParcelsFn, team) => {
+        console.log(`create parcels for team ${team.teamId}, step 2`)
+        await createStep([
+            {
+                type: PARCEL_TYPES.CLASSIC,
+                targetTeam: team.teamId,
+                number: 2,
+                score: PARCEL_SCORES['100'],
+            },
+            {
+                type: PARCEL_TYPES.CLASSIC,
+                targetTeam: team.teamId,
+                number: 1,
+                score: PARCEL_SCORES['200'],
+            },
+            {
+                type: PARCEL_TYPES.SPEED_BOOST,
+                number: 1,
+            },
+        ], createParcelsFn);
+    },
+    3: async (createParcelsFn, team) => {
+        console.log(`create parcels for team ${team.teamId}, step 3`)
+        await createStep([
+            {
+                type: PARCEL_TYPES.CLASSIC,
+                targetTeam: team.teamId,
+                number: 2,
+                score: PARCEL_SCORES['200'],
+            },
+            {
+                type: PARCEL_TYPES.SPEED_BOOST,
+                number: 2,
+            },
+        ], createParcelsFn);
+    },
+    4: async (createParcelsFn, team) => {
+        console.log(`create parcels for team ${team.teamId}, step 4`)
+        await Promise.resolve();
+    }
 };

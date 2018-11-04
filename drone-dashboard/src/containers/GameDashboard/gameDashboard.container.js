@@ -75,8 +75,8 @@ export class GameDashboard extends Component {
     initUpdater = async () => {
         this.timer = setInterval(async () => {
             // this.moveDrones();
-            // const dronesAndParcels = await getDronesAndParcels();
-            const dronesAndParcels = await Promise.resolve(mockedDronesAndParcels_2);
+            const dronesAndParcels = await getDronesAndParcels();
+            // const dronesAndParcels = await Promise.resolve(mockedDronesAndParcels_2);
             this.updateGame(dronesAndParcels || {drones: [], parcels: []});
         }, this.props.speed);
     };

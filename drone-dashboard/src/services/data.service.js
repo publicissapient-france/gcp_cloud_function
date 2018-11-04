@@ -79,8 +79,8 @@ export const postDroneInfo = async (droneInfoData) => {
 export const postParcel = async (parcelsData) => {
     return Bluebird.each(parcelsData, async (parcel) => {
         try {
-            // return await axios.post(GAME_PARAMETERS.parcelHttpUpserterUrl, parcel);
-            return await axios.post('http://localhost:9000', parcel);
+            return await axios.post(GAME_PARAMETERS.parcelHttpUpserterUrl, parcel);
+            // return await axios.post('http://localhost:9000', parcel);
         } catch (error) {
             console.log('Error while upserting parcel', error);
         }

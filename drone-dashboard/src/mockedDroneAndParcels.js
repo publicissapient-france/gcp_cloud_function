@@ -14,7 +14,7 @@ export const mockedData_step_1 = {
                         "delivery": {"latitude": 48.84354977683087, "longitude": 2.2887987772037346}
                     }
                 }, {
-                    "status": "GRABBED",
+                    "status": "AVAILABLE",
                     "parcelId": "d0c35e06-c454-44a1-9096-af6a87b82e63",
                     "score": 50,
                     "type": "CLASSIC",

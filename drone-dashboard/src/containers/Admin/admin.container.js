@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import styled from 'styled-components';
-import {get, orderBy, groupBy, flatten, some} from 'lodash';
+import {get, orderBy, groupBy, flatten, some, isEmpty, find, forEach, omit} from 'lodash';
 import Chance from 'chance';
 import uuid from 'uuid';
 import {
@@ -38,12 +38,10 @@ import {
     postParcel,
 } from '../../services/data.service';
 import {
-    getTeamsReadyForStep,
+    getTeamsReadyForNextStep,
     updateValidatedTeams,
-    updateTeamGameState,
-    createStepStarted,
-    createStep1,
-    createStep2,
+    getUpdatedTeamGameState,
+    createStepLevel,
 } from '../../services/game.service';
 import {
     mockedData_step_1,
@@ -192,15 +190,15 @@ export class Admin extends Component {
             savedParcels: [],
             parcelScore: 'random',
             numberOfParcelsPerTeam: 1,
-            // gameState: GAME_STATE.STOPPED,
-            gameState: GAME_STATE.STARTED,
-            gameStepTeams: [],
+            gameState: GAME_STATE.STOPPED.label,
+            gameStepTeams: {},
+            gameStep: GAME_STATE.STOPPED.level,
         };
         this.startingBBox = {};
         this.startingPoints = [];
         // this.parcelsBBox = {};
         this.numberOfParcels = 0;
-        this.step = GAME_STATE.STOPPED;
+        this.step = 0;
     }
         
     componentDidMount() {
@@ -213,8 +211,8 @@ export class Admin extends Component {
 
     initUpdater = async () => {
         this.timer = setInterval(async () => {
-            // const dronesAndParcels = await getDronesAndParcels();
-            const dronesAndParcels = await Promise.resolve(mockedData_step_1);
+            const dronesAndParcels = await getDronesAndParcels();
+            // const dronesAndParcels = await Promise.resolve(mockedData_step_1);
             await this.updateGame(dronesAndParcels || {drones: [], parcels: []});
         }, this.props.speed);
     };
@@ -224,72 +222,56 @@ export class Admin extends Component {
         this.props.logLevel && this.props.logLevel === 'debug' && console.log(messageKey, message || this.state);
     }
 
-    updateGameStep({ teams, parcels }) {
-        let gameStepTeams = { ...teams };
-        this.log(teams, 'gameStepTeams')
-        const teamsByGameState = groupBy(teams, 'gameState');
-        this.log(teamsByGameState, 'teamsByGameState')
-        if (teamsByGameState[GAME_STATE.STARTED] && teamsByGameState[GAME_STATE.STARTED].length) {
-            const readyForStepTeams = getTeamsReadyForStep({
-                teams: teamsByGameState[GAME_STATE.STARTED],
-                parcels,
-            });
-            this.log(readyForStepTeams, 'readyForStepTeams')
-            readyForStepTeams.forEach(async (team) => {
-                await createStep1(this.createParcels, team);
-                this.log('Create STEP STARTED')
-                gameStepTeams = updateValidatedTeams({
-                    gameState: GAME_STATE.STEP_1,
-                    teams,
-                    team,
-                });
-            });
+    updateGameTeams = async ({ teamsByStep, teamsNext, parcelsNext }) => {
+        let updatedTeamsByStep = {...teamsByStep};
+        this.step = this.state.gameStep || 0;
+        if (updatedTeamsByStep[undefined] && updatedTeamsByStep[undefined].length) {
+            updatedTeamsByStep[GAME_STATE.STARTED.label] = updatedTeamsByStep[undefined].map(team => getUpdatedTeamGameState({ team, gameStep: GAME_STATE.STARTED.label}));
+            delete updatedTeamsByStep[undefined];
         }
-        if (teamsByGameState[GAME_STATE.STEP_1] && teamsByGameState[GAME_STATE.STEP_1].length) {
-            const readyForStepTeams = getTeamsReadyForStep({
-                teams: teamsByGameState[GAME_STATE.STEP_1],
-                parcels,
+        await forEach(updatedTeamsByStep, async (teams, gameStep) => {
+            const readyForNextStepTeams = getTeamsReadyForNextStep({
+                teams: updatedTeamsByStep[GAME_STATE[gameStep].label],
+                parcels: parcelsNext,
             });
-            this.log(readyForStepTeams, 'readyForStepTeams')
-            readyForStepTeams.forEach(async (team) => {
-                await createStep1(this.createParcels, team);
-                this.log('Create STEP 1')
-                gameStepTeams = updateValidatedTeams({
-                    gameState: GAME_STATE.STEP_2,
-                    teams,
-                    team,
-                });
+            teams.forEach(async (team) => {
+                this.log(readyForNextStepTeams, `readyForNextStepTeams ${GAME_STATE[gameStep].label} - ${team.teamId})}`);
+                const teamNext = find(teamsNext, { id: team.id});
+                if (
+                    GAME_STATE[gameStep] &&
+                    GAME_STATE[gameStep].level >= 0
+                ) {
+                    let gameLevel = GAME_STATE[gameStep].level;
+                    this.step = this.step && this.step > gameLevel ? this.step : gameLevel;
+                    if (
+                            GAME_STATE[gameStep].label === GAME_STATE.STARTED.label ||
+                            (readyForNextStepTeams && some(readyForNextStepTeams, {teamId: team.teamId}))
+                        ) {
+                        await createStepLevel[GAME_STATE[gameStep].level](this.createParcels, team);
+                        const nextGameLevel = gameLevel + 1;
+                        this.log(`next level ${nextGameLevel} for team ${team.teamId}`)
+                        team.gameStep = (find(GAME_STATE, { level: nextGameLevel }) || GAME_STATE.STOPPED).label;
+                        this.step = this.step && this.step > nextGameLevel ? this.step : nextGameLevel;
+                    }
+                }
+                updatedTeamsByStep[gameStep] = [
+                    ...updatedTeamsByStep[gameStep],    
+                    ...{
+                        ...team,
+                        ...teamNext,
+                    },
+                ];
             });
-        }
-        if (teamsByGameState[GAME_STATE.STEP_2] && teamsByGameState[GAME_STATE.STEP_2].length) {
-            const readyForStepTeams = getTeamsReadyForStep({
-                teams: teamsByGameState[GAME_STATE.STEP_2],
-                parcels,
-            });
-            this.log(readyForStepTeams, 'readyForStepTeams')
-            readyForStepTeams.forEach(async (team) => {
-                // await createStep2(this.createParcels, team);
-                this.log('Create STEP 2')
-                gameStepTeams = updateValidatedTeams({
-                    gameState: GAME_STATE.STEP_3,
-                    teams,
-                    team,
-                });
-            });
-        }
-        const maxStep = teamsByGameState && teamsByGameState.length ? teamsByGameState[teamsByGameState.length - 1].gameState : GAME_STATE.STEP_2;
-        this.log(teamsByGameState, 'TEAMS BY STEP')
-        this.log(maxStep, 'MAX GAME STEP')
-        this.log(gameStepTeams, 'AFTER UPDATE GAME STEP')
-        // this.step = maxStep;
-        return gameStepTeams;
-        // this.step = teamsByGameState[teamsByGameState.length - 1][0]s.gameState;
+        });
+        this.log(updatedTeamsByStep, 'updatedTeamsByStep');
+        return updatedTeamsByStep;
     }
+
     updateGame = async ({drones, parcels}) => {
-        const dronesNext = parseDroneInfo(drones || []);
+        const teamsNext = parseDroneInfo(drones || []);
         const parcelsNext = parcels ? parseParcelInfo(parcels) : [];
-        const newNumberOfTeamsMax = this.props.maxTeams > dronesNext.length
-            ? this.props.maxTeams - dronesNext.length
+        const newNumberOfTeamsMax = this.props.maxTeams > teamsNext.length
+            ? this.props.maxTeams - teamsNext.length
             : 0;
         const newNumberOfTeamsMin = newNumberOfTeamsMax === 0
             ? 0
@@ -298,41 +280,39 @@ export class Admin extends Component {
             : this.state.numberOfTeamsMin;
 
         this.log(this.state.gameState, 'GAME STATE');
-        this.log(dronesNext, 'droneNext')
-        let gameStepTeams = this.state.gameStepTeams || [];
+        this.log(teamsNext, 'droneNext')
+        let gameStepTeamsNext = groupBy(teamsNext, 'gameStep');
+        const gameTeams = flatten(Object.values(this.state.gameStepTeams));
+        this.log(gameTeams, 'gameTeams');
+        let nextGameStepTeams = this.state.gameStepTeams && !isEmpty(this.state.gameStepTeams) ? groupBy(gameTeams, 'gameStep') : {};  
+        this.log(nextGameStepTeams, 'nextGameStepTeams')
+        let gameStepTeams = nextGameStepTeams && !isEmpty(nextGameStepTeams) ? nextGameStepTeams : gameStepTeamsNext;
         switch (this.state.gameState) {
-            case GAME_STATE.STARTED:
-                gameStepTeams = dronesNext.map(team => updateTeamGameState({ team, gameState: GAME_STATE.STARTED }));
-                await createStepStarted(this.createParcels);
-                this.step = GAME_STATE.STEP_1;
+            case GAME_STATE.STARTED.label:
+                gameStepTeams = await this.updateGameTeams({
+                    teamsByStep: gameStepTeams,
+                    teamsNext,
+                    parcelsNext,
+                });
                 break;
-            case GAME_STATE.STEP_1:
-            case GAME_STATE.STEP_2:
-                // gameStepTeams = dronesNext.map(team => updateTeamGameState({ team, gameState: this.state.gameState }));
-                gameStepTeams = this.updateGameStep({ teams: gameStepTeams, parcels: parcelsNext });
-                this.step = GAME_STATE.STEP_2;
-                break;
-            case GAME_STATE.STEP_3:
-                this.step = GAME_STATE.STEP_3;
-                break;
-            case GAME_STATE.PAUSED:
+            case GAME_STATE.PAUSED.label:
             default:
                 break;
         } 
         this.setState({
-            savedTeams: dronesNext,
+            savedTeams: teamsNext,
             savedParcels: parcelsNext,
             numberOfTeamsMax: newNumberOfTeamsMax,
             numberOfTeamsMin: newNumberOfTeamsMin,
-            numberOfActiveTeams: dronesNext.length,
+            numberOfActiveTeams: teamsNext.length,
             numberOfTeams: (
                 newNumberOfTeamsMax >= this.state.numberOfTeams
                 || this.state.numberOfTeams <= newNumberOfTeamsMin
                     ? this.state.numberOfTeams
                     : newNumberOfTeamsMin
             ), 
-            gameState: this.step,
             gameStepTeams,
+            gameStep: this.step,
         }, this.log);
     };
 
@@ -524,7 +504,7 @@ export class Admin extends Component {
         await postParcel(flatten(parcels));
     }
 
-    changeGameState = async (gameState = GAME_STATE.STOPPED) => {
+    changeGameState = async (gameState = GAME_STATE.STOPPED.label) => {
         this.setState({ gameState });
     }
 
@@ -602,20 +582,20 @@ export class Admin extends Component {
                             <h3>Init game</h3>
                         </Line>
                         <Line>
-                            {this.state.gameState !== GAME_STATE.STARTED
-                                ? <Button type="button" onClick={() => this.changeGameState(GAME_STATE.STARTED)}>
+                            {this.state.gameState !== GAME_STATE.STARTED.label
+                                ? <Button type="button" onClick={() => this.changeGameState(GAME_STATE.STARTED.label)}>
                                     Start game
                                 </Button>
                                 : null
                             }
-                            {this.state.gameState === GAME_STATE.STARTED
-                                ? <Button type="button" onClick={() => this.changeGameState(GAME_STATE.PAUSED)}>
+                            {this.state.gameState === GAME_STATE.STARTED.label
+                                ? <Button type="button" onClick={() => this.changeGameState(GAME_STATE.PAUSED.label)}>
                                     Pause game
                                 </Button>
                                 : null
                             }
-                            {/*{this.state.gameState === GAME_STATE.STARTED*/}
-                                {/*? <Button type="button" onClick={() => this.changeGameState(GAME_STATE.STOPPED)}>*/}
+                            {/*{this.state.gameState === GAME_STATE.STARTED.label*/}
+                                {/*? <Button type="button" onClick={() => this.changeGameState(GAME_STATE.STOPPED.label)}>*/}
                                     {/*Stop game*/}
                                 {/*</Button>*/}
                                 {/*: null*/}
@@ -626,6 +606,9 @@ export class Admin extends Component {
                         </Line>
                         <Line>
                             Game: {this.state.gameState}
+                        </Line>
+                        <Line>
+                            Level: {this.state.gameStep}
                         </Line>
                     </Form>
                     <Form id="initTeams">
