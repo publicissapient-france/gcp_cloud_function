@@ -236,7 +236,7 @@ export const mockedDronesAndParcels_2 = {
                     }
                 ],
                 "score": 750,
-                "distancePerTick": 0.7,
+                "distancePerTick": 0.3,
                 "location": {
                     "latitude": 48.88320469256545,
                     "longitude": 2.3446247556851896
@@ -265,7 +265,7 @@ export const mockedDronesAndParcels_2 = {
         {
             "teamId": "green-421",
             "data": {
-                "distancePerTick": 0.6,
+                "distancePerTick": 0.4,
                 "location": {
                     "latitude": 48.916214475236195,
                     "longitude": 2.4937180453021988
@@ -326,7 +326,7 @@ export const mockedDronesAndParcels_2 = {
             "data": {
                 "parcels": [],
                 "score": 950,
-                "distancePerTick": 0.3,
+                "distancePerTick": -0.1,
                 "location": {
                     "latitude": 48.85388078633685,
                     "longitude": 2.373716002958332
@@ -348,7 +348,7 @@ export const mockedDronesAndParcels_2 = {
         {
             "teamId": "yellow-577",
             "data": {
-                "distancePerTick": 0.8999999999999999,
+                "distancePerTick": 0.35,
                 "location": {
                     "longitude": 2.4937180453021988,
                     "latitude": 48.916214475236195
