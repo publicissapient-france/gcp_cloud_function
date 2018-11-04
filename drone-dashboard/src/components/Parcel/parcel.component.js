@@ -10,7 +10,7 @@ import {
 import { CustomMapElement } from '../CustomMapElement';
 import ParcelSprite from '../ParcelSprite';
 import ParcelCustomSprite from '../ParcelCustomSprite';
-import {parseDroneTeamColor} from '../../services/drone.service';
+import {parseDroneTeamColor} from '../../services/data.service';
 
 export const ParcelContainer = styled.div`
   div {  

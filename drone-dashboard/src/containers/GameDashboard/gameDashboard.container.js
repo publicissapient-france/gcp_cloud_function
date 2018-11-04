@@ -7,6 +7,7 @@ import { Section } from '../../components/Section';
 import { Drone } from '../../components/Drone';
 import { Parcel } from '../../components/Parcel';
 import { Pin } from '../../components/Pin';
+import { PinDestination } from '../../components/PinDestination';
 import {
     Score,
     ScoreItem,
@@ -17,7 +18,7 @@ import {
     parseParcelInfo,
     parseScores,
     parseDroneTeamColor,
-} from '../../services/drone.service';
+} from '../../services/data.service';
 import {
     GAME_PARAMETERS,
     STATUS,
@@ -81,13 +82,17 @@ export class GameDashboard extends Component {
         }, this.props.speed);
     };
 
+    log() {
+        this.props.logLevel && this.props.logLevel === 'debug' && console.log(this.state);
+    }
+
     updateGame = ({drones, parcels}) => {
         const dronesNext = parseDroneInfo(drones || []);
         const parcelsNext = parcels ? parseParcelInfo(parcels) : [];
         this.setState({
             drones: dronesNext,
             parcels: parcelsNext,
-        }, console.log(this.state));
+        }, this.log);
     };
 
     renderBoundaries(type = 'inner') {
@@ -176,7 +181,7 @@ export class GameDashboard extends Component {
                                 lat={drone.latitude}
                                 lng={drone.longitude}
                             />,
-                            <Pin
+                            <PinDestination
                                 key={`move-location-${drone.teamId}`}
                                 lat={get(drone, 'command.location.latitude')}
                                 lng={get(drone, 'command.location.longitude')}

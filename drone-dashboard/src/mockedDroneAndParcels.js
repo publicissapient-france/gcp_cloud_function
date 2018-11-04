@@ -1,3 +1,199 @@
+export const mockedData_step_1 = {
+    "drones": [
+        {
+            "teamId": "black-894",
+            "data": {
+                "parcels": [{
+                    "status": "GRABBED",
+                    "parcelId": "cd1e93c0-c72c-4345-ac3b-5fd87a75ebde",
+                    "score": 100,
+                    "type": "CLASSIC",
+                    "teamId": "black-894",
+                    "location": {
+                        "pickup": {"latitude": 48.89692946071234, "longitude": 2.4270235691203808},
+                        "delivery": {"latitude": 48.84354977683087, "longitude": 2.2887987772037346}
+                    }
+                }, {
+                    "status": "AVAILABLE",
+                    "parcelId": "d0c35e06-c454-44a1-9096-af6a87b82e63",
+                    "score": 50,
+                    "type": "CLASSIC",
+                    "teamId": "black-894",
+                    "location": {
+                        "pickup": {"latitude": 48.86434662349142, "longitude": 2.2488089562747446},
+                        "delivery": {"latitude": 48.89422829740994, "longitude": 2.292828627044768}
+                    }
+                }],
+                "score": 750,
+                "distancePerTick": 0.7,
+                "location": {"longitude": 2.3446247556851896, "latitude": 48.88320469256545},
+                "topicUrl": "https://europe-west1-jbclaramonte-noir.cloudfunctions.net/onDroneEventHttp"
+            }
+        }, {
+            "teamId": "blue-564",
+            "data": {
+                "parcels": [],
+                "score": 0,
+                "location": {"latitude": 48.856363913699454, "longitude": 2.341277671114139}
+            }
+        }, {
+            "teamId": "green-421",
+            "data": {
+                "parcels": [],
+                "score": 900,
+                "distancePerTick": 0.6,
+                "location": {"latitude": 48.916214475236195, "longitude": 2.4937180453021988},
+                "topicUrl": "https://europe-west1-ndechandon-rouge.cloudfunctions.net/onDroneEventHttpGreen"
+            }
+        }, {
+            "teamId": "grey-830",
+            "data": {
+                "location": {"latitude": 48.857042529088886, "longitude": 2.3420248086306446},
+                "parcels": [],
+                "score": 0
+            }
+        }, {
+            "teamId": "orange-730",
+            "data": {
+                "parcels": [],
+                "score": 1150,
+                "distancePerTick": 0.3,
+                "location": {"latitude": 48.86522590344257, "longitude": 2.3588665685234633},
+                "topicUrl": "https://europe-west1-ndechandon-rouge.cloudfunctions.net/onDroneEventHttpOrange"
+            }
+        }, {
+            "teamId": "pink-5",
+            "data": {
+                "location": {"latitude": 48.86013187406725, "longitude": 2.3416848157660533},
+                "parcels": [],
+                "score": 0
+            }
+        }, {
+            "teamId": "purple-352",
+            "data": {
+                "parcels": [],
+                "score": 0,
+                "location": {"latitude": 48.85607423501059, "longitude": 2.34312582786227}
+            }
+        }, {
+            "teamId": "red-216",
+            "data": {
+                "distancePerTick": 0.3,
+                "location": {"latitude": 48.85388078633685, "longitude": 2.373716002958332},
+                "topicUrl": "https://europe-west1-ndechandon-rouge.cloudfunctions.net/onDroneEventHttpRed",
+                "parcels": [],
+                "score": 950
+            }
+        }, {
+            "teamId": "white-292",
+            "data": {
+                "parcels": [],
+                "score": 0,
+                "location": {"latitude": 48.85868259383333, "longitude": 2.343687997587203}
+            }
+        }, {
+            "teamId": "yellow-577",
+            "data": {
+                "parcels": [],
+                "score": 1100,
+                "distancePerTick": 0.8999999999999999,
+                "location": {"latitude": 48.916214475236195, "longitude": 2.4937180453021988},
+                "topicUrl": "https://europe-west1-ndechandon-rouge.cloudfunctions.net/onDroneEventHttpYellow"
+            }
+        }],
+    "parcels": [
+        {
+            "teamId": "pink-5",
+            "status": "AVAILABLE",
+            "location": {
+                "pickup": {"longitude": 2.438996081794158, "latitude": 48.886166675169605},
+                "delivery": {"latitude": 48.869251420611306, "longitude": 2.2819569950854732}
+            },
+            "type": "CLASSIC",
+            "score": 50
+        }, {
+            "teamId": "red-216",
+            "status": "AVAILABLE",
+            "location": {
+                "pickup": {"latitude": 48.8960578816862, "longitude": 2.2101075293738828},
+                "delivery": {"latitude": 48.87786357687143, "longitude": 2.3580780196719795}
+            },
+            "type": "CLASSIC",
+            "score": 50
+        }, {
+            "teamId": "green-421",
+            "status": "AVAILABLE",
+            "location": {
+                "pickup": {"latitude": 48.89339855427476, "longitude": 2.4599235812072373},
+                "delivery": {"longitude": 2.286218632409851, "latitude": 48.88280413704819}
+            },
+            "type": "CLASSIC",
+            "score": 50
+        }, {
+            "type": "CLASSIC",
+            "score": 50,
+            "teamId": "purple-352",
+            "status": "AVAILABLE",
+            "location": {
+                "pickup": {"latitude": 48.913687931244255, "longitude": 2.2210185039587156},
+                "delivery": {"latitude": 48.868051978252204, "longitude": 2.3404951133746192}
+            }
+        }, {
+            "teamId": "black-894",
+            "status": "GRABBED",
+            "location": {
+                "pickup": {"latitude": 48.86360394403967, "longitude": 2.444167085828114},
+                "delivery": {"longitude": 2.3171505532607024, "latitude": 48.87163326537185}
+            },
+            "type": "CLASSIC",
+            "score": 50
+        }, {
+            "teamId": "yellow-577",
+            "status": "AVAILABLE",
+            "location": {
+                "pickup": {"latitude": 48.8136401418089, "longitude": 2.222537629623255},
+                "delivery": {"latitude": 48.854392352435035, "longitude": 2.337831406089584}
+            },
+            "type": "CLASSIC",
+            "score": 50
+        }, {
+            "type": "CLASSIC",
+            "score": 50,
+            "teamId": "grey-830",
+            "status": "AVAILABLE",
+            "location": {
+                "pickup": {"latitude": 48.833945502599505, "longitude": 2.45272597261129},
+                "delivery": {"longitude": 2.2505570973537914, "latitude": 48.890862215704345}
+            }
+        }, {
+            "teamId": "orange-730",
+            "status": "AVAILABLE",
+            "location": {
+                "pickup": {"latitude": 48.90771040687206, "longitude": 2.2553657578308917},
+                "delivery": {"latitude": 48.84926815365859, "longitude": 2.3361423596666633}
+            },
+            "type": "CLASSIC",
+            "score": 50
+        }, {
+            "type": "CLASSIC",
+            "score": 50,
+            "teamId": "white-292",
+            "status": "AVAILABLE",
+            "location": {
+                "pickup": {"latitude": 48.89294051210796, "longitude": 2.2382425273740107},
+                "delivery": {"latitude": 48.86600253875363, "longitude": 2.3311895704080197}
+            }
+        }, {
+            "type": "CLASSIC",
+            "score": 50,
+            "teamId": "blue-564",
+            "status": "AVAILABLE",
+            "location": {
+                "pickup": {"latitude": 48.87362619148017, "longitude": 2.218695800797182},
+                "delivery": {"latitude": 48.867216085766934, "longitude": 2.2847001574590986}
+            }
+        }]
+};
 export const mockedDronesAndParcels_2 = {
     "drones": [
         {
@@ -40,7 +236,7 @@ export const mockedDronesAndParcels_2 = {
                     }
                 ],
                 "score": 750,
-                "distancePerTick": 0.7,
+                "distancePerTick": 0.3,
                 "location": {
                     "latitude": 48.88320469256545,
                     "longitude": 2.3446247556851896
@@ -69,7 +265,7 @@ export const mockedDronesAndParcels_2 = {
         {
             "teamId": "green-421",
             "data": {
-                "distancePerTick": 0.6,
+                "distancePerTick": 0.4,
                 "location": {
                     "latitude": 48.916214475236195,
                     "longitude": 2.4937180453021988
@@ -130,7 +326,7 @@ export const mockedDronesAndParcels_2 = {
             "data": {
                 "parcels": [],
                 "score": 950,
-                "distancePerTick": 0.3,
+                "distancePerTick": -0.1,
                 "location": {
                     "latitude": 48.85388078633685,
                     "longitude": 2.373716002958332
@@ -152,7 +348,7 @@ export const mockedDronesAndParcels_2 = {
         {
             "teamId": "yellow-577",
             "data": {
-                "distancePerTick": 0.8999999999999999,
+                "distancePerTick": 0.35,
                 "location": {
                     "longitude": 2.4937180453021988,
                     "latitude": 48.916214475236195
@@ -2751,7 +2947,74 @@ export const mockedDronesAndParcels_1 = {
     ]
 };
 
-export const mockData_02 = {"drones":[{"teamId":"blue","data":{"location":{"latitude":48.8653487,"longitude":2.3788396}}},{"teamId":"red","data":{"location":{"latitude":48.80621744882436,"longitude":2.1723810610753986}}},{"teamId":"yellow","data":{"command":{"location":{"latitude":48.806294,"longitude":2.171485},"name":"MOVE"},"parcels":[{"teamId":"yellow","status":"GRABBED","location":{"pickup":{"latitude":48.804986,"longitude":2.188315},"delivery":{"longitude":2.171485,"latitude":48.806294}},"parcelId":"136e5a64-2050-4fa7-8cfc-72df26ca164d","score":100},{"parcelId":"136e5a64-2050-4fa7-8cfc-72df26ca164d","score":100,"teamId":"yellow","status":"GRABBED","location":{"pickup":{"latitude":48.804986,"longitude":2.188315},"delivery":{"latitude":48.806294,"longitude":2.171485}}},{"parcelId":"136e5a64-2050-4fa7-8cfc-72df26ca164d","score":100,"teamId":"yellow","status":"GRABBED","location":{"pickup":{"latitude":48.804986,"longitude":2.188315},"delivery":{"latitude":48.806294,"longitude":2.171485}}}],"location":{"latitude":48.805543474568886,"longitude":2.181142036232819},"topicUrl":"projects/jbc-some-tests/topics/drone-events-topic"}}],"parcels":[{"parcelId":"136e5a64-2050-4fa7-8cfc-72df26ca164d","score":100,"teamId":"yellow","status":"GRABBED","location":{"pickup":{"latitude":48.804986,"longitude":2.188315},"delivery":{"longitude":2.171485,"latitude":48.806294}}},{"score":200,"teamId":"yellow","location":{"pickup":{"latitude":48.810123,"longitude":2.190504},"delivery":{"latitude":48.806294,"longitude":2.171485}}},{"teamId":"blue","location":{"pickup":{"latitude":48.8753487,"longitude":2.3088396},"delivery":{"latitude":48.85,"longitude":2.2}},"score":200}]};
+export const mockData_02 = {
+    "drones": [{
+        "teamId": "blue",
+        "data": {"location": {"latitude": 48.8653487, "longitude": 2.3788396}}
+    }, {
+        "teamId": "red",
+        "data": {"location": {"latitude": 48.80621744882436, "longitude": 2.1723810610753986}}
+    }, {
+        "teamId": "yellow",
+        "data": {
+            "command": {"location": {"latitude": 48.806294, "longitude": 2.171485}, "name": "MOVE"},
+            "parcels": [{
+                "teamId": "yellow",
+                "status": "GRABBED",
+                "location": {
+                    "pickup": {"latitude": 48.804986, "longitude": 2.188315},
+                    "delivery": {"longitude": 2.171485, "latitude": 48.806294}
+                },
+                "parcelId": "136e5a64-2050-4fa7-8cfc-72df26ca164d",
+                "score": 100
+            }, {
+                "parcelId": "136e5a64-2050-4fa7-8cfc-72df26ca164d",
+                "score": 100,
+                "teamId": "yellow",
+                "status": "GRABBED",
+                "location": {
+                    "pickup": {"latitude": 48.804986, "longitude": 2.188315},
+                    "delivery": {"latitude": 48.806294, "longitude": 2.171485}
+                }
+            }, {
+                "parcelId": "136e5a64-2050-4fa7-8cfc-72df26ca164d",
+                "score": 100,
+                "teamId": "yellow",
+                "status": "GRABBED",
+                "location": {
+                    "pickup": {"latitude": 48.804986, "longitude": 2.188315},
+                    "delivery": {"latitude": 48.806294, "longitude": 2.171485}
+                }
+            }],
+            "location": {"latitude": 48.805543474568886, "longitude": 2.181142036232819},
+            "topicUrl": "projects/jbc-some-tests/topics/drone-events-topic"
+        }
+    }],
+    "parcels": [{
+        "parcelId": "136e5a64-2050-4fa7-8cfc-72df26ca164d",
+        "score": 100,
+        "teamId": "yellow",
+        "status": "GRABBED",
+        "location": {
+            "pickup": {"latitude": 48.804986, "longitude": 2.188315},
+            "delivery": {"longitude": 2.171485, "latitude": 48.806294}
+        }
+    }, {
+        "score": 200,
+        "teamId": "yellow",
+        "location": {
+            "pickup": {"latitude": 48.810123, "longitude": 2.190504},
+            "delivery": {"latitude": 48.806294, "longitude": 2.171485}
+        }
+    }, {
+        "teamId": "blue",
+        "location": {
+            "pickup": {"latitude": 48.8753487, "longitude": 2.3088396},
+            "delivery": {"latitude": 48.85, "longitude": 2.2}
+        },
+        "score": 200
+    }]
+};
 export const mockData_01 = {
     drones: [
         {

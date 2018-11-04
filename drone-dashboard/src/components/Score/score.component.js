@@ -6,7 +6,7 @@ import {COLORS} from '../../styles/variables';
 import {
     parseScoreColor,
     parseScoreBorderColor,
-} from '../../services/drone.service';
+} from '../../services/data.service';
 
 export const ScoreItem = styled.div`
   display: flex;
@@ -52,7 +52,7 @@ export const ScoreItem = styled.div`
 
 const Speed = styled.span`
   font-size: 1.1rem;
-  color: ${COLORS.speedBoost[0]};
+  color: ${props => props.speedFactor > 0 ? COLORS.speedBoost[0] : COLORS.red};
   padding-left: 5px;
   i {
     font-size: 1.2rem;
@@ -114,11 +114,12 @@ export class Score extends Component {
     }
 
     renderSpeed() {
+        const speedFactor = this.props.distancePerTick ? Math.round((this.props.distancePerTick / 0.05) - 6) : 0;
         return (
-            this.props.distancePerTick && this.props.distancePerTick > 0
-                ? <Speed>
+            speedFactor && speedFactor !== 0
+                ? <Speed speedFactor={speedFactor}>
                     <i className="material-icons">flash_on</i>
-                    <span>{this.props.distancePerTick ? Math.round(this.props.distancePerTick / 0.1) : 0}</span>
+                    <span>{ speedFactor }</span>
                 </Speed>
                 : null
         );

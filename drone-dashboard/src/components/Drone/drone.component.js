@@ -6,7 +6,7 @@ import {GAME_PARAMETERS} from '../../constants';
 import { CustomMapElement } from '../CustomMapElement';
 import { CounterBubble } from '../CounterBubble';
 import DroneSprite from '../DroneSprite';
-import {parseDroneTeamColor} from '../../services/drone.service';
+import {parseDroneTeamColor} from '../../services/data.service';
 
 export const DroneContainer = styled.div`
   div {

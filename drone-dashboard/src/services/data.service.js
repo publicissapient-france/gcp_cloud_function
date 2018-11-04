@@ -80,11 +80,20 @@ export const postParcel = async (parcelsData) => {
     return Bluebird.each(parcelsData, async (parcel) => {
         try {
             return await axios.post(GAME_PARAMETERS.parcelHttpUpserterUrl, parcel);
+            // return await axios.post('http://localhost:9000', parcel);
         } catch (error) {
             console.log('Error while upserting parcel', error);
         }
     });
 };
+export const clearParcels = async () => {
+    try {
+        return await axios.delete(GAME_PARAMETERS.parcelHttpUpserterUrl);
+    } catch (error) {
+        console.log('Error while deleting parcels', error);
+    }
+};
+
 /*****************************/
 /** random drones generator **/
 /*****************************/
@@ -92,7 +101,7 @@ export const getRandomFloat = (min, max) => Math.random() * (max - min) + min;
 export const getRandomInteger = (min, max) => Math.floor(Math.random() * (Math.floor(max) - Math.ceil(min) + 1)) + Math.ceil(min);
 export const getRandomColor = () => `hsla(${Math.random() * 360}, 100%, 42%, 1)`;
 export const getRandomOperator = () => GAME_PARAMETERS.operators[getRandomInteger(0, 1)];
-export const getRadomScore = () => chance.weighted(PARCEL_SCORES, PARCEL_CHANCES);
+export const getRadomScore = () => chance.weighted(Object.values(PARCEL_SCORES), PARCEL_CHANCES);
 // export const createDrones = (quantity) => Array
 //     .from(Array(quantity).keys())
 //     .map((value) => (

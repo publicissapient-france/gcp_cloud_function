@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 
 import {COLORS} from '../../styles/variables';
-import {parseDroneTeamColor} from '../../services/drone.service';
+import {parseDroneTeamColor} from '../../services/data.service';
 
 export const CounterBubble = styled.div`
   position: relative;

@@ -2,24 +2,25 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 
 import {COLORS} from '../../styles/variables';
-import {GAME_PARAMETERS, STATUS} from '../../constants';
+import {STATUS} from '../../constants';
 import { CustomMapElement } from '../CustomMapElement';
-import PinSprite from '../PinSprite';
+import PinDestinationSprite from '../PinDestinationSprite';
 import {CounterBubble} from '../CounterBubble';
 import {parseDroneTeamColor} from '../../services/data.service';
 
 export const PinContainer = styled.div`
+  margin-top: -70px;
+  margin-left: -6px;
   div {  
     svg {
-      width: ${GAME_PARAMETERS.pin};
-      height: ${GAME_PARAMETERS.pin};
-      fill: ${(props) => COLORS[parseDroneTeamColor(props.teamId)]};
+      width: 12px;
+      height: 12px;
       filter: drop-shadow(2px 6px 4px rgba(0,0,0,0.8));
     }
   }
 `;
 
-export class Pin extends Component {
+export class PinDestination extends Component {
     renderParcelScoreCounter() {
         return (
             this.props.score &&
@@ -38,13 +39,11 @@ export class Pin extends Component {
             ) ?
             <CustomMapElement>
                 <PinContainer {...this.props} >
-                    <PinSprite/>
+                    <PinDestinationSprite baseColor={COLORS[parseDroneTeamColor(this.props.teamId)]}/>
                     {this.renderParcelScoreCounter()}
                 </PinContainer>
             </CustomMapElement>
             : null
         );
     }
-
-
 }
