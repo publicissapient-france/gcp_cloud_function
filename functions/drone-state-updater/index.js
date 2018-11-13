@@ -285,7 +285,8 @@ const moveDrone = async function (droneInfo, teamId) {
 
                 deleteParcel(deliveredParcel.parcelId);
 
-                const data = { teamId, droneInfo, event: 'PARCEL_DELIVERED' };
+                // const data = { teamId, droneInfo, event: 'PARCEL_DELIVERED' };
+                const data = { teamId, droneInfo, event: 'WAITING_FOR_COMMAND' };
                 publishInTopic(data, topicName, teamId);
             } else {
                 const parcelsAroundDrone = await checkParcelAround(droneInfo, teamId);
@@ -303,12 +304,14 @@ const moveDrone = async function (droneInfo, teamId) {
                     const classicParcels = parcelsAroundDrone.filter(parcel => parcel.type === "CLASSIC");
                     droneInfo.parcels = droneInfo.parcels || [];
                     droneInfo.parcels = [...droneInfo.parcels, ...classicParcels];
-                    const data = { teamId, droneInfo, event: 'PARCEL_GRABBED' };
+                    // const data = { teamId, droneInfo, event: 'PARCEL_GRABBED' };
+                    const data = { teamId, droneInfo, event: 'WAITING_FOR_COMMAND' };
                     await updateParcelStatus(parcelsAroundDrone, 'GRABBED');
 
                     publishInTopic(data, topicName, teamId);
                 } else {
-                    const data = { teamId, droneInfo, event: 'DESTINATION_REACHED' };
+                    // const data = { teamId, droneInfo, event: 'DESTINATION_REACHED' };
+                    const data = { teamId, droneInfo, event: 'WAITING_FOR_COMMAND' };
 
                     publishInTopic(data, topicName, teamId);
                 }
