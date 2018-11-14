@@ -1,57 +1,43 @@
-locals {
-
-  projects = [
-    {
-      name = "red-657"
-      project_id = "black-23-10-2018"
-      user = "user:nicolas.dechandon@gmail.com"
-    },
-    {
-      name = "blue-625"
-      project_id = "blue-23-10-2018"
-      user = "user:ibeauvais@xebia.fr"
-    },
-    {
-      name = "green-671"
-      project_id = "green-23-10-2018"
-      user = "user:eacquarone@gmail.com"
-  }
-    ,
-    {
-      name = "purple-40"
-      project_id = "grey-23-10-2018"
-      user = "user:jeanbaptiste.claramonte@gmail.com"
-    }
-//    {
-//      name = "orange-730"
-//      project_id = "orange-23-10-2018"
-//      user = "user:nicolas.dechandon@gmail.com"
-//    },
-//    {
-//      name = "pink-5"
-//      project_id = "pink-23-10-2018"
-//      user = "user:nicolas.dechandon@gmail.com"
-//    },
-//    {
-//      name = "purple-352"
-//      project_id = "purple-23-10-2018"
-//      user = "user:nicolas.dechandon@gmail.com"
-//    },
-//    {
-//      name = "red-216"
-//      project_id = "red-23-10-2018"
-//      user = "user:nicolas.dechandon@gmail.com"
-//    },
-//    {
-//      name = "white-292"
-//      project_id = "white-23-10-2018"
-//      user = "user:nicolas.dechandon@gmail.com"
-//    },
-//    {
-//      name = "yellow-577"
-//      project_id = "yellow-23-10-2018"
-//      user = "user:nicolas.dechandon@gmail.com"
-//    }
-
+variable "projects"{
+  type = "list"
+default =[
+  "black-602",
+  "blue-768",
+  "green-198",
+  "grey-571",
+  "orange-81",
+  "pink-719",
+  "purple-629",
+  "red-130",
+  "white-560",
+  "yellow-679"
   ]
 }
+
+variable "users" {
+  type = "map"
+  default = {
+    "0"= ["user:jbclaramonte@xebia.fr", "user:ndechandon@xebia.Fr"]
+    "1"= ["user:jbclaramonte@xebia.fr", "user:ndechandon@xebia.Fr"]
+    "2"= ["user:jbclaramonte@xebia.fr", "user:ndechandon@xebia.Fr"]
+    "3"= ["user:jbclaramonte@xebia.fr", "user:ndechandon@xebia.Fr"]
+    "4"= ["user:jbclaramonte@xebia.fr", "user:ndechandon@xebia.Fr"]
+    "5"= ["user:jbclaramonte@xebia.fr", "user:ndechandon@xebia.Fr"]
+    "6"= ["user:jbclaramonte@xebia.fr", "user:ndechandon@xebia.Fr"]
+    "7"= ["user:jbclaramonte@xebia.fr", "user:ndechandon@xebia.Fr"]
+    "8"= ["user:jbclaramonte@xebia.fr", "user:ndechandon@xebia.Fr"]
+    "9"= ["user:jbclaramonte@xebia.fr", "user:ndechandon@xebia.Fr"]
+  }
+}
+
+variable "date" {
+  type = "string"
+  default = "2018-11-14"
+}
+
+
+
+
+
+
+

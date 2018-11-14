@@ -1,9 +1,8 @@
 resource "google_project" "project-drone" {
+  count = "${length(var.projects)}"
+  project_id = "${var.projects[count.index]}-${var.date}"
 
-  count = "${length(local.projects)}"
-  project_id = "${lookup(local.projects[count.index], "project_id")}"
-
-  name = "${lookup(local.projects[count.index], "name")}"
+  name = "${var.projects[count.index]}"
 
   folder_id = "114471209490"
   billing_account = "002C54-030B48-27C3F8"
@@ -11,8 +10,8 @@ resource "google_project" "project-drone" {
 
 # Enable Services APIs on the project
 resource "google_project_services" "project_services" {
-  count = "${length(local.projects)}"
-  project = "${lookup(local.projects[count.index], "project_id")}"
+  count = "${length(var.projects)}"
+  project = "${var.projects[count.index]}-${var.date}"
 
   services = [
     "pubsub.googleapis.com",
@@ -25,37 +24,33 @@ resource "google_project_services" "project_services" {
 
 
 resource "google_project_iam_binding" "pubsub" {
-  count = "${length(local.projects)}"
-  project     = "${lookup(local.projects[count.index], "project_id")}"
+  count = "${length(var.projects)}"
+  project     = "${var.projects[count.index]}-${var.date}"
   role = "roles/pubsub.admin"
 
-  members = [
-    "${lookup(local.projects[count.index], "user")}",
-  ]
+  members = "${var.users[count.index]}"
 }
 
 resource "google_project_iam_binding" "cloudfunctions" {
-  count = "${length(local.projects)}"
-  project     = "${lookup(local.projects[count.index], "project_id")}"
+  count = "${length(var.projects)}"
+  project     = "${var.projects[count.index]}-${var.date}"
   role = "roles/cloudfunctions.developer"
 
-  members = [
-    "${lookup(local.projects[count.index], "user")}",
-  ]
+  members = "${var.users[count.index]}"
 }
 
-resource "google_project_iam_member" "editor" {
-  count = "${length(local.projects)}"
-  project     = "${lookup(local.projects[count.index], "project_id")}"
+resource "google_project_iam_binding" "editor" {
+  count = "${length(var.projects)}"
+  project     = "${var.projects[count.index]}-${var.date}"
   role = "roles/editor"
 
-  member = "${lookup(local.projects[count.index], "user")}",
+  members = "${var.users[count.index]}"
 
 }
 
 resource "google_project_iam_binding" "owner" {
-  count = "${length(local.projects)}"
-  project     = "${lookup(local.projects[count.index], "project_id")}"
+  count = "${length(var.projects)}"
+  project     = "${var.projects[count.index]}-${var.date}"
   role = "roles/owner"
 
   members = [
