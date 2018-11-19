@@ -1,16 +1,16 @@
 variable "projects"{
   type = "list"
 default =[
-  "black-602",
-  "blue-768",
-  "green-198",
-  "grey-571",
-  "orange-81",
-  "pink-719",
-  "purple-629",
-  "red-130",
-  "white-560",
-  "yellow-679"
+  "black-955",
+  "blue-478",
+  "green-213",
+  "grey-691",
+  "orange-779",
+  "pink-338",
+  "purple-317",
+  "red-294",
+  "white-627",
+  "yellow-986"
   ]
 }
 
