@@ -112,7 +112,7 @@ const ResultLine = styled(Line)`
   flex: 1 1 auto;
   flex-flow: row wrap;
   justify-content: center;
-  align-items: center;
+  align-items: stretch;
   max-height: 350px;
   overflow: scroll;
 `;
@@ -169,8 +169,21 @@ const Parcel = styled(Team)`
   height: auto;
   width: auto;
   &:not(:last-of-type){
-    margin-right: 5px;
-    margin-bottom: 0;
+    margin-right: 0;
+    margin-bottom: 4px;
+  }
+  &.grabbed {
+    border: greenyellow 2px dotted;
+  }
+`;
+
+const Column = styled.div`
+  display: flex;
+  flex: 0 1 45px;
+  flex-flow: column nowrap;
+  justify-content: stretch;
+  &:not(:last-of-type){
+    margin-right: 4px;
   }
 `;
 
@@ -544,23 +557,33 @@ export class Admin extends Component {
                 ? orderBy(this.state.savedParcels, ['teamId'], ['asc'])
                 : []
         );
+        const groupedParcels = groupBy(sortedParcels, 'teamId');
         return (
-            sortedParcels.length > 0 &&
-            sortedParcels.map((parcel, index) => {
+            !isEmpty(groupedParcels) &&
+            Object.values(groupedParcels).map((teamParcels, teamId) => {
+                const orderedParcels = orderBy(teamParcels, ['status', 'score'], ['asc']);
                 return (
-                    parcel.teamId ?
-                    <Parcel
-                        key={`parcel-${parcel.teamId}-${index}`}
-                        {...parcel}
-                    >
-                        <div>
-                            <strong>{parcel.score}</strong>
-                        </div>
-                        <div>
-                            {parcel.status}
-                        </div>
-                    </Parcel>
-                    : null
+                    <Column key={teamId}>
+                        { orderedParcels.length > 0 &&
+                            orderedParcels.map((parcel, index) => {
+                            return (
+                                parcel.teamId ?
+                                    <Parcel
+                                        key={`parcel-${parcel.teamId}-${index}`}
+                                        className={parcel.status && parcel.status === STATUS.AVAILABLE ? 'available' : 'grabbed' }
+                                        {...parcel}
+                                    >
+                                        <div>
+                                            <strong>{parcel.score}</strong>
+                                        </div>
+                                        <div>
+                                            {parcel.status}
+                                        </div>
+                                    </Parcel>
+                                    : null
+                            );
+                        })}
+                    </Column>
                 );
             })
         );
