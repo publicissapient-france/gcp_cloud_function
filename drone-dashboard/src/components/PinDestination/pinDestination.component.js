@@ -9,7 +9,7 @@ import {CounterBubble} from '../CounterBubble';
 import {parseDroneTeamColor} from '../../services/data.service';
 
 export const PinContainer = styled.div`
-  margin-top: -70px;
+  margin-top: -20px;
   margin-left: -6px;
   div {  
     svg {
