@@ -113,8 +113,14 @@ const ResultLine = styled(Line)`
   flex-flow: row wrap;
   justify-content: center;
   align-items: stretch;
+`;
+
+const ResultContainer = styled.div`
   max-height: 350px;
-  overflow: scroll;
+  overflow: auto;
+  ${ResultLine} {
+    padding: 0;
+  }
 `;
 
 const Form = styled.div`
@@ -717,9 +723,11 @@ export class Admin extends Component {
                                 Generate speed boost parcels
                             </Button>
                         </Line>
-                        <ResultLine>
-                            {this.renderParcels()}
-                        </ResultLine>
+                        <ResultContainer>
+                            <ResultLine>
+                                {this.renderParcels()}
+                            </ResultLine>
+                        </ResultContainer>
                     </Form>
                 </FormsContainer>
             </AdminContainer>
