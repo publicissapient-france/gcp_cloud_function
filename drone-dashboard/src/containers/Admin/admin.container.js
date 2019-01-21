@@ -267,7 +267,7 @@ export class Admin extends Component {
                             (readyForNextStepTeams && some(readyForNextStepTeams, {teamId: team.teamId}))
                         ) {
                         await createStepLevel[GAME_STATE[gameStep].level](this.createParcels, team);
-                        const nextGameLevel = gameLevel + 1;
+                        const nextGameLevel = GAME_STATE[`STEP_${gameLevel + 1}`] ? gameLevel + 1 : 1000000;
                         this.log(`next level ${nextGameLevel} for team ${team.teamId}`)
                         team.gameStep = (find(GAME_STATE, { level: nextGameLevel }) || GAME_STATE.STOPPED).label;
                         this.step = this.step && this.step > nextGameLevel ? this.step : nextGameLevel;
@@ -623,12 +623,12 @@ export class Admin extends Component {
                                 </Button>
                                 : null
                             }
-                            {/*{this.state.gameState === GAME_STATE.STARTED.label*/}
-                                {/*? <Button type="button" onClick={() => this.changeGameState(GAME_STATE.STOPPED.label)}>*/}
-                                    {/*Stop game*/}
-                                {/*</Button>*/}
-                                {/*: null*/}
-                            {/*}*/}
+                            {this.state.gameState === GAME_STATE.STARTED.label
+                                ? <Button type="button" onClick={() => this.changeGameState(GAME_STATE.STOPPED.label)}>
+                                    Stop game
+                                </Button>
+                                : null
+                            }
                         </Line>
                         <Line>
                             <strong>{this.state.numberOfActiveTeams || '0'} teams are actives</strong><br />

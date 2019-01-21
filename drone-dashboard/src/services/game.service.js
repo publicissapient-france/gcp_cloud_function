@@ -74,6 +74,12 @@ export const createStepLevel = {
                 type: PARCEL_TYPES.CLASSIC,
                 targetTeam: team.teamId,
                 number: 2,
+                score: PARCEL_SCORES['50'],
+            },
+            {
+                type: PARCEL_TYPES.CLASSIC,
+                targetTeam: team.teamId,
+                number: 2,
                 score: PARCEL_SCORES['100'],
             },
             {
@@ -94,17 +100,34 @@ export const createStepLevel = {
             {
                 type: PARCEL_TYPES.CLASSIC,
                 targetTeam: team.teamId,
+                number: 3,
+                score: PARCEL_SCORES['50'],
+            },
+            {
+                type: PARCEL_TYPES.CLASSIC,
+                targetTeam: team.teamId,
+                number: 2,
+                score: PARCEL_SCORES['100'],
+            },
+            {
+                type: PARCEL_TYPES.CLASSIC,
+                targetTeam: team.teamId,
                 number: 2,
                 score: PARCEL_SCORES['200'],
             },
             {
                 type: PARCEL_TYPES.SPEED_BOOST,
-                number: 2,
+                number: 1,
             },
         ], createParcelsFn);
     },
     4: async (createParcelsFn, team) => {
         console.log(`create parcels for team ${team.teamId}, step 4`)
         await Promise.resolve();
-    }
+    },
+    1000000: async (createParcelsFn, team) => {
+        console.log(`create parcels for team ${team.teamId}, step default`)
+        // TODO Create parcel with some randomness (chance to have parcels is 50 > 100 > 200 > Speed)
+        await Promise.resolve();
+    },
 };

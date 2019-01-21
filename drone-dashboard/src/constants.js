@@ -167,4 +167,8 @@ export const GAME_STATE = {
         label: 'STEP_4',
         level: 4,
     },
+    STEP_DEFAULT: {
+        label: 'STEP_INFINITY',
+        level: 1000000,
+    }
 };
