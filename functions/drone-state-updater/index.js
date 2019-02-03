@@ -74,7 +74,7 @@ const getDroneInfosWithNoCommand = async () => {
 const getJobsDroneWaitingForCommand = async (droneInfos) => {
     return droneInfos.map(async (droneInfo = {}) => {
         const teamId = getTeamId(droneInfo);
-        console.log(`[${teamId}][getJobsDroneReady] droneInfo before update : ${JSON.stringify(droneInfo)}`);
+        console.log(`[${teamId}][getJobsDroneWaitingForCommand] droneInfo before update : ${JSON.stringify(droneInfo)}`);
 
         const data = { teamId, droneInfo, event: 'WAITING_FOR_COMMAND' };
         publishInTopic(data, topicName, teamId);
@@ -169,8 +169,14 @@ const droneHasReachItsDestination = (distanceToDestination, droneInfo) => {
 const getDistancePerTickForDrone = (droneInfo) => {
   droneInfo.distancePerTick = droneInfo.distancePerTick || DISTANCE_PER_TICK;
   const teamId = getTeamId(droneInfo);
-  console.log(`[${teamId}][getDistancePerTickForDrone] ${droneInfo.distancePerTick}`);
-  return droneInfo.distancePerTick;
+  console.log(`[${teamId}][getDistancePerTickForDrone] distancePerTick=${droneInfo.distancePerTick} (before handicap for each parcel carried)`);
+  // for each parcel carried by the drone there is a negative impact on the drone speed
+  const handicap = event.droneInfo.parcels
+    .map((parcel) => parcel.score/10000)
+    .reduce((acc, score) => acc + score, 0);
+  const distancePerTickWithHandicap = droneInfo.distancePerTick - handicap;
+
+  return distancePerTickWithHandicap;
 };
 
 
