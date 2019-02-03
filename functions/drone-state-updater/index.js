@@ -169,13 +169,12 @@ const droneHasReachItsDestination = (distanceToDestination, droneInfo) => {
 const getDistancePerTickForDrone = (droneInfo) => {
   droneInfo.distancePerTick = droneInfo.distancePerTick || DISTANCE_PER_TICK;
   const teamId = getTeamId(droneInfo);
-  console.log(`[${teamId}][getDistancePerTickForDrone] distancePerTick=${droneInfo.distancePerTick} (before handicap for each parcel carried)`);
   // for each parcel carried by the drone there is a negative impact on the drone speed
-  const handicap = event.droneInfo.parcels
+  const handicap = droneInfo.parcels
     .map((parcel) => parcel.score/10000)
     .reduce((acc, score) => acc + score, 0);
   const distancePerTickWithHandicap = droneInfo.distancePerTick - handicap;
-
+  console.log(`[${teamId}][getDistancePerTickForDrone] distancePerTick=${droneInfo.distancePerTick} | distancePerTickWithHandicap=${distancePerTickWithHandicap} (with handicap for each parcel carried)`);
   return distancePerTickWithHandicap;
 };
 
