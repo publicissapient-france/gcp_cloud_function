@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
+import { some } from 'lodash';
 
+import {GAME_PARAMETERS} from '../../constants';
 import {COLORS} from '../../styles/variables';
 import {STATUS} from '../../constants';
 import { CustomMapElement } from '../CustomMapElement';
@@ -9,10 +11,11 @@ import {CounterBubble} from '../CounterBubble';
 import {parseDroneTeamColor} from '../../services/data.service';
 
 export const PinContainer = styled.div`
-  margin-top: -20px;
-  margin-left: -6px;
+  margin-top: ${(props) => `calc((-${GAME_PARAMETERS[props.addMargin]} / 2) + ${props.addMargin === 'pin' ? '-18px' : '-10px'})`};
   div {  
     svg {
+      margin-top: -6px;
+      margin-left: ${(props) => `calc((-${GAME_PARAMETERS[props.addMargin]} / 2) + ${props.addMargin === 'pin' ? '-6px' : '3px'})`};
       width: 12px;
       height: 12px;
       filter: drop-shadow(2px 6px 4px rgba(0,0,0,0.8));
@@ -24,13 +27,21 @@ export class PinDestination extends Component {
     renderParcelScoreCounter() {
         return (
             this.props.score &&
-            <CounterBubble {...this.props}>
+            <CounterBubble {...this.props} addMargin='pin'>
                 {this.props.score}
             </CounterBubble>
         );
     }
 
     render() {
+        const isDestinationDelivery = this.props.drone &&
+            this.props.drone.parcels &&
+            some(this.props.drone.parcels, (parcel) => {
+                return (
+                  parcel.location.delivery.latitude === this.props.lat &&
+                  parcel.location.delivery.longitude === this.props.lng
+                );
+            });
         return (
             this.props.status &&
             (
@@ -38,7 +49,7 @@ export class PinDestination extends Component {
                 this.props.status === STATUS.GRABBED
             ) ?
             <CustomMapElement>
-                <PinContainer {...this.props} >
+                <PinContainer {...this.props} addMargin={isDestinationDelivery ? 'pin' : 'parcel'}>
                     <PinDestinationSprite baseColor={COLORS[parseDroneTeamColor(this.props.teamId)]}/>
                     {this.renderParcelScoreCounter()}
                 </PinContainer>

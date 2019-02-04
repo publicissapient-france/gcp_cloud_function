@@ -11,6 +11,8 @@ import {parseDroneTeamColor} from '../../services/data.service';
 export const DroneContainer = styled.div`
   div {
     svg {
+      margin-top: calc(-${GAME_PARAMETERS.drone} / 2);
+      margin-left: calc(-${GAME_PARAMETERS.drone} / 2);
       width: ${GAME_PARAMETERS.drone};
       height: ${GAME_PARAMETERS.drone};
       fill: ${(props) => COLORS[parseDroneTeamColor(props.teamId)]};
@@ -24,7 +26,7 @@ export class Drone extends Component {
         return (
             this.props.parcels &&
             this.props.parcels.length > 0 &&
-            <CounterBubble {...this.props}>
+            <CounterBubble {...this.props} addMargin='drone'>
                 {this.props.parcels.length}
             </CounterBubble>
         );

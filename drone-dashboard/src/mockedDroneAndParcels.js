@@ -244,8 +244,8 @@ export const mockedDronesAndParcels_2 = {
                 "command": {
                     "name": "MOVE",
                     "location": {
-                        "latitude": 48.859256516592595,
-                        "longitude": 2.219735901264716
+                        "latitude": 48.89422829740994,
+                        "longitude": 2.292828627044768
                     }
                 },
                 "topicUrl": "https://europe-west1-jbclaramonte-noir.cloudfunctions.net/onDroneEventHttp"
@@ -258,8 +258,33 @@ export const mockedDronesAndParcels_2 = {
                     "latitude": 48.856363913699454,
                     "longitude": 2.341277671114139
                 },
-                "parcels": [],
-                "score": 0
+                "parcels": [
+                  {
+                    "status": "GRABBED",
+                    "teamId": "blue-564",
+                    "parcelId": "d0c35e06-c454-44a1-9096-9847598745",
+                    "location": {
+                      "pickup": {
+                        "latitude": 48.82399881061385,
+                        "longitude": 2.445815323057306
+                      },
+                      "delivery": {
+                        "latitude": 48.81605462272582,
+                        "longitude": 2.3637614504992244
+                      }
+                    },
+                    "type": "CLASSIC",
+                    "score": 200
+                  },
+                ],
+                "score": 0,
+                "command": {
+                    "name": "MOVE",
+                    "location": {
+                      "latitude": 48.82399881061385,
+                      "longitude": 2.445815323057306
+                    }
+                },
             }
         },
         {

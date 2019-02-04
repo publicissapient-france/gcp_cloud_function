@@ -187,6 +187,7 @@ export class GameDashboard extends Component {
                                 lng={get(drone, 'command.location.longitude')}
                                 teamId={parseDroneTeamColor(drone.teamId)}
                                 status={STATUS.TOGGLE}
+                                drone={drone}
                             />
                         ])}
                     </GoogleMapReact>

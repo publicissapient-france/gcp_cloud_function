@@ -9,8 +9,10 @@ import {CounterBubble} from '../CounterBubble';
 import {parseDroneTeamColor} from '../../services/data.service';
 
 export const PinContainer = styled.div`
-  div {  
+  div {
     svg {
+      margin-top: calc(-${GAME_PARAMETERS.pin} / 2);
+      margin-left: calc(-${GAME_PARAMETERS.pin} / 2);
       width: ${GAME_PARAMETERS.pin};
       height: ${GAME_PARAMETERS.pin};
       fill: ${(props) => COLORS[parseDroneTeamColor(props.teamId)]};
@@ -23,7 +25,7 @@ export class Pin extends Component {
     renderParcelScoreCounter() {
         return (
             this.props.score &&
-            <CounterBubble {...this.props}>
+            <CounterBubble {...this.props} addMargin='pin'>
                 {this.props.score}
             </CounterBubble>
         );
