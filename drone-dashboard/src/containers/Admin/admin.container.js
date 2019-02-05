@@ -116,8 +116,8 @@ const ResultLine = styled(Line)`
 `;
 
 const ResultContainer = styled.div`
-  max-height: 350px;
-  overflow: auto;
+  //max-height: 350px;
+  //overflow: auto;
   ${ResultLine} {
     padding: 0;
   }
