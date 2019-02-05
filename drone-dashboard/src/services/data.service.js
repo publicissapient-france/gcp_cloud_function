@@ -64,7 +64,7 @@ export const parseParcelInfo = (data) => data;
 
 export const parseDroneTeamColor = (teamId, type) => {
     if (type === PARCEL_TYPES.SPEED_BOOST) {
-        return 'all';
+        return 'speed';
     }
     if ((teamId || 'default').match(/-/g)) {
         return teamId.split('-')[0].toLowerCase();

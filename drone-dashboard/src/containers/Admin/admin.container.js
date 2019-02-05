@@ -210,9 +210,10 @@ export class Admin extends Component {
             numberOfTeamsMin: 3,
             numberOfTeams: 3,
             savedTeams: [],
-            targetTeam: 'all',
+            targetTeam: 'each',
             savedParcels: [],
             parcelScore: 'random',
+            parcelType: PARCEL_TYPES.CLASSIC,
             numberOfParcelsPerTeam: 1,
             gameState: GAME_STATE.STOPPED.label,
             gameStepTeams: {},
@@ -437,14 +438,7 @@ export class Admin extends Component {
         }
     };
     
-    getTeamId({ type, index, teamId }) {
-        if (type === PARCEL_TYPES.CLASSIC) {
-            return teamId !== 'all' ? teamId : get(this.state, `savedTeams[${index}].teamId`)
-        }
-        if (type === PARCEL_TYPES.SPEED_BOOST) {
-            return teamId !== 'all' ? teamId : 'all';
-        }
-    }
+    getTeamId = ({ type, index, teamId }) => teamId !== 'each' ? teamId : get(this.state, `savedTeams[${index}].teamId`);
 
     getPickupLocation({ type = PARCEL_TYPES.CLASSIC }) {
         let pickupLng;
@@ -481,25 +475,24 @@ export class Admin extends Component {
         );
     }
     
-    createParcels = async ({ type = PARCEL_TYPES.CLASSIC, number, targetTeam, score }) => {
-        this.numberOfParcels = number || (
-            (targetTeam || this.state.targetTeam) === 'all'
-                ? this.state.savedTeams.length
-                : 1
-        );
-        const parcelsIterate = Array.from(Array(this.numberOfParcels || 1));
+    createParcels = async ({ type, targetTeam, score }) => {
+        const finalType = type || this.state.parcelType;
+        this.numberOfTeams = (targetTeam || this.state.targetTeam) === 'each'
+            ? this.state.savedTeams.length
+            : 1;
+        const parcelsIterate = Array.from(Array(this.numberOfTeams || 1));
         const parcels = parcelsIterate.map((value, index) => {
             const parcelsPerTeamNumber = parseInt(this.state.numberOfParcelsPerTeam, 10) > 0 ? parseInt(this.state.numberOfParcelsPerTeam, 10) : 1;
             const parcelPerTeamIterate = Array.from(Array(parcelsPerTeamNumber));
             const parcelsPerTeam = parcelPerTeamIterate.map(() => {
-                const { pickupLat, pickupLng } = this.getPickupLocation({ type });
+                const { pickupLat, pickupLng } = this.getPickupLocation({ type: finalType });
 
                 const newParcel = {
                     parcelId: uuid.v4(),
-                    teamId: this.getTeamId({ type, index, teamId: targetTeam || this.state.targetTeam }),
-                    score: this.getScore({ type, score }),
+                    teamId: this.getTeamId({ type: finalType, index, teamId: targetTeam || this.state.targetTeam }),
+                    score: this.getScore({ type: finalType, score }),
                     status: STATUS.AVAILABLE,
-                    type,
+                    type: finalType,
                     location: {
                         pickup: {
                             latitude: pickupLat,
@@ -510,7 +503,7 @@ export class Admin extends Component {
 
                 let deliveryLat;
                 let deliveryLng;
-                if (type === PARCEL_TYPES.CLASSIC) {
+                if (finalType === PARCEL_TYPES.CLASSIC) {
                     deliveryLat = getRandomFloat(this.props.innerBoundariesMinMax.minLatitude, this.props.innerBoundariesMinMax.maxLatitude);
                     deliveryLng = getRandomFloat(this.props.innerBoundariesMinMax.minLongitude, this.props.innerBoundariesMinMax.maxLongitude);
                     newParcel.location.delivery = {
@@ -689,6 +682,7 @@ export class Admin extends Component {
                                     onChange={this.handleFormChange.bind(this, 'targetTeam')}
                                 >
                                     <option value="all">all</option>
+                                    <option value="each">each</option>
                                     {this.renderTeamsList()}
                                 </Select>
                             </label>
@@ -711,6 +705,23 @@ export class Admin extends Component {
                                 </Select>
                             </label>
                             <label>
+                                Type:{' '}
+                                <Select
+                                    id="parcelType"
+                                    value={this.state.parcelType}
+                                    onChange={this.handleFormChange.bind(this, 'parcelType')}
+                                >
+                                    {Object.values(PARCEL_TYPES).map((type, index) => (
+                                        <option
+                                            key={`type-${index}`}
+                                            value={type}
+                                        >
+                                            {type}
+                                        </option>
+                                    ))}
+                                </Select>
+                            </label>
+                            <label>
                                 Number of parcels:{' '}
                                 <Input
                                     id="numberOfParcelsPerTeam"
@@ -725,15 +736,6 @@ export class Admin extends Component {
                         <Line>
                             <Button type="button" onClick={() => this.createParcels({})}>
                                 Generate parcels
-                            </Button>
-                            <Button type="button" onClick={() => this.createParcels({ type: PARCEL_TYPES.SPEED_BOOST, number: 1, targetTeam: 'all' })}>
-                                Generate 1 speed boost - all
-                            </Button>
-                            <Button type="button" onClick={() => this.createParcels({ type: PARCEL_TYPES.SPEED_BOOST, number: 1 })}>
-                                Generate 1 speed boost - target team
-                            </Button>
-                            <Button type="button" onClick={() => this.createParcels({ type: PARCEL_TYPES.SPEED_BOOST })}>
-                                Generate speed boosts
                             </Button>
                         </Line>
                         <ResultContainer>
