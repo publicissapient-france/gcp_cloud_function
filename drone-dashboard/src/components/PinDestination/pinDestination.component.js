@@ -15,10 +15,9 @@ export const PinContainer = styled.div`
   div {  
     svg {
       margin-top: -6px;
-      margin-left: ${(props) => `calc((-${GAME_PARAMETERS[props.addMargin]} / 2) + ${props.addMargin === 'pin' ? '-6px' : '3px'})`};
+      margin-left: ${(props) => `calc((-${GAME_PARAMETERS[props.addMargin]} / 2) + ${props.addMargin === 'pin' ? '-7px' : '3px'})`};
       width: 12px;
       height: 12px;
-      filter: drop-shadow(2px 6px 4px rgba(0,0,0,0.8));
     }
   }
 `;
