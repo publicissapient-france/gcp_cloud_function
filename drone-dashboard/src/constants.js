@@ -77,6 +77,7 @@ export const GAME_PARAMETERS = {
     logLevel: 'debug',
     speed: 3000,
     step: 0.0004,
+    distancePerTick: 0.3,
     drone: '22px',
     parcel: '16px',
     pin: '18px',

@@ -1,7 +1,10 @@
 import React, {Component} from 'react';
 import styled from 'styled-components';
 
-import {STATUS} from '../../constants';
+import {
+    GAME_PARAMETERS,
+    STATUS
+} from '../../constants';
 import {COLORS} from '../../styles/variables';
 import {
     parseScoreColor,
@@ -52,7 +55,7 @@ export const ScoreItem = styled.div`
 
 const Speed = styled.span`
   font-size: 1.1rem;
-  color: ${props => props.speedFactor > 0 ? COLORS.speedBoost[0] : COLORS.red};
+  color: ${props => props.speedFactor >= 0 ? COLORS.speedBoost[0] : COLORS.red};
   padding-left: 5px;
   i {
     font-size: 1.2rem;
@@ -114,12 +117,12 @@ export class Score extends Component {
     }
 
     renderSpeed() {
-        const speedFactor = this.props.distancePerTick ? Math.round((this.props.distancePerTick / 0.05) - 6) : 0;
+        const speedFactor = this.props.distancePerTick ? ((this.props.distancePerTick / 0.05) - (GAME_PARAMETERS.distancePerTick * 20)).toFixed(0) : 0.0;
         return (
-            speedFactor && speedFactor !== 0
+            speedFactor
                 ? <Speed speedFactor={speedFactor}>
                     <i className="material-icons">flash_on</i>
-                    <span>{ speedFactor }</span>
+                    <span>{ `${speedFactor >= 0 ? '+' : '-'}${Math.abs(speedFactor)}` }</span>
                 </Speed>
                 : null
         );

@@ -290,7 +290,7 @@ export const mockedDronesAndParcels_2 = {
         {
             "teamId": "green-421",
             "data": {
-                "distancePerTick": 0.4,
+                "distancePerTick": 0.45,
                 "location": {
                     "latitude": 48.916214475236195,
                     "longitude": 2.4937180453021988
@@ -314,7 +314,7 @@ export const mockedDronesAndParcels_2 = {
         {
             "teamId": "orange-730",
             "data": {
-                "distancePerTick": 0.3,
+                "distancePerTick": 0.15,
                 "location": {
                     "latitude": 48.86522590344257,
                     "longitude": 2.3588665685234633
