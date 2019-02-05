@@ -155,7 +155,7 @@ const Team = styled.div`
   height: 30px;
   width: 100px;
   border-radius: 10px;
-  background: ${(props) => COLORS[parseDroneTeamColor(props.teamId)]};
+  background: ${(props) => COLORS[parseDroneTeamColor(props.teamId, props.type)]};
   padding: 5px;
   &:not(:last-of-type){
     margin-right: 5px;
@@ -191,6 +191,11 @@ const Column = styled.div`
   &:not(:last-of-type){
     margin-right: 4px;
   }
+`;
+
+const ColumnHeader = styled(Team)`
+  height: 10px;
+  width: auto;
 `;
 
 export class Admin extends Component {
@@ -566,15 +571,18 @@ export class Admin extends Component {
         const groupedParcels = groupBy(sortedParcels, 'teamId');
         return (
             !isEmpty(groupedParcels) &&
-            Object.values(groupedParcels).map((teamParcels, teamId) => {
+            Object.values(groupedParcels).map((teamParcels, teamIndex) => {
                 const orderedParcels = orderBy(teamParcels, ['status', 'score'], ['asc']);
+                const parcelWithTeamId = teamParcels.find(parcel => parcel.teamId !== 'all');
+                const teamIdColumn = parcelWithTeamId ? parcelWithTeamId.teamId : 'all';
                 return (
-                    <Column key={teamId}>
+                    <Column key={teamIndex}>
+                        <ColumnHeader teamId={teamIdColumn} />
                         { orderedParcels.length > 0 &&
                             orderedParcels.map((parcel, index) => {
                             return (
-                                parcel.teamId ?
-                                    <Parcel
+                                parcel.teamId
+                                    ? <Parcel
                                         key={`parcel-${parcel.teamId}-${index}`}
                                         className={parcel.status && parcel.status === STATUS.AVAILABLE ? 'available' : 'grabbed' }
                                         {...parcel}

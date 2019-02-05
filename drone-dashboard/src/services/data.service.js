@@ -9,6 +9,7 @@ import {
     GAME_PARAMETERS,
     PARCEL_SCORES,
     PARCEL_CHANCES,
+    PARCEL_TYPES,
 } from '../constants';
 const chance = new Chance();
 
@@ -61,7 +62,15 @@ export const parseDroneInfo = (drones) => {
 
 export const parseParcelInfo = (data) => data;
 
-export const parseDroneTeamColor = (teamId) => (teamId || 'default').match(/-/g) ? teamId.split('-')[0].toLowerCase() : (teamId || 'default');
+export const parseDroneTeamColor = (teamId, type) => {
+    if (type === PARCEL_TYPES.SPEED_BOOST) {
+        return 'all';
+    }
+    if ((teamId || 'default').match(/-/g)) {
+        return teamId.split('-')[0].toLowerCase();
+    }
+    return (teamId || 'default');
+};
 export const parseDroneTeamId = (teamId) => teamId.match(/-/g) ? parseInt(teamId.split('-')[1].toLowerCase(), 10) : parseInt(teamId, 10);
 export const parseScoreColor = (props) => COLORS[props.failure || props.default ? 'grey' : parseDroneTeamColor(props.teamId)];
 export const parseScoreBorderColor = (props) => props.failure || props.default ? darken(0.2, COLORS[parseDroneTeamColor(props.teamId)]) : COLORS[parseDroneTeamColor(props.teamId)];
