@@ -258,7 +258,7 @@ export class Admin extends Component {
                 teams: updatedTeamsByStep[GAME_STATE[gameStep].label],
                 parcels: parcelsNext,
             });
-            teams.forEach(async (team) => {
+            await teams.forEach(async (team) => {
                 this.log(readyForNextStepTeams, `readyForNextStepTeams ${GAME_STATE[gameStep].label} - ${team.teamId})}`);
                 const teamNext = find(teamsNext, { id: team.id});
                 if (
@@ -270,8 +270,8 @@ export class Admin extends Component {
                     if (
                             GAME_STATE[gameStep].label === GAME_STATE.STARTED.label ||
                             (readyForNextStepTeams && some(readyForNextStepTeams, {teamId: team.teamId}))
-                        ) {
-                        await createStepLevel[GAME_STATE[gameStep].level](this.createParcels, team);
+                    ) {
+                        createStepLevel[GAME_STATE[gameStep].level](this.createParcels, team);
                         const nextGameLevel = GAME_STATE[`STEP_${gameLevel + 1}`] ? gameLevel + 1 : 1000000;
                         this.log(`next level ${nextGameLevel} for team ${team.teamId}`)
                         team.gameStep = (find(GAME_STATE, { level: nextGameLevel }) || GAME_STATE.STOPPED).label;
@@ -439,10 +439,10 @@ export class Admin extends Component {
     
     getTeamId({ type, index, teamId }) {
         if (type === PARCEL_TYPES.CLASSIC) {
-            return this.numberOfParcels === 1 ? teamId : get(this.state, `savedTeams[${index}].teamId`)
+            return teamId !== 'all' ? teamId : get(this.state, `savedTeams[${index}].teamId`)
         }
         if (type === PARCEL_TYPES.SPEED_BOOST) {
-            return 'all';
+            return teamId !== 'all' ? teamId : 'all';
         }
     }
 
@@ -483,8 +483,7 @@ export class Admin extends Component {
     
     createParcels = async ({ type = PARCEL_TYPES.CLASSIC, number, targetTeam, score }) => {
         this.numberOfParcels = number || (
-            type === PARCEL_TYPES.CLASSIC
-            && (targetTeam || this.state.targetTeam) === 'all'
+            (targetTeam || this.state.targetTeam) === 'all'
                 ? this.state.savedTeams.length
                 : 1
         );
@@ -727,8 +726,14 @@ export class Admin extends Component {
                             <Button type="button" onClick={() => this.createParcels({})}>
                                 Generate parcels
                             </Button>
-                            <Button type="button" onClick={() => this.createParcels({ type: PARCEL_TYPES.SPEED_BOOST, targetTeam: 'all' })}>
-                                Generate speed boost parcels
+                            <Button type="button" onClick={() => this.createParcels({ type: PARCEL_TYPES.SPEED_BOOST, number: 1, targetTeam: 'all' })}>
+                                Generate 1 speed boost - all
+                            </Button>
+                            <Button type="button" onClick={() => this.createParcels({ type: PARCEL_TYPES.SPEED_BOOST, number: 1 })}>
+                                Generate 1 speed boost - target team
+                            </Button>
+                            <Button type="button" onClick={() => this.createParcels({ type: PARCEL_TYPES.SPEED_BOOST })}>
+                                Generate speed boosts
                             </Button>
                         </Line>
                         <ResultContainer>

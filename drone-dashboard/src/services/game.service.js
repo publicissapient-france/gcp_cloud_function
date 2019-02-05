@@ -37,22 +37,20 @@ export const getUpdatedTeamGameState = ({team, gameStep}) => {
     };
 };
 
-export const createStep = async (parcels, createParcelsFn) => await parcels.map(parcel => createParcelsFn(parcel));
-
 export const createStepLevel = {
-    0: async (createParcelsFn, team) => {
-        console.log(`create parcels for team ${team.teamId}, step 0`)
-        await createStep([
+    0: (createParcelsFn, team) => {
+        console.log(`create parcels for team ${team.teamId}, step 0`);
+        [
             {
                 type: PARCEL_TYPES.CLASSIC,
                 targetTeam: team.teamId,
                 score: PARCEL_SCORES['50'],
-            },
-        ], createParcelsFn);
+            }
+        ].map(async parcel => await createParcelsFn(parcel));
     },
-    1: async (createParcelsFn, team) => {
-        console.log(`create parcels for team ${team.teamId}, step 1`)
-        await createStep([
+    1: (createParcelsFn, team) => {
+        console.log(`create parcels for team ${team.teamId}, step 1`);
+        [
             {
                 type: PARCEL_TYPES.CLASSIC,
                 targetTeam: team.teamId,
@@ -64,12 +62,12 @@ export const createStepLevel = {
                 targetTeam: team.teamId,
                 number: 1,
                 score: PARCEL_SCORES['100'],
-            },
-        ], createParcelsFn);
+            }
+        ].map(async parcel => await createParcelsFn(parcel));
     },
-    2: async (createParcelsFn, team) => {
-        console.log(`create parcels for team ${team.teamId}, step 2`)
-        await createStep([
+    2: (createParcelsFn, team) => {
+        console.log(`create parcels for team ${team.teamId}, step 2`);
+        [
             {
                 type: PARCEL_TYPES.CLASSIC,
                 targetTeam: team.teamId,
@@ -91,12 +89,12 @@ export const createStepLevel = {
             {
                 type: PARCEL_TYPES.SPEED_BOOST,
                 number: 1,
-            },
-        ], createParcelsFn);
+            }
+        ].map(async parcel => await createParcelsFn(parcel));
     },
-    3: async (createParcelsFn, team) => {
-        console.log(`create parcels for team ${team.teamId}, step 3`)
-        await createStep([
+    3: (createParcelsFn, team) => {
+        console.log(`create parcels for team ${team.teamId}, step 3`);
+        [
             {
                 type: PARCEL_TYPES.CLASSIC,
                 targetTeam: team.teamId,
@@ -118,16 +116,16 @@ export const createStepLevel = {
             {
                 type: PARCEL_TYPES.SPEED_BOOST,
                 number: 1,
-            },
-        ], createParcelsFn);
+            }
+        ].map(async parcel => await createParcelsFn(parcel));
     },
-    4: async (createParcelsFn, team) => {
-        console.log(`create parcels for team ${team.teamId}, step 4`)
-        await Promise.resolve();
+    4: (createParcelsFn, team) => {
+        console.log(`create parcels for team ${team.teamId}, step 4`);
+        return;
     },
     1000000: async (createParcelsFn, team) => {
-        console.log(`create parcels for team ${team.teamId}, step default`)
+        console.log(`create parcels for team ${team.teamId}, step infinity`);
         // TODO Create parcel with some randomness (chance to have parcels is 50 > 100 > 200 > Speed)
-        await Promise.resolve();
+        return;
     },
 };
