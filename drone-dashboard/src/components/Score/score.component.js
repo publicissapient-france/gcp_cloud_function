@@ -15,7 +15,7 @@ export const ScoreItem = styled.div`
   display: flex;
   justify-content: flex-start;
   align-items: center;
-  width: 100%;
+  width: calc(100% - 20px);
   min-height: 50px;
   font-size: 30px;
   font-weight: bold;
@@ -45,9 +45,11 @@ export const ScoreItem = styled.div`
     }
   }
   .leader_board {
+    display: inline-block;
     margin-left: 3px;
     font-weight: bold;
     color: deeppink;
+    width: 43px;
   }
     @keyframes blink { 50% { color: transparent; } }
     @-webkit-keyframes blink { 50% { color: transparent; } }
@@ -135,31 +137,31 @@ export class Score extends Component {
             case 0:
                 return (
                     this.props.score > 0 &&
-                    (this.props.isPreviousDraw || this.props.index === 0) ?
-                        <span className="leader_board leader_1">
-                        <i className="material-icons leader_board leader_1">star</i>
-                        1
-                    </span>
+                    (this.props.isPreviousDraw || this.props.index === 0)
+                        ? <span className="leader_board leader_1">
+                            <i className="material-icons leader_1">star</i>
+                            1
+                        </span>
                         : null
                 );
             case 1:
                 return (
                     this.props.score > 0 &&
-                    (this.props.isPreviousDraw || this.props.index === 1) ?
-                        <span className="leader_board leader_2">
-                        <i className="material-icons leader_board leader_2">star_half</i>
-                        2
-                    </span>
+                    (this.props.isPreviousDraw || this.props.index === 1)
+                        ? <span className="leader_board leader_2">
+                            <i className="material-icons leader_2">star_half</i>
+                            2
+                        </span>
                         : null
                 );
             case 2:
                 return (
                     this.props.score > 0 &&
-                    (this.props.isPreviousDraw || this.props.index === 2) ?
-                        <span className="leader_board leader_3">
-                        <i className="material-icons leader_board leader_3">star_border</i>
-                        3
-                    </span>
+                    (this.props.isPreviousDraw || this.props.index === 2)
+                        ? <span className="leader_board leader_3">
+                            <i className="material-icons leader_3">star_border</i>
+                            3
+                        </span>
                         : null
                 );
         }
