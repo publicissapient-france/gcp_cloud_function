@@ -42,6 +42,7 @@ import {
     updateValidatedTeams,
     getUpdatedTeamGameState,
     createStepLevel,
+    speechService,
 } from '../../services/game.service';
 import {
     mockedData_step_1,
@@ -514,6 +515,26 @@ export class Admin extends Component {
                 
                 return newParcel;
             });
+            if (parcels && parcels.length) {
+                parcels.forEach(parcel => {
+                    if (parcel.teamId === 'all') {
+                        switch (parcel.type) {
+                            case PARCEL_TYPES.SPEED_BOOST:
+                                speechService.speech({
+                                    text: `Bonus speed boost parcel will drop soon!`,
+                                });
+                                break;
+                            case PARCEL_TYPES.CLASSIC:
+                                speechService.speech({
+                                    text: `Bonus points parcel will drop soon!`,
+                                });
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                })
+            }
             return flatten(parcelsPerTeam);
         });
         console.log('createParcels', parcels);
@@ -521,6 +542,11 @@ export class Admin extends Component {
     }
 
     changeGameState = async (gameState = GAME_STATE.STOPPED.label) => {
+        if (gameState === GAME_STATE.STARTED.label) {
+            speechService.speech({
+                text: `Let the game begin!!`,
+            });
+        }
         this.setState({ gameState });
     }
 
@@ -596,8 +622,9 @@ export class Admin extends Component {
     }
 
     // TODO Clear drones and parcels button
-    // TODO Order parcels in columns by teamId
-    // TODO Other game play
+    // TODO Save start, stop and team level in local Storage
+    // TODO Do animation on dashboard start (hide map and score, start bouton that start's all)
+    // TODO Special icone for drone that move to parcel piuckup or delivery
     render() {
         return (
             <AdminContainer>
