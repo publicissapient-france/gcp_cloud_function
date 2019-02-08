@@ -141,7 +141,8 @@ export class GameDashboard extends Component {
                     index={scoreIndex}
                     draw={isDraw}
                     isPreviousDraw={isPreviousDraw}
-                    {...drone}
+                    parcels={this.state.parcels}
+                    drone={drone ? drone : {}}
                 />
             );
         });

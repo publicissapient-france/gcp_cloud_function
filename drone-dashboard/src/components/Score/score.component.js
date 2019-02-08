@@ -82,19 +82,19 @@ export class Score extends Component {
         return !this.hasTopicUrl() && !this.hasCommand();
     }
 
-    isDestinationPickup = () => isDestinationLocationType({...this.props})('pickup');
+    isDestinationPickup = () => isDestinationLocationType(this.props.drone, this.props.parcels)('pickup');
 
-    isDestinationDelivery = () => isDestinationLocationType({...this.props})('delivery');
+    isDestinationDelivery = () => isDestinationLocationType(this.props.drone, this.props.parcels)('delivery');
 
     hasTopicUrl() {
-        return !!this.props.topicUrl;
+        return !!this.props.drone.topicUrl;
     }
 
     hasCommand(status) {
         return (
             status
-                ? this.props.command && this.props.command.name === status
-                : !!this.props.command && !!this.props.command.name
+                ? this.props.drone && this.props.drone.command && this.props.drone.command.name === status
+                : !!this.props.drone.command && !!this.props.drone.command.name
         );
     }
 
@@ -161,7 +161,7 @@ export class Score extends Component {
     }
 
     renderSpeed() {
-        const speedFactor = this.props.distancePerTick ? ((this.props.distancePerTick / 0.05) - (GAME_PARAMETERS.distancePerTick * 20)).toFixed(0) : 0.0;
+        const speedFactor = this.props.drone.distancePerTick ? ((this.props.drone.distancePerTick / 0.05) - (GAME_PARAMETERS.distancePerTick * 20)).toFixed(0) : 0.0;
         return (
             speedFactor
                 ? <Speed speedFactor={speedFactor}>
@@ -178,7 +178,7 @@ export class Score extends Component {
                 return null;
             case 0:
                 return (
-                    this.props.score > 0 &&
+                    this.props.drone.score > 0 &&
                     (this.props.isPreviousDraw || this.props.index === 0)
                         ? <span className="leader_board leader_1">
                             <i className="material-icons leader_1">star</i>
@@ -188,7 +188,7 @@ export class Score extends Component {
                 );
             case 1:
                 return (
-                    this.props.score > 0 &&
+                    this.props.drone.score > 0 &&
                     (this.props.isPreviousDraw || this.props.index === 1)
                         ? <span className="leader_board leader_2">
                             <i className="material-icons leader_2">star_half</i>
@@ -198,7 +198,7 @@ export class Score extends Component {
                 );
             case 2:
                 return (
-                    this.props.score > 0 &&
+                    this.props.drone.score > 0 &&
                     (this.props.isPreviousDraw || this.props.index === 2)
                         ? <span className="leader_board leader_3">
                             <i className="material-icons leader_3">star_border</i>
@@ -212,7 +212,7 @@ export class Score extends Component {
     render() {
         return (
             <ScoreItem
-                {...this.props}
+                {...this.props.drone}
                 failure={this.hasCommand(STATUS.READY_FAILED)}
                 default={this.isDefaultStatus()}
             >
@@ -224,7 +224,7 @@ export class Score extends Component {
                     this.renderFailureStatus() ||
                     this.renderDefaultStatus()
                 }
-                {this.props.score || 0}
+                {this.props.drone.score || 0}
                 {this.renderSpeed()}
                 {this.renderLeaderBoard()}
             </ScoreItem>

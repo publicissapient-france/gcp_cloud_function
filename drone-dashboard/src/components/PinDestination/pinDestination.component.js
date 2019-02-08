@@ -34,7 +34,9 @@ export class PinDestination extends Component {
     }
 
     render() {
-        const isDestinationDelivery = isDestinationLocationType(this.props.drone)('delivery');
+        const isDestinationDelivery = this.props.drone && this.props.drone.parcels
+            ? isDestinationLocationType(this.props.drone, this.props.drone.parcels)('delivery')
+            : false;
         return (
             this.props.status &&
             (
