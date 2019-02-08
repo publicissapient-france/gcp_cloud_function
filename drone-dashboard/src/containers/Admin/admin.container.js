@@ -273,7 +273,7 @@ export class Admin extends Component {
                             GAME_STATE[gameStep].label === GAME_STATE.STARTED.label ||
                             (readyForNextStepTeams && some(readyForNextStepTeams, {teamId: team.teamId}))
                     ) {
-                        createStepLevel[GAME_STATE[gameStep].level](this.createParcels, team);
+                        await createStepLevel[GAME_STATE[gameStep].level](this.createParcels, team);
                         const nextGameLevel = GAME_STATE[`STEP_${gameLevel + 1}`] ? gameLevel + 1 : 1000000;
                         this.log(`next level ${nextGameLevel} for team ${team.teamId}`)
                         team.gameStep = (find(GAME_STATE, { level: nextGameLevel }) || GAME_STATE.STOPPED).label;
@@ -544,7 +544,7 @@ export class Admin extends Component {
     changeGameState = async (gameState = GAME_STATE.STOPPED.label) => {
         if (gameState === GAME_STATE.STARTED.label) {
             speechService.speech({
-                text: `Let the game begin!!`,
+                text: `Let's the game begin!!`,
             });
         }
         this.setState({ gameState });
