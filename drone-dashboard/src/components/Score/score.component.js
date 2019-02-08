@@ -10,6 +10,7 @@ import {
     parseScoreColor,
     parseScoreBorderColor,
 } from '../../services/data.service';
+import {isDestinationLocationType} from '../../services/utils.service';
 
 export const ScoreItem = styled.div`
   display: flex;
@@ -37,11 +38,20 @@ export const ScoreItem = styled.div`
       animation: blink 1s steps(1) infinite;
     }
     &.move {
-      color: rgba(86,200,66,0.89);;
+      color: rgba(86,200,66,0.89);
+      animation: blink 2.5s steps(1, start) infinite;
     }
     &.wait_for_command {
-      color: rgba(0,195,255,0.69);;
+      color: rgba(0,195,255,0.69);
       animation: blink 2.5s steps(1) infinite;
+    }
+    &.pickup {
+      color: rgba(86,200,66,0.89);
+      animation: blink 2.5s steps(1, start) 1.25s infinite;
+    }
+    &.delivery {
+      color: rgba(86,200,66,0.89);
+      animation: blink 2.5s steps(1, start) 1.25s infinite;
     }
   }
   .leader_board {
@@ -71,6 +81,10 @@ export class Score extends Component {
     isDefaultStatus() {
         return !this.hasTopicUrl() && !this.hasCommand();
     }
+
+    isDestinationPickup = () => isDestinationLocationType({...this.props})('pickup');
+
+    isDestinationDelivery = () => isDestinationLocationType({...this.props})('delivery');
 
     hasTopicUrl() {
         return !!this.props.topicUrl;
@@ -104,8 +118,36 @@ export class Score extends Component {
     renderMoveStatus() {
         return (
             this.hasTopicUrl() &&
-            this.hasCommand(STATUS.MOVE)
+            this.hasCommand(STATUS.MOVE) &&
+            !this.isDestinationDelivery() &&
+            !this.isDestinationPickup()
                 ? <i className="material-icons status move">fast_forward</i>
+                : null
+        )
+    }
+
+    renderMoveToPickupStatus() {
+        return (
+            this.hasTopicUrl() &&
+            this.hasCommand(STATUS.MOVE) &&
+            this.isDestinationPickup()
+                ? <span>
+                    <i className="material-icons status move">fast_forward</i>
+                    <i className="material-icons status pickup">unarchive</i>
+                </span>
+                : null
+        )
+    }
+
+    renderMoveToDeliveryStatus() {
+        return (
+            this.hasTopicUrl() &&
+            this.hasCommand(STATUS.MOVE) &&
+            this.isDestinationDelivery()
+                ? <span>
+                    <i className="material-icons status move">fast_forward</i>
+                    <i className="material-icons status delivery">location_on</i>
+                </span>
                 : null
         )
     }
@@ -176,6 +218,8 @@ export class Score extends Component {
             >
                 {
                     this.renderMoveStatus() ||
+                    this.renderMoveToPickupStatus() ||
+                    this.renderMoveToDeliveryStatus() ||
                     this.renderReadyStatus() ||
                     this.renderFailureStatus() ||
                     this.renderDefaultStatus()

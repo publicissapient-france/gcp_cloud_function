@@ -277,14 +277,15 @@ export const mockedDronesAndParcels_2 = {
                     "score": 200
                   },
                 ],
-                "score": 0,
+                "score": 700,
                 "command": {
                     "name": "MOVE",
                     "location": {
-                      "latitude": 48.82399881061385,
-                      "longitude": 2.445815323057306
+                        "latitude": 48.82399881061385,
+                        "longitude": 2.445815323057306
                     }
                 },
+                "topicUrl": "https://europe-west1-jbclaramonte-noir.cloudfunctions.net/onDroneEventHttp"
             }
         },
         {

@@ -1,4 +1,4 @@
-import {some} from "lodash";
+import {some} from 'lodash';
 
 import {
     GAME_STATE,

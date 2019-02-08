@@ -9,6 +9,7 @@ import { CustomMapElement } from '../CustomMapElement';
 import PinDestinationSprite from '../PinDestinationSprite';
 import {CounterBubble} from '../CounterBubble';
 import {parseDroneTeamColor} from '../../services/data.service';
+import {isDestinationLocationType} from '../../services/utils.service';
 
 export const PinContainer = styled.div`
   margin-top: ${(props) => `calc((-${GAME_PARAMETERS[props.addMargin]} / 2) + ${props.addMargin === 'pin' ? '-18px' : '-10px'})`};
@@ -33,14 +34,7 @@ export class PinDestination extends Component {
     }
 
     render() {
-        const isDestinationDelivery = this.props.drone &&
-            this.props.drone.parcels &&
-            some(this.props.drone.parcels, (parcel) => {
-                return (
-                  parcel.location.delivery.latitude === this.props.lat &&
-                  parcel.location.delivery.longitude === this.props.lng
-                );
-            });
+        const isDestinationDelivery = isDestinationLocationType(this.props.drone)('delivery');
         return (
             this.props.status &&
             (

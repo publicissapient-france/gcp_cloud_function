@@ -624,7 +624,6 @@ export class Admin extends Component {
     // TODO Clear drones and parcels button
     // TODO Save start, stop and team level in local Storage
     // TODO Do animation on dashboard start (hide map and score, start bouton that start's all)
-    // TODO Special icon for drone that move to parcel pickup or delivery
     // TODO Move Title on top of leader board and grow map size
     render() {
         return (
