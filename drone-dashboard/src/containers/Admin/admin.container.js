@@ -273,7 +273,7 @@ export class Admin extends Component {
                             GAME_STATE[gameStep].label === GAME_STATE.STARTED.label ||
                             (readyForNextStepTeams && some(readyForNextStepTeams, {teamId: team.teamId}))
                     ) {
-                        await createStepLevel[GAME_STATE[gameStep].level](this.createParcels, team);
+                        createStepLevel[GAME_STATE[gameStep].level](this.createParcels, team);
                         const nextGameLevel = GAME_STATE[`STEP_${gameLevel + 1}`] ? gameLevel + 1 : 1000000;
                         this.log(`next level ${nextGameLevel} for team ${team.teamId}`)
                         team.gameStep = (find(GAME_STATE, { level: nextGameLevel }) || GAME_STATE.STOPPED).label;
