@@ -10,6 +10,8 @@ import {
 import { CustomMapElement } from '../CustomMapElement';
 import ParcelSprite from '../ParcelSprite';
 import ParcelCustomSprite from '../ParcelCustomSprite';
+import ParcelAllSprite from '../ParcelAllSprite';
+import ParcelAllBoostSprite from '../ParcelAllBoostSprite';
 import {parseDroneTeamColor} from '../../services/data.service';
 
 export const ParcelContainer = styled.div`
@@ -31,11 +33,19 @@ export class Parcel extends Component {
             (this.props.status && this.props.status === STATUS.AVAILABLE) ?
             <CustomMapElement>
                 <ParcelContainer {...this.props}>
-                { this.props.type === PARCEL_TYPES.SPEED_BOOST
+                { this.props.teamId === 'all' && this.props.type === PARCEL_TYPES.SPEED_BOOST
+                    ? <ParcelAllBoostSprite/>
+                    : null
+                }
+                { this.props.teamId === 'all' && this.props.type === PARCEL_TYPES.CLASSIC
+                    ? <ParcelAllSprite/>
+                    : null
+                }
+                { this.props.teamId !== 'all' && this.props.type === PARCEL_TYPES.SPEED_BOOST
                     ? <ParcelCustomSprite/>
                     : null
                 }
-                { this.props.type === PARCEL_TYPES.CLASSIC
+                { this.props.teamId !== 'all' && this.props.type === PARCEL_TYPES.CLASSIC
                     ? <ParcelSprite/>
                     : null
                 }

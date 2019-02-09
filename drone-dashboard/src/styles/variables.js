@@ -12,4 +12,5 @@ export const COLORS = {
     all: 'linear-gradient(to left, #2b67ca, #eb4e0d, #ffda2f, #32b81d, #da8200, #cc42b9, #7b48cc, #1f1f1f, #777777, #eeeeee)',
     speed: 'linear-gradient(to left, #00C3FF, darkblue)',
     speedBoost: ['#00C3FF','darkblue'],
+    allParcel: ['#2b67ca', '#eb4e0d', '#ffda2f', '#32b81d', '#da8200', '#cc42b9', '#7b48cc', '#1f1f1f', '#777777', '#eeeeee'],
 };

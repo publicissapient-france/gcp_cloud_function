@@ -63,7 +63,10 @@ export const parseDroneInfo = (drones) => {
 export const parseParcelInfo = (data) => data;
 
 export const parseDroneTeamColor = (teamId, type) => {
-    if (type === PARCEL_TYPES.SPEED_BOOST) {
+    if (teamId === 'all') {
+        return 'all';
+    }
+    if (teamId === 'all' && type === PARCEL_TYPES.SPEED_BOOST) {
         return 'speed';
     }
     if ((teamId || 'default').match(/-/g)) {
