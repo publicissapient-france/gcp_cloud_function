@@ -1,0 +1,9 @@
+#!/bin/sh
+TERRAFORM_CMD="docker run -i --rm \
+			-v `pwd`:/root/terraform \
+			-v $HOME/.ssh:/root/.ssh \
+			-e GOOGLE_CREDENTIALS=/root/.ssh/deploy-techevent-drone.json \
+			-w /root/terraform \
+			hashicorp/terraform:0.11.11"
+
+${TERRAFORM_CMD} $@ -var 'project=drone-engine'
