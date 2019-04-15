@@ -6,6 +6,7 @@ import {
     PARCEL_TYPES,
     STATUS
 } from '../constants';
+import {getRandomInteger} from "./data.service";
 
 let teamsInInfinityLevel = [];
 
@@ -20,18 +21,33 @@ export const speechService = {
     },
 };
 
-export const getTeamsReadyForNextStep = ({ teams, parcels }) => teams
+export const getTeamsReadyForNextStep = ({teams, parcels, gameStep}) => teams
     .filter(team => {
         const hasTeamAvailableParcel = some(
             parcels,
-            (parcel) => team.teamId === parcel.teamId && parcel.status === STATUS.AVAILABLE,
+            (parcel) => {
+                return (
+                    (
+                        GAME_STATE[gameStep]
+                        && GAME_STATE[gameStep].level >= 0
+                        && team.teamId === parcel.teamId
+                        && parcel.status === STATUS.AVAILABLE
+                    )
+                    || (
+                        GAME_STATE[gameStep]
+                        && GAME_STATE[gameStep].level >= 5
+                        && team.teamId === 'all'
+                        && parcel.status === STATUS.AVAILABLE
+                    )
+                );
+            }
         );
         return !hasTeamAvailableParcel;
     });
 
 export const updateValidatedTeams = ({teams = [], team, gameState}) => {
     const filteredTeams = teams.filter((existingTeam) => existingTeam.teamId !== team.teamId);
-    console.log('update', filteredTeams, team, gameState)
+    // console.log('update', filteredTeams, team, gameState)
     const updated = [
         ...filteredTeams,
         {
@@ -39,7 +55,7 @@ export const updateValidatedTeams = ({teams = [], team, gameState}) => {
             gameState,
         },
     ];
-    console.log('updated', updated)
+    // console.log('updated', updated)
     return updated;
 };
 
@@ -90,7 +106,13 @@ export const createStepLevel = {
             {
                 type: PARCEL_TYPES.CLASSIC,
                 targetTeam: team.teamId,
-                number: 2,
+                number: 1,
+                score: PARCEL_SCORES['0'],
+            },
+            {
+                type: PARCEL_TYPES.CLASSIC,
+                targetTeam: team.teamId,
+                number: 1,
                 score: PARCEL_SCORES['50'],
             },
             {
@@ -105,6 +127,32 @@ export const createStepLevel = {
                 number: 1,
                 score: PARCEL_SCORES['200'],
             },
+        ].map(async parcel => await createParcelsFn(parcel));
+    },
+    3: (createParcelsFn, team) => {
+        console.log(`create parcels for team ${team.teamId}, step 2`);
+        speechService.speech({
+            text: `Team ${team.teamId.split('-')[0]} reach level 2!`,
+        });
+        [
+            {
+                type: PARCEL_TYPES.CLASSIC,
+                targetTeam: team.teamId,
+                number: 1,
+                score: PARCEL_SCORES['0'],
+            },
+            {
+                type: PARCEL_TYPES.CLASSIC,
+                targetTeam: team.teamId,
+                number: 1,
+                score: PARCEL_SCORES['50'],
+            },
+            {
+                type: PARCEL_TYPES.CLASSIC,
+                targetTeam: team.teamId,
+                number: 1,
+                score: PARCEL_SCORES['100'],
+            },
             {
                 type: PARCEL_TYPES.SPEED_BOOST,
                 targetTeam: team.teamId,
@@ -113,12 +161,12 @@ export const createStepLevel = {
             {
                 type: PARCEL_TYPES.CLASSIC,
                 targetTeam: 'all',
-                number: 1,
-                score: PARCEL_SCORES['50'],
+                number: 2,
+                score: PARCEL_SCORES['200'],
             }
         ].map(async parcel => await createParcelsFn(parcel));
     },
-    3: (createParcelsFn, team) => {
+    4: (createParcelsFn, team) => {
         speechService.speech({
             text: `Team ${team.teamId.split('-')[0]} reach level 3!`,
         });
@@ -127,35 +175,30 @@ export const createStepLevel = {
             {
                 type: PARCEL_TYPES.CLASSIC,
                 targetTeam: team.teamId,
-                number: 3,
-                score: PARCEL_SCORES['50'],
+                number: 1,
+                score: PARCEL_SCORES['0'],
             },
             {
                 type: PARCEL_TYPES.CLASSIC,
                 targetTeam: team.teamId,
                 number: 2,
+                score: PARCEL_SCORES['50'],
+            },
+            {
+                type: PARCEL_TYPES.CLASSIC,
+                targetTeam: 'all',
+                number: 2,
                 score: PARCEL_SCORES['100'],
             },
             {
                 type: PARCEL_TYPES.CLASSIC,
-                targetTeam: team.teamId,
+                targetTeam: 'all',
                 number: 1,
                 score: PARCEL_SCORES['200'],
-            },
-            {
-                type: PARCEL_TYPES.SPEED_BOOST,
-                targetTeam: 'all',
-                number: 1,
-            },
-            {
-                type: PARCEL_TYPES.CLASSIC,
-                targetTeam: 'all',
-                number: 1,
-                score: PARCEL_SCORES['100'],
             }
         ].map(async parcel => await createParcelsFn(parcel));
     },
-    4: (createParcelsFn, team) => {
+    5: (createParcelsFn, team) => {
         console.log(`create parcels for team ${team.teamId}, step 4`);
         speechService.speech({
             text: `Team ${team.teamId.split('-')[0]} reach level 4!`,
@@ -164,25 +207,25 @@ export const createStepLevel = {
             {
                 type: PARCEL_TYPES.CLASSIC,
                 targetTeam: team.teamId,
-                number: 3,
-                score: PARCEL_SCORES['50'],
-            },
-            {
-                type: PARCEL_TYPES.CLASSIC,
-                targetTeam: team.teamId,
-                number: 2,
-                score: PARCEL_SCORES['100'],
+                number: 1,
+                score: PARCEL_SCORES['0'],
             },
             {
                 type: PARCEL_TYPES.CLASSIC,
                 targetTeam: team.teamId,
                 number: 1,
-                score: PARCEL_SCORES['200'],
+                score: PARCEL_SCORES['-50'],
             },
             {
                 type: PARCEL_TYPES.SPEED_BOOST,
                 targetTeam: 'all',
                 number: 1,
+            },
+            {
+                type: PARCEL_TYPES.CLASSIC,
+                targetTeam: 'all',
+                number: 2,
+                score: PARCEL_SCORES['50'],
             },
             {
                 type: PARCEL_TYPES.CLASSIC,
@@ -206,29 +249,18 @@ export const createStepLevel = {
             });
         }
         console.log(`create parcels for team ${team.teamId}, step infinity`);
-        [
+        const generatedParcels = [
             {
                 type: PARCEL_TYPES.CLASSIC,
                 targetTeam: team.teamId,
-                number: 2,
-                score: PARCEL_SCORES['50'],
-            },
-            {
-                type: PARCEL_TYPES.CLASSIC,
-                targetTeam: team.teamId,
-                number: 2,
-                score: PARCEL_SCORES['100'],
-            },
-            {
-                type: PARCEL_TYPES.CLASSIC,
-                targetTeam: team.teamId,
-                number: 2,
-                score: PARCEL_SCORES['200'],
-            },
-            {
-                type: PARCEL_TYPES.SPEED_BOOST,
-                targetTeam: 'all',
                 number: 1,
+                score: PARCEL_SCORES['-50'],
+            },
+            {
+                type: PARCEL_TYPES.CLASSIC,
+                targetTeam: 'all',
+                number: 3,
+                score: PARCEL_SCORES['50'],
             },
             {
                 type: PARCEL_TYPES.CLASSIC,
@@ -242,6 +274,8 @@ export const createStepLevel = {
                 number: 1,
                 score: PARCEL_SCORES['200'],
             }
-        ].map(async parcel => await createParcelsFn(parcel));
+        ];
+        // TODO randomly add speed boost parcel
+        generatedParcels.map(async parcel => await createParcelsFn(parcel));
     },
 };

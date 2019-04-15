@@ -166,7 +166,7 @@ export class Score extends Component {
             speedFactor
                 ? <Speed speedFactor={speedFactor}>
                     <i className="material-icons">flash_on</i>
-                    <span>{ `${speedFactor >= 0 ? '+' : '-'}${Math.abs(speedFactor)}` }</span>
+                    <span>{`${speedFactor >= 0 ? '+' : '-'}${Math.abs(speedFactor)}`}</span>
                 </Speed>
                 : null
         );

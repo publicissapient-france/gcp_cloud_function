@@ -23,10 +23,10 @@ const innerBoundaries = [
     },
 ];
 const outerBoundariesMinMax = {
-    minLatitude: 48.796000,
+    minLatitude: 48.798000,
     maxLatitude: 48.920000,
-    minLongitude: 2.16000,
-    maxLongitude: 2.51000,
+    minLongitude: 2.18000,
+    maxLongitude: 2.50000,
 };
 const outerBoundaries = [
     {
@@ -74,8 +74,8 @@ const centerBoundaries = [
 ];
 
 export const GAME_PARAMETERS = {
-    logLevel: 'debug',
-    speed: 3000,
+    logLevel: 'error',
+    speed: 6000,
     step: 0.0004,
     distancePerTick: 0.3,
     drone: '22px',
@@ -92,7 +92,7 @@ export const GAME_PARAMETERS = {
     // Speed boost bonus value
     speedBoostValue: .05,
     // max team number
-    maxTeams: 10,
+    maxTeams: 20,
     // Game area boundaries
     showBoundaries: false,
     innerBoundariesMinMax,
@@ -109,15 +109,25 @@ export const GAME_PARAMETERS = {
 };
 
 export const TEAMS = [
+    'marin',
     'blue',
+    'cyan',
+    'rubi',
     'red',
-    'green',
     'orange',
+    'yellow',
+    'lemon',
+    'amber',
+    'brown',
+    'teal',
+    'green',
+    'lime',
+    'violet',
+    'pink',
+    'magenta',
     'purple',
     'black',
     'grey',
-    'pink',
-    'yellow',
     'white',
 ];
 

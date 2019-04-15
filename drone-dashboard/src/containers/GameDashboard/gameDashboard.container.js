@@ -36,7 +36,7 @@ const GoogleMapContainer = styled.div`
   display: flex;
   flex: 1 1 950px;
   overflow: hidden;
-  height: 600px;
+  height: 860px;
   border-radius: 15px;
 `;
 
@@ -45,7 +45,9 @@ const ScoresContainer = styled.div`
   flex: 0 1 200px;
   flex-flow: column nowrap;
   align-items: flex-start;
-  padding: 0 15px;
+  padding: 0 5px 0 5px;
+  overflow-x: scroll;
+  max-height: 860px;
   ${ScoreItem}:not(:last-of-type) {
     margin-bottom: 10px;
   }
@@ -56,12 +58,13 @@ export class GameDashboard extends Component {
         ...GAME_PARAMETERS,
     };
 
-    constructor() {
-        super();
+    constructor(props) {
+        super(props);
         this.state = {
             // drones: createDrones(3),
             drones: [],
             parcels: [],
+            build: props.build,
         };
     }
 
@@ -158,7 +161,8 @@ export class GameDashboard extends Component {
                         defaultZoom={this.props.zoom}
                         // onGoogleApiLoaded={({map, maps}) => this.renderPolylines(map, maps)}
                     >
-                        {this.state.parcels.map((parcel, index) => [
+                        {this.state.parcels
+                          .map((parcel, index) => [
                             <Pin
                                 {...parcel}
                                 key={`delivery-pin-${parcel.teamId}-${parcel.parcelId || index}`}

@@ -12,7 +12,7 @@ import {
 
 const AppContainer = styled.div`
     text-align: center;
-    padding: 0 20px;
+    padding: 0 10px 0 15px;
     .App-logo {
       height: 40px;
     }
@@ -20,9 +20,12 @@ const AppContainer = styled.div`
     .App-header {
       display: flex;
       flex: 1 1 950px;
-      height: 60px;
-      padding-top: 30px;
-      padding-bottom: 20px;
+      //height: 60px;
+      //padding-top: 30px;
+      //padding-bottom: 20px;
+      height: 20px;
+      //padding-top: 30px;
+      //padding-bottom: 20px;
     }
 
     .App-title {
@@ -46,20 +49,23 @@ class App extends Component {
     };
 
     render() {
+        console.log('DOCKER', process.env.REACT_APP_BUILD)
+        console.log('KEY', process.env.REACT_APP_GOOGLE_MAP_KEY)
         return (
             <Router>
                 <AppContainer>
                     <header className="App-header">
-                        <img src={logo} className="App-logo" alt="logo"/>
-                        <h1 className="App-title">Google Cloud Functions ‡ DDD (drones dash delivery) - beta</h1>
+                        {/*<img src={logo} className="App-logo" alt="logo"/>*/}
+                        {/*<h1 className="App-title">Google Cloud Functions ‡ DDD (drones dash delivery) - beta</h1>*/}
                     </header>
                     <Switch>
                         <Route
                             exact path="/"
                             component={GameDashboard}
+                            build={process.env.REACT_APP_BUILD}
                         />
                         <Route
-                            exact path="/admin" 
+                            exact path="/admin"
                             component={Admin}
                         />
                     </Switch>
@@ -68,5 +74,14 @@ class App extends Component {
         );
     }
 }
+
+
+// { process.env.REACT_APP_BUILD === 'admin'
+//     ? <Route
+//         exact path="/admin"
+//         component={Admin}
+//     />
+//     : null
+// }
 
 export default App;

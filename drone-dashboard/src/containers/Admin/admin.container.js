@@ -87,6 +87,7 @@ const Select = styled.select`
 `;
 
 const Button = styled.button`
+  cursor: pointer;
   height: 30px;
   min-width: 100px;
   border: #333333 1px solid;
@@ -226,7 +227,7 @@ export class Admin extends Component {
         this.numberOfParcels = 0;
         this.step = 0;
     }
-        
+
     componentDidMount() {
         this.initUpdater();
     }
@@ -259,6 +260,7 @@ export class Admin extends Component {
             const readyForNextStepTeams = getTeamsReadyForNextStep({
                 teams: updatedTeamsByStep[GAME_STATE[gameStep].label],
                 parcels: parcelsNext,
+                gameStep,
             });
             await teams.forEach(async (team) => {
                 this.log(readyForNextStepTeams, `readyForNextStepTeams ${GAME_STATE[gameStep].label} - ${team.teamId})}`);
@@ -281,7 +283,7 @@ export class Admin extends Component {
                     }
                 }
                 updatedTeamsByStep[gameStep] = [
-                    ...updatedTeamsByStep[gameStep],    
+                    ...updatedTeamsByStep[gameStep],
                     ...{
                         ...team,
                         ...teamNext,
@@ -310,7 +312,7 @@ export class Admin extends Component {
         let gameStepTeamsNext = groupBy(teamsNext, 'gameStep');
         const gameTeams = flatten(Object.values(this.state.gameStepTeams));
         this.log(gameTeams, 'gameTeams');
-        let nextGameStepTeams = this.state.gameStepTeams && !isEmpty(this.state.gameStepTeams) ? groupBy(gameTeams, 'gameStep') : {};  
+        let nextGameStepTeams = this.state.gameStepTeams && !isEmpty(this.state.gameStepTeams) ? groupBy(gameTeams, 'gameStep') : {};
         this.log(nextGameStepTeams, 'nextGameStepTeams')
         let gameStepTeams = nextGameStepTeams && !isEmpty(nextGameStepTeams) ? nextGameStepTeams : gameStepTeamsNext;
         switch (this.state.gameState) {
@@ -324,7 +326,7 @@ export class Admin extends Component {
             case GAME_STATE.PAUSED.label:
             default:
                 break;
-        } 
+        }
         this.setState({
             savedTeams: teamsNext,
             savedParcels: parcelsNext,
@@ -336,7 +338,7 @@ export class Admin extends Component {
                 || this.state.numberOfTeams <= newNumberOfTeamsMin
                     ? this.state.numberOfTeams
                     : newNumberOfTeamsMin
-            ), 
+            ),
             gameStepTeams,
             gameStep: this.step,
         }, this.log);
@@ -372,6 +374,28 @@ export class Admin extends Component {
 
     generateTeamId() {
         return getRandomInteger(1, 999);
+    }
+
+    async resetTeams(teamIds) {
+        teamIds = teamIds || this.state.savedTeams;
+        const teams = teamIds.map(team => ({
+            teamId: team.teamId,
+            location: {
+                latitude: this.props.center.lat,
+                longitude: this.props.center.lng,
+            },
+            command: {
+                name: 'MOVE',
+                location: {
+                    latitude: this.props.center.lat,
+                    longitude: this.props.center.lng,
+                },
+            },
+            parcels: [],
+            distancePerTick: 0.3,
+            score: 0,
+        }));
+        await postDroneInfo(teams);
     }
 
     async createTeams () {
@@ -412,7 +436,7 @@ export class Admin extends Component {
                 score: 0,
             }
         });
-        console.log('teams', teams);
+        // console.log('teams', teams);
         await postDroneInfo(teams);
     }
 
@@ -428,7 +452,7 @@ export class Admin extends Component {
     //     // return pointOnFeature(this.startingLine);
     //     return getCoord(along(this.startingLine, getRandomFloat(1,4), {units: 'kilometers'}));
     // });
-    
+
     // admin parcels
     getScore({ type, score }) {
         if (type === PARCEL_TYPES.CLASSIC) {
@@ -438,7 +462,7 @@ export class Admin extends Component {
             return this.props.speedBoostValue;
         }
     };
-    
+
     getTeamId = ({ type, index, teamId }) => teamId !== 'each' ? teamId : get(this.state, `savedTeams[${index}].teamId`);
 
     getPickupLocation({ type = PARCEL_TYPES.CLASSIC }) {
@@ -475,7 +499,7 @@ export class Admin extends Component {
             && latitude >= this.props.innerBoundariesMinMax.minLatitude
         );
     }
-    
+
     createParcels = async ({ type, targetTeam, score }) => {
         const finalType = type || this.state.parcelType;
         this.numberOfTeams = (targetTeam || this.state.targetTeam) === 'each'
@@ -512,7 +536,7 @@ export class Admin extends Component {
                         longitude: deliveryLng,
                     };
                 }
-                
+
                 return newParcel;
             });
             if (parcels && parcels.length) {
@@ -537,7 +561,7 @@ export class Admin extends Component {
             }
             return flatten(parcelsPerTeam);
         });
-        console.log('createParcels', parcels);
+        // console.log('createParcels', parcels);
         await postParcel(flatten(parcels));
     }
 
@@ -658,13 +682,18 @@ export class Admin extends Component {
                             }
                         </Line>
                         <Line>
-                            <strong>{this.state.numberOfActiveTeams || '0'} teams are actives</strong><br />
+                            <strong>{this.state.numberOfActiveTeams || '0'} teams active</strong><br />
                         </Line>
                         <Line>
                             Game: {this.state.gameState}
                         </Line>
                         <Line>
                             Level: {this.state.gameStep}
+                        </Line>
+                        <Line>
+                            <Button type="button" onClick={() => this.resetTeams()} style={{color: 'red'}}>
+                                <b>Reset game</b>
+                            </Button>
                         </Line>
                     </Form>
                     <Form id="initTeams">
@@ -690,7 +719,7 @@ export class Admin extends Component {
                             </Button>
                         </Line>
                         <Line>
-                            <strong>{this.state.numberOfActiveTeams || '0'} teams are actives</strong>
+                            <strong>{this.state.numberOfActiveTeams || '0'} teams active</strong>
                         </Line>
                         <ResultLine>
                             {this.renderTeams()}
