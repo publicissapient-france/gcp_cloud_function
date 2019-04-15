@@ -119,7 +119,21 @@ export const TEAMS = [
     'pink',
     'yellow',
     'white',
+    'cyan',
+    'indigo',
+    'violet',
+    'magenta',
+    'brown',
+    'gray',
+    'teal',
+    'lime',
+    'amber',
+    'azure',
+    'beige'
 ];
+
+
+
 
 export const STATUS = {
     READY_FAILED: 'READY_FAILED',
