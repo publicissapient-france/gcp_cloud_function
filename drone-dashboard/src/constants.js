@@ -78,6 +78,7 @@ const middleBoundaries = [
 
 export const GAME_PARAMETERS = {
     logLevel: 'error',
+    // Refresh rate in milliseconds
     speed: 6000,
     step: 0.0004,
     distancePerTick: 0.3,

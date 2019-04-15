@@ -72,6 +72,9 @@ const FormsContainer = styled(AdminContainer)`
   width: 100%;
   flex-flow: row nowrap;
   align-items: flex-start;
+  &:not(:last-of-type) {
+    margin-bottom: 10px;
+  }
 `;
 
 const Input = styled.input`
@@ -129,7 +132,7 @@ const Form = styled.div`
   display: flex;
   flex-flow: column;
   align-items: center;
-  padding: 20px;
+  padding: 10px;
   margin-left: 10px;
   margin-right: 10px;
   border: #333333 1px solid;
@@ -155,7 +158,7 @@ const Team = styled.div`
   color: #fff;
   font-size: .5rem;
   height: 30px;
-  width: 100px;
+  width: 120px;
   border-radius: 10px;
   background: ${(props) => COLORS[parseDroneTeamColor(props.teamId, props.type)]};
   padding: 5px;
@@ -674,6 +677,8 @@ export class Admin extends Component {
                                 </Button>
                                 : null
                             }
+                        </Line>
+                        <Line>
                             {this.state.gameState === GAME_STATE.STARTED.label
                                 ? <Button type="button" onClick={() => this.changeGameState(GAME_STATE.STOPPED.label)}>
                                     Stop game
@@ -699,6 +704,8 @@ export class Admin extends Component {
                     <Form id="initTeams">
                         <Line>
                             <h3>Init teams</h3>
+                            {'-   '}
+                            <strong>{this.state.numberOfActiveTeams || '0'} teams active</strong>
                         </Line>
                         <Line>
                             <label>
@@ -712,19 +719,16 @@ export class Admin extends Component {
                                     onChange={this.handleFormChangeInt.bind(this, 'numberOfTeams')}
                                 />
                             </label>
-                        </Line>
-                        <Line>
                             <Button type="button" onClick={this.submitInitTeams}>
                                 Create teams
                             </Button>
-                        </Line>
-                        <Line>
-                            <strong>{this.state.numberOfActiveTeams || '0'} teams active</strong>
                         </Line>
                         <ResultLine>
                             {this.renderTeams()}
                         </ResultLine>
                     </Form>
+                </FormsContainer>
+                <FormsContainer>
                     <Form id="initParcels">
                         <Line>
                             <h3>Init parcels</h3>
