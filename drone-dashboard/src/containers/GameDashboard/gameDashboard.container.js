@@ -106,7 +106,7 @@ export class GameDashboard extends Component {
                 lat={get(boundary, 'latitude')}
                 lng={get(boundary, 'longitude')}
                 status={STATUS.TOGGLE}
-                teamId={type === 'inner' ? 'green' : type === 'center' ? 'orange' : 'red'}
+                teamId={type === 'inner' ? 'green' : type === 'middle' ? 'orange' : 'red'}
             />
         ))
     }
@@ -178,7 +178,7 @@ export class GameDashboard extends Component {
                         ])}
                         {this.props.showBoundaries ? this.renderBoundaries('inner') : null}
                         {this.props.showBoundaries ? this.renderBoundaries('outer') : null}
-                        {this.props.showBoundaries ? this.renderBoundaries('center') : null}
+                        {this.props.showBoundaries ? this.renderBoundaries('middle') : null}
                         {this.state.drones.map((drone) => [
                             <Drone
                                 {...drone}

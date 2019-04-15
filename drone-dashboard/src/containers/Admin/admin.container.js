@@ -467,8 +467,8 @@ export class Admin extends Component {
 
     getPickupLocation({ type = PARCEL_TYPES.CLASSIC }) {
         let pickupLng;
-        const pickupZoneMin = type === PARCEL_TYPES.CLASSIC ? 'inner' : 'center';
-        const pickupZoneMax = type === PARCEL_TYPES.CLASSIC ? 'center' : 'outer';
+        const pickupZoneMin = type === PARCEL_TYPES.CLASSIC ? 'inner' : 'middle';
+        const pickupZoneMax = type === PARCEL_TYPES.CLASSIC ? 'middle' : 'outer';
         const pickupLat1 = getRandomFloat(this.props.outerBoundariesMinMax.minLatitude, this.props.outerBoundariesMinMax.maxLatitude);
         const pickupLat2 = getRandomFloat(this.props.outerBoundariesMinMax.minLatitude, this.props.outerBoundariesMinMax.maxLatitude);
         const pickupLat = [pickupLat1, pickupLat2][chance.integer({min: 0, max: 1})];

@@ -1,3 +1,4 @@
+// TODO DO NOT TOUCH THIS !!
 const innerBoundariesMinMax = {
     maxLatitude: 48.900000, // horizontal
     minLatitude: 48.816000,
@@ -22,11 +23,12 @@ const innerBoundaries = [
         longitude: innerBoundariesMinMax.minLongitude,
     },
 ];
+// TODO Update depending on screen
 const outerBoundariesMinMax = {
-    minLatitude: 48.798000,
-    maxLatitude: 48.920000,
-    minLongitude: 2.18000,
-    maxLongitude: 2.50000,
+    maxLatitude: 48.945000, // horizontal
+    minLatitude: 48.769000,
+    minLongitude: 2.15200, // vertical
+    maxLongitude: 2.52700,
 };
 const outerBoundaries = [
     {
@@ -46,30 +48,31 @@ const outerBoundaries = [
         longitude: outerBoundariesMinMax.minLongitude,
     },
 ];
-const topAndBotomSpace = (outerBoundariesMinMax.maxLatitude - innerBoundariesMinMax.maxLatitude) * 2;
-const centerBoundariesMinMax = {
+const leftRightSpace = (outerBoundariesMinMax.maxLongitude - innerBoundariesMinMax.maxLongitude) / 3.5;
+// TODO DO NOT TOUCH THIS
+const middleBoundariesMinMax = {
     maxLatitude: outerBoundariesMinMax.maxLatitude,
     minLatitude: outerBoundariesMinMax.minLatitude,
-    minLongitude: innerBoundariesMinMax.minLongitude - topAndBotomSpace,
-    maxLongitude: innerBoundariesMinMax.maxLongitude + topAndBotomSpace,
+    minLongitude: outerBoundariesMinMax.minLongitude + leftRightSpace,
+    maxLongitude: outerBoundariesMinMax.maxLongitude - leftRightSpace,
 };
 
-const centerBoundaries = [
+const middleBoundaries = [
     {
-        latitude: centerBoundariesMinMax.maxLatitude,
-        longitude: centerBoundariesMinMax.minLongitude,
+        latitude: middleBoundariesMinMax.maxLatitude,
+        longitude: middleBoundariesMinMax.minLongitude,
     },
     {
-        latitude: centerBoundariesMinMax.maxLatitude,
-        longitude: centerBoundariesMinMax.maxLongitude,
+        latitude: middleBoundariesMinMax.maxLatitude,
+        longitude: middleBoundariesMinMax.maxLongitude,
     },
     {
-        latitude: centerBoundariesMinMax.minLatitude,
-        longitude: centerBoundariesMinMax.maxLongitude,
+        latitude: middleBoundariesMinMax.minLatitude,
+        longitude: middleBoundariesMinMax.maxLongitude,
     },
     {
-        latitude: centerBoundariesMinMax.minLatitude,
-        longitude: centerBoundariesMinMax.minLongitude,
+        latitude: middleBoundariesMinMax.minLatitude,
+        longitude: middleBoundariesMinMax.minLongitude,
     },
 ];
 
@@ -99,8 +102,8 @@ export const GAME_PARAMETERS = {
     innerBoundaries,
     outerBoundariesMinMax,
     outerBoundaries,
-    centerBoundariesMinMax,
-    centerBoundaries,
+    middleBoundariesMinMax,
+    middleBoundaries,
     // functions urls
     droneStateListUrl: 'https://europe-west1-jbc-atl-sal-func-techevent.cloudfunctions.net/droneStateList',
     droneHttpUpserterUrl: 'https://europe-west1-jbc-atl-sal-func-techevent.cloudfunctions.net/droneHttpUpserter',
