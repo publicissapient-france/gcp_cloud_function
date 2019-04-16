@@ -30,19 +30,28 @@ export const getTeamsReadyForNextStep = ({teams, parcels, gameStep}) => teams
                     (
                         GAME_STATE[gameStep]
                         && GAME_STATE[gameStep].level >= 0
-                        && team.teamId === parcel.teamId
-                        && parcel.status === STATUS.AVAILABLE
-                    )
-                    || (
-                        GAME_STATE[gameStep]
-                        && GAME_STATE[gameStep].level >= 5
-                        && parcel.teamId === 'all'
+                        && parcel.teamId === team.teamId
+                        && parcel.score > 0
                         && parcel.status === STATUS.AVAILABLE
                     )
                 );
             }
         );
-        return !hasTeamAvailableParcel;
+        const hasAllAvailableParcel = some(
+            parcels,
+            (parcel) => {
+                return (
+                    (
+                        GAME_STATE[gameStep]
+                        && GAME_STATE[gameStep].level >= 5
+                        && parcel.teamId === 'all'
+                        && parcel.score > 0
+                        && parcel.status === STATUS.AVAILABLE
+                    )
+                );
+            }
+        );
+        return !hasTeamAvailableParcel && !hasAllAvailableParcel;
     });
 
 export const updateValidatedTeams = ({teams = [], team, gameState}) => {

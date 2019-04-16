@@ -670,7 +670,7 @@ export class Admin extends Component {
                     <button
                         onClick={() => this.resetTeam(team.teamId)}
                     >
-                        <i className="material-icons">close</i>
+                        <i className="material-icons">settings_backup_restore</i>
                     </button>
                     <strong>{team.teamId}</strong>
                 </Team>
