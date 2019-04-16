@@ -151,11 +151,23 @@ export const PARCEL_TYPES = {
     SPEED_BOOST: 'SPEED_BOOST',
 };
 export const PARCEL_SCORES = {
-    50: 50,
-    100: 100,
-    200: 200,
+    '-50': -50,
+    '-100': 100,
+    '-200': 200,
+    '0': 0,
+    '50': 50,
+    '100': 100,
+    '200': 200,
 };
-export const PARCEL_CHANCES = [50, 35, 15];
+export const PARCEL_CHANCES = [
+    0,
+    0,
+    0,
+    10,
+    40,
+    35,
+    15,
+];
 
 export const GAME_STATE = {
     STOPPED: {
@@ -184,6 +196,10 @@ export const GAME_STATE = {
     STEP_4: {
         label: 'STEP_4',
         level: 4,
+    },
+    STEP_5: {
+        label: 'STEP_5',
+        level: 5,
     },
     STEP_INFINITY: {
         label: 'STEP_INFINITY',

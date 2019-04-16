@@ -36,7 +36,7 @@ export const getTeamsReadyForNextStep = ({teams, parcels, gameStep}) => teams
                     || (
                         GAME_STATE[gameStep]
                         && GAME_STATE[gameStep].level >= 5
-                        && team.teamId === 'all'
+                        && parcel.teamId === 'all'
                         && parcel.status === STATUS.AVAILABLE
                     )
                 );
@@ -130,15 +130,15 @@ export const createStepLevel = {
         ].map(async parcel => await createParcelsFn(parcel));
     },
     3: (createParcelsFn, team) => {
-        console.log(`create parcels for team ${team.teamId}, step 2`);
+        console.log(`create parcels for team ${team.teamId}, step 3`);
         speechService.speech({
-            text: `Team ${team.teamId.split('-')[0]} reach level 2!`,
+            text: `Team ${team.teamId.split('-')[0]} reach level 3!`,
         });
         [
             {
                 type: PARCEL_TYPES.CLASSIC,
                 targetTeam: team.teamId,
-                number: 1,
+                number: 2,
                 score: PARCEL_SCORES['0'],
             },
             {
@@ -161,21 +161,21 @@ export const createStepLevel = {
             {
                 type: PARCEL_TYPES.CLASSIC,
                 targetTeam: 'all',
-                number: 2,
-                score: PARCEL_SCORES['200'],
+                number: 1,
+                score: PARCEL_SCORES['100'],
             }
         ].map(async parcel => await createParcelsFn(parcel));
     },
     4: (createParcelsFn, team) => {
         speechService.speech({
-            text: `Team ${team.teamId.split('-')[0]} reach level 3!`,
+            text: `Team ${team.teamId.split('-')[0]} reach level 4!`,
         });
-        console.log(`create parcels for team ${team.teamId}, step 3`);
+        console.log(`create parcels for team ${team.teamId}, step 4`);
         [
             {
                 type: PARCEL_TYPES.CLASSIC,
                 targetTeam: team.teamId,
-                number: 1,
+                number: 3,
                 score: PARCEL_SCORES['0'],
             },
             {
@@ -187,7 +187,7 @@ export const createStepLevel = {
             {
                 type: PARCEL_TYPES.CLASSIC,
                 targetTeam: 'all',
-                number: 2,
+                number: 1,
                 score: PARCEL_SCORES['100'],
             },
             {
@@ -199,21 +199,21 @@ export const createStepLevel = {
         ].map(async parcel => await createParcelsFn(parcel));
     },
     5: (createParcelsFn, team) => {
-        console.log(`create parcels for team ${team.teamId}, step 4`);
+        console.log(`create parcels for team ${team.teamId}, step 5`);
         speechService.speech({
-            text: `Team ${team.teamId.split('-')[0]} reach level 4!`,
+            text: `Team ${team.teamId.split('-')[0]} reach level 5!`,
         });
         [
             {
                 type: PARCEL_TYPES.CLASSIC,
                 targetTeam: team.teamId,
-                number: 1,
+                number: 2,
                 score: PARCEL_SCORES['0'],
             },
             {
                 type: PARCEL_TYPES.CLASSIC,
                 targetTeam: team.teamId,
-                number: 1,
+                number: 2,
                 score: PARCEL_SCORES['-50'],
             },
             {
@@ -224,13 +224,13 @@ export const createStepLevel = {
             {
                 type: PARCEL_TYPES.CLASSIC,
                 targetTeam: 'all',
-                number: 2,
+                number: 1,
                 score: PARCEL_SCORES['50'],
             },
             {
                 type: PARCEL_TYPES.CLASSIC,
                 targetTeam: 'all',
-                number: 2,
+                number: 1,
                 score: PARCEL_SCORES['100'],
             },
             {
@@ -253,19 +253,25 @@ export const createStepLevel = {
             {
                 type: PARCEL_TYPES.CLASSIC,
                 targetTeam: team.teamId,
-                number: 1,
-                score: PARCEL_SCORES['-50'],
+                number: 3,
+                score: PARCEL_SCORES['-100'],
             },
             {
                 type: PARCEL_TYPES.CLASSIC,
-                targetTeam: 'all',
+                targetTeam: team.teamId,
                 number: 3,
-                score: PARCEL_SCORES['50'],
+                score: PARCEL_SCORES['0'],
             },
             {
                 type: PARCEL_TYPES.CLASSIC,
                 targetTeam: 'all',
                 number: 2,
+                score: PARCEL_SCORES['50'],
+            },
+            {
+                type: PARCEL_TYPES.CLASSIC,
+                targetTeam: 'all',
+                number: 1,
                 score: PARCEL_SCORES['100'],
             },
             {
