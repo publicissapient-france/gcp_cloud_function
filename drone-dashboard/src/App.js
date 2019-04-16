@@ -49,8 +49,6 @@ class App extends Component {
     };
 
     render() {
-        console.log('DOCKER', process.env.REACT_APP_BUILD)
-        console.log('KEY', process.env.REACT_APP_GOOGLE_MAP_KEY)
         return (
             <Router>
                 <AppContainer>
