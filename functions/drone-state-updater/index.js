@@ -111,9 +111,12 @@ const getJobsDroneMove = async (droneInfos) => {
         const teamId = getTeamId(droneInfo);
         console.log(`[${teamId}][getJobsDroneMove] droneInfo before update : ${JSON.stringify(droneInfo)}`);
 
+        const updatedDistancePerTick = getDistancePerTickForDrone(droneInfo);
+
         // Set default location
         droneInfo = {
             ...droneInfo,
+            updatedDistancePerTick,
             location: {
                 ...droneInfo.location,
                 latitude: get(droneInfo, 'location.latitude') || DEFAULT_LATITUDE,
@@ -172,11 +175,12 @@ const getDistancePerTickForDrone = (droneInfo) => {
   // for each parcel carried by the drone there is a negative impact on the drone speed
   const handicap = droneInfo.parcels && droneInfo.parcels.length > 0
     ? droneInfo.parcels
-        .map((parcel) => parcel.score/10000)
+        .map((parcel) => 5 * parcel.score/10000)
         .reduce((acc, score) => acc + score, 0)
     : 0;
-  const distancePerTickWithHandicap = droneInfo.distancePerTick - handicap;
+  let distancePerTickWithHandicap = droneInfo.distancePerTick - handicap;
   console.log(`[${teamId}][getDistancePerTickForDrone] distancePerTick=${droneInfo.distancePerTick} | distancePerTickWithHandicap=${distancePerTickWithHandicap} (with handicap for each parcel carried)`);
+  distancePerTickWithHandicap = Math.round(distancePerTickWithHandicap * 100) / 100;
   return distancePerTickWithHandicap;
 };
 
