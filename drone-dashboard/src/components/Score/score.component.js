@@ -13,6 +13,7 @@ import {
 import {isDestinationLocationType} from '../../services/utils.service';
 
 export const ScoreItem = styled.div`
+  cursor: pointer;
   display: flex;
   justify-content: flex-start;
   align-items: center;
@@ -215,6 +216,8 @@ export class Score extends Component {
                 {...this.props.drone}
                 failure={this.hasCommand(STATUS.READY_FAILED)}
                 default={this.isDefaultStatus()}
+                title={this.props.drone.teamId ? this.props.drone.teamId.split('-')[0].toLowerCase() : ''}
+                onClick={this.props.onClick}
             >
                 {
                     this.renderMoveStatus() ||
