@@ -4,9 +4,9 @@ create:
 	# create appengine for current project
 	gcloud app --project=$(PROJECT) create --region=europe-west
 
-
 deploy:
 	# function to deploy app
+	cd src && npm run build
 	cp app.yaml build/app.yaml
 	cd build && gcloud app --project=$(PROJECT) deploy app.yaml
 
