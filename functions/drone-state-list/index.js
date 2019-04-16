@@ -7,7 +7,8 @@ exports.droneStateList = async (req, res) => {
 
     // Enable CORS
     res.set('Access-Control-Allow-Origin', "*");
-    res.set('Access-Control-Allow-Methods', 'GET, POST');
+    res.set('Access-Control-Allow-Headers', '*');
+    res.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
 
     try {
         let data = {};
@@ -37,7 +38,7 @@ exports.droneStateList = async (req, res) => {
         console.log(`Parsed data from DroneInfo and Parcel: ${JSON.stringify(data, null, 2)}`);
 
         res.send(data);
-        
+
     } catch (err) {
         console.error('ERROR:', err);
         res.status(500).send(new Error('Error when trying to get data from DroneInfo'));

@@ -9,7 +9,7 @@ import {
 } from '../../constants';
 import { CustomMapElement } from '../CustomMapElement';
 import ParcelSprite from '../ParcelSprite';
-import ParcelCustomSprite from '../ParcelCustomSprite';
+import ParcelCustomSprite from '../ParcelBoostSprite';
 import ParcelAllSprite from '../ParcelAllSprite';
 import ParcelAllBoostSprite from '../ParcelAllBoostSprite';
 import {parseDroneTeamColor} from '../../services/data.service';

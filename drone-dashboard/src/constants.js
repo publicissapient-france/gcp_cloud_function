@@ -1,3 +1,4 @@
+// TODO DO NOT TOUCH THIS !!
 const innerBoundariesMinMax = {
     maxLatitude: 48.900000, // horizontal
     minLatitude: 48.816000,
@@ -22,11 +23,12 @@ const innerBoundaries = [
         longitude: innerBoundariesMinMax.minLongitude,
     },
 ];
+// TODO Update depending on screen
 const outerBoundariesMinMax = {
-    minLatitude: 48.796000,
-    maxLatitude: 48.920000,
-    minLongitude: 2.16000,
-    maxLongitude: 2.51000,
+    maxLatitude: 48.945000, // horizontal
+    minLatitude: 48.769000,
+    minLongitude: 2.15200, // vertical
+    maxLongitude: 2.52700,
 };
 const outerBoundaries = [
     {
@@ -46,36 +48,38 @@ const outerBoundaries = [
         longitude: outerBoundariesMinMax.minLongitude,
     },
 ];
-const topAndBotomSpace = (outerBoundariesMinMax.maxLatitude - innerBoundariesMinMax.maxLatitude) * 2;
-const centerBoundariesMinMax = {
+const leftRightSpace = (outerBoundariesMinMax.maxLongitude - innerBoundariesMinMax.maxLongitude) / 3.5;
+// TODO DO NOT TOUCH THIS
+const middleBoundariesMinMax = {
     maxLatitude: outerBoundariesMinMax.maxLatitude,
     minLatitude: outerBoundariesMinMax.minLatitude,
-    minLongitude: innerBoundariesMinMax.minLongitude - topAndBotomSpace,
-    maxLongitude: innerBoundariesMinMax.maxLongitude + topAndBotomSpace,
+    minLongitude: outerBoundariesMinMax.minLongitude + leftRightSpace,
+    maxLongitude: outerBoundariesMinMax.maxLongitude - leftRightSpace,
 };
 
-const centerBoundaries = [
+const middleBoundaries = [
     {
-        latitude: centerBoundariesMinMax.maxLatitude,
-        longitude: centerBoundariesMinMax.minLongitude,
+        latitude: middleBoundariesMinMax.maxLatitude,
+        longitude: middleBoundariesMinMax.minLongitude,
     },
     {
-        latitude: centerBoundariesMinMax.maxLatitude,
-        longitude: centerBoundariesMinMax.maxLongitude,
+        latitude: middleBoundariesMinMax.maxLatitude,
+        longitude: middleBoundariesMinMax.maxLongitude,
     },
     {
-        latitude: centerBoundariesMinMax.minLatitude,
-        longitude: centerBoundariesMinMax.maxLongitude,
+        latitude: middleBoundariesMinMax.minLatitude,
+        longitude: middleBoundariesMinMax.maxLongitude,
     },
     {
-        latitude: centerBoundariesMinMax.minLatitude,
-        longitude: centerBoundariesMinMax.minLongitude,
+        latitude: middleBoundariesMinMax.minLatitude,
+        longitude: middleBoundariesMinMax.minLongitude,
     },
 ];
 
 export const GAME_PARAMETERS = {
-    logLevel: 'debug',
-    speed: 3000,
+    logLevel: 'error',
+    // Refresh rate in milliseconds
+    speed: 6000,
     step: 0.0004,
     distancePerTick: 0.3,
     drone: '22px',
@@ -92,15 +96,15 @@ export const GAME_PARAMETERS = {
     // Speed boost bonus value
     speedBoostValue: .05,
     // max team number
-    maxTeams: 10,
+    maxTeams: 20,
     // Game area boundaries
     showBoundaries: false,
     innerBoundariesMinMax,
     innerBoundaries,
     outerBoundariesMinMax,
     outerBoundaries,
-    centerBoundariesMinMax,
-    centerBoundaries,
+    middleBoundariesMinMax,
+    middleBoundaries,
     // functions urls
     droneStateListUrl: 'https://europe-west1-jbc-atl-sal-func-techevent.cloudfunctions.net/droneStateList',
     droneHttpUpserterUrl: 'https://europe-west1-jbc-atl-sal-func-techevent.cloudfunctions.net/droneHttpUpserter',
@@ -109,17 +113,30 @@ export const GAME_PARAMETERS = {
 };
 
 export const TEAMS = [
+    'marin',
     'blue',
+    'cyan',
+    'rubi',
     'red',
-    'green',
     'orange',
+    'yellow',
+    'lemon',
+    'amber',
+    'brown',
+    'teal',
+    'green',
+    'lime',
+    'violet',
+    'pink',
+    'magenta',
     'purple',
     'black',
     'grey',
-    'pink',
-    'yellow',
     'white',
 ];
+
+
+
 
 export const STATUS = {
     READY_FAILED: 'READY_FAILED',
@@ -134,11 +151,23 @@ export const PARCEL_TYPES = {
     SPEED_BOOST: 'SPEED_BOOST',
 };
 export const PARCEL_SCORES = {
-    50: 50,
-    100: 100,
-    200: 200,
+    '-50': -50,
+    '-100': 100,
+    '-200': 200,
+    '0': 0,
+    '50': 50,
+    '100': 100,
+    '200': 200,
 };
-export const PARCEL_CHANCES = [50, 35, 15];
+export const PARCEL_CHANCES = [
+    0,
+    0,
+    0,
+    10,
+    40,
+    35,
+    15,
+];
 
 export const GAME_STATE = {
     STOPPED: {
@@ -167,6 +196,10 @@ export const GAME_STATE = {
     STEP_4: {
         label: 'STEP_4',
         level: 4,
+    },
+    STEP_5: {
+        label: 'STEP_5',
+        level: 5,
     },
     STEP_INFINITY: {
         label: 'STEP_INFINITY',

@@ -72,6 +72,9 @@ const FormsContainer = styled(AdminContainer)`
   width: 100%;
   flex-flow: row nowrap;
   align-items: flex-start;
+  &:not(:last-of-type) {
+    margin-bottom: 10px;
+  }
 `;
 
 const Input = styled.input`
@@ -87,6 +90,7 @@ const Select = styled.select`
 `;
 
 const Button = styled.button`
+  cursor: pointer;
   height: 30px;
   min-width: 100px;
   border: #333333 1px solid;
@@ -128,7 +132,7 @@ const Form = styled.div`
   display: flex;
   flex-flow: column;
   align-items: center;
-  padding: 20px;
+  padding: 10px;
   margin-left: 10px;
   margin-right: 10px;
   border: #333333 1px solid;
@@ -154,7 +158,7 @@ const Team = styled.div`
   color: #fff;
   font-size: .5rem;
   height: 30px;
-  width: 100px;
+  width: 140px;
   border-radius: 10px;
   background: ${(props) => COLORS[parseDroneTeamColor(props.teamId, props.type)]};
   padding: 5px;
@@ -169,6 +173,22 @@ const Team = styled.div`
   div {
     display: flex;
     flex: 1 1 auto;
+  }
+  button {
+    cursor: pointer;
+    margin: 0;
+    padding: 0;
+    background: none;
+    border: none;
+    color: white;
+    &:hover {
+      i {
+        font-weight: bold;
+      }
+    }
+    i {
+      font-size: 20px;
+    }
   }
 `;
 
@@ -206,8 +226,9 @@ export class Admin extends Component {
 
     constructor() {
         super();
+        const initialGameState = localStorage.getItem('gameState');
         this.state = {
-            numberOfTeamsMax: 10,
+            numberOfTeamsMax: GAME_PARAMETERS.maxTeams,
             numberOfTeamsMin: 3,
             numberOfTeams: 3,
             savedTeams: [],
@@ -219,14 +240,15 @@ export class Admin extends Component {
             gameState: GAME_STATE.STOPPED.label,
             gameStepTeams: {},
             gameStep: GAME_STATE.STOPPED.level,
+            ...(initialGameState ? JSON.parse(initialGameState) : {}),
         };
         this.startingBBox = {};
         this.startingPoints = [];
         // this.parcelsBBox = {};
         this.numberOfParcels = 0;
-        this.step = 0;
+        this.step = (this.state.gameStep !== undefined ? this.state.gameStep : 0);
     }
-        
+
     componentDidMount() {
         this.initUpdater();
     }
@@ -237,9 +259,12 @@ export class Admin extends Component {
 
     initUpdater = async () => {
         this.timer = setInterval(async () => {
-            const dronesAndParcels = await getDronesAndParcels();
-            // const dronesAndParcels = await Promise.resolve(mockedData_step_1);
-            await this.updateGame(dronesAndParcels || {drones: [], parcels: []});
+            try {
+                const dronesAndParcels = await getDronesAndParcels();
+                // const dronesAndParcels = await Promise.resolve(mockedData_step_1);
+                await this.updateGame(dronesAndParcels || {drones: [], parcels: []});
+            } catch (e) {
+            }
         }, this.props.speed);
     };
 
@@ -259,6 +284,7 @@ export class Admin extends Component {
             const readyForNextStepTeams = getTeamsReadyForNextStep({
                 teams: updatedTeamsByStep[GAME_STATE[gameStep].label],
                 parcels: parcelsNext,
+                gameStep,
             });
             await teams.forEach(async (team) => {
                 this.log(readyForNextStepTeams, `readyForNextStepTeams ${GAME_STATE[gameStep].label} - ${team.teamId})}`);
@@ -273,7 +299,7 @@ export class Admin extends Component {
                             GAME_STATE[gameStep].label === GAME_STATE.STARTED.label ||
                             (readyForNextStepTeams && some(readyForNextStepTeams, {teamId: team.teamId}))
                     ) {
-                        createStepLevel[GAME_STATE[gameStep].level](this.createParcels, team);
+                        await createStepLevel[GAME_STATE[gameStep].level](this.createParcels, team);
                         const nextGameLevel = GAME_STATE[`STEP_${gameLevel + 1}`] ? gameLevel + 1 : 1000000;
                         this.log(`next level ${nextGameLevel} for team ${team.teamId}`)
                         team.gameStep = (find(GAME_STATE, { level: nextGameLevel }) || GAME_STATE.STOPPED).label;
@@ -281,7 +307,7 @@ export class Admin extends Component {
                     }
                 }
                 updatedTeamsByStep[gameStep] = [
-                    ...updatedTeamsByStep[gameStep],    
+                    ...updatedTeamsByStep[gameStep],
                     ...{
                         ...team,
                         ...teamNext,
@@ -310,7 +336,7 @@ export class Admin extends Component {
         let gameStepTeamsNext = groupBy(teamsNext, 'gameStep');
         const gameTeams = flatten(Object.values(this.state.gameStepTeams));
         this.log(gameTeams, 'gameTeams');
-        let nextGameStepTeams = this.state.gameStepTeams && !isEmpty(this.state.gameStepTeams) ? groupBy(gameTeams, 'gameStep') : {};  
+        let nextGameStepTeams = this.state.gameStepTeams && !isEmpty(this.state.gameStepTeams) ? groupBy(gameTeams, 'gameStep') : {};
         this.log(nextGameStepTeams, 'nextGameStepTeams')
         let gameStepTeams = nextGameStepTeams && !isEmpty(nextGameStepTeams) ? nextGameStepTeams : gameStepTeamsNext;
         switch (this.state.gameState) {
@@ -324,22 +350,27 @@ export class Admin extends Component {
             case GAME_STATE.PAUSED.label:
             default:
                 break;
-        } 
-        this.setState({
+        }
+        this.setState(currentState => ({
             savedTeams: teamsNext,
             savedParcels: parcelsNext,
             numberOfTeamsMax: newNumberOfTeamsMax,
             numberOfTeamsMin: newNumberOfTeamsMin,
             numberOfActiveTeams: teamsNext.length,
             numberOfTeams: (
-                newNumberOfTeamsMax >= this.state.numberOfTeams
-                || this.state.numberOfTeams <= newNumberOfTeamsMin
-                    ? this.state.numberOfTeams
+                newNumberOfTeamsMax >= currentState.numberOfTeams
+                || currentState.numberOfTeams <= newNumberOfTeamsMin
+                    ? currentState.numberOfTeams
                     : newNumberOfTeamsMin
-            ), 
+            ),
             gameStepTeams,
             gameStep: this.step,
-        }, this.log);
+            gameState: currentState.gameState,
+            parcelScore: currentState.parcelScore,
+        }), () => {
+            this.log();
+            localStorage.setItem('gameState', JSON.stringify(this.state));
+        });
     };
 
     handleFormChange = (inputId, event) => {
@@ -373,6 +404,72 @@ export class Admin extends Component {
     generateTeamId() {
         return getRandomInteger(1, 999);
     }
+
+    resetTeam = async (teamId) => {
+        const team = {
+            teamId: teamId,
+            location: {
+                latitude: this.props.center.lat,
+                longitude: this.props.center.lng,
+            },
+            command: {
+                name: 'MOVE',
+                location: {
+                    latitude: this.props.center.lat,
+                    longitude: this.props.center.lng,
+                },
+            },
+        };
+        await postDroneInfo([team]);
+    }
+
+    resetTeams = async (teamIds) => {
+        if (!teamIds) {
+            clearInterval(this.timer);
+            const gameState = {
+                numberOfTeamsMax: GAME_PARAMETERS.maxTeams,
+                numberOfTeamsMin: 3,
+                numberOfTeams: 3,
+                targetTeam: 'each',
+                savedTeams: [],
+                savedParcels: [],
+                parcelScore: 'random',
+                parcelType: PARCEL_TYPES.CLASSIC,
+                numberOfParcelsPerTeam: 1,
+                gameState: GAME_STATE.STOPPED.label,
+                gameStepTeams: {},
+                gameStep: GAME_STATE.STOPPED.level,
+            };
+            this.startingBBox = {};
+            this.startingPoints = [];
+            this.numberOfParcels = 0;
+            this.step = -1;
+            this.setState({...gameState}, () => {
+                this.log();
+                localStorage.setItem('gameState', JSON.stringify(this.state));
+                this.initUpdater();
+            });
+        }
+        teamIds = this.state.savedTeams;
+        const teams = teamIds.map(team => ({
+            teamId: team.teamId,
+            location: {
+                latitude: this.props.center.lat,
+                longitude: this.props.center.lng,
+            },
+            command: {
+                name: 'MOVE',
+                location: {
+                    latitude: this.props.center.lat,
+                    longitude: this.props.center.lng,
+                },
+            },
+            parcels: [],
+            distancePerTick: 0.3,
+            score: 0,
+        }));
+        await postDroneInfo(teams);
+    };
 
     async createTeams () {
         this.setTeamStartingPoints();
@@ -412,7 +509,7 @@ export class Admin extends Component {
                 score: 0,
             }
         });
-        console.log('teams', teams);
+        // console.log('teams', teams);
         await postDroneInfo(teams);
     }
 
@@ -428,23 +525,34 @@ export class Admin extends Component {
     //     // return pointOnFeature(this.startingLine);
     //     return getCoord(along(this.startingLine, getRandomFloat(1,4), {units: 'kilometers'}));
     // });
-    
+
     // admin parcels
     getScore({ type, score }) {
         if (type === PARCEL_TYPES.CLASSIC) {
-            return (score || this.state.parcelScore) === 'random' ? getRadomScore() : score || this.state.parcelScore;
+            let finalScore;
+            if (
+                score === 'random'
+                || (score === undefined && this.state.parcelScore === 'random')
+            ) {
+              finalScore = getRadomScore();
+            } else if (score !== undefined) {
+                finalScore = score;
+            } else {
+                finalScore = this.state.parcelScore;
+            }
+            return finalScore;
         }
         if (type === PARCEL_TYPES.SPEED_BOOST) {
             return this.props.speedBoostValue;
         }
     };
-    
+
     getTeamId = ({ type, index, teamId }) => teamId !== 'each' ? teamId : get(this.state, `savedTeams[${index}].teamId`);
 
     getPickupLocation({ type = PARCEL_TYPES.CLASSIC }) {
         let pickupLng;
-        const pickupZoneMin = type === PARCEL_TYPES.CLASSIC ? 'inner' : 'center';
-        const pickupZoneMax = type === PARCEL_TYPES.CLASSIC ? 'center' : 'outer';
+        const pickupZoneMin = type === PARCEL_TYPES.CLASSIC ? 'inner' : 'middle';
+        const pickupZoneMax = type === PARCEL_TYPES.CLASSIC ? 'middle' : 'outer';
         const pickupLat1 = getRandomFloat(this.props.outerBoundariesMinMax.minLatitude, this.props.outerBoundariesMinMax.maxLatitude);
         const pickupLat2 = getRandomFloat(this.props.outerBoundariesMinMax.minLatitude, this.props.outerBoundariesMinMax.maxLatitude);
         const pickupLat = [pickupLat1, pickupLat2][chance.integer({min: 0, max: 1})];
@@ -475,7 +583,7 @@ export class Admin extends Component {
             && latitude >= this.props.innerBoundariesMinMax.minLatitude
         );
     }
-    
+
     createParcels = async ({ type, targetTeam, score }) => {
         const finalType = type || this.state.parcelType;
         this.numberOfTeams = (targetTeam || this.state.targetTeam) === 'each'
@@ -512,7 +620,7 @@ export class Admin extends Component {
                         longitude: deliveryLng,
                     };
                 }
-                
+
                 return newParcel;
             });
             if (parcels && parcels.length) {
@@ -537,7 +645,7 @@ export class Admin extends Component {
             }
             return flatten(parcelsPerTeam);
         });
-        console.log('createParcels', parcels);
+        // console.log('createParcels', parcels);
         await postParcel(flatten(parcels));
     }
 
@@ -559,6 +667,11 @@ export class Admin extends Component {
                     key={team.teamId}
                     {...team}
                 >
+                    <button
+                        onClick={() => this.resetTeam(team.teamId)}
+                    >
+                        <i className="material-icons">settings_backup_restore</i>
+                    </button>
                     <strong>{team.teamId}</strong>
                 </Team>
             ))
@@ -621,10 +734,9 @@ export class Admin extends Component {
         );
     }
 
-    // TODO Clear drones and parcels button
+    // TODO Clear parcels button
     // TODO Save start, stop and team level in local Storage
     // TODO Do animation on dashboard start (hide map and score, start bouton that start's all)
-    // TODO Move Title on top of leader board and grow map size
     render() {
         return (
             <AdminContainer>
@@ -650,26 +762,35 @@ export class Admin extends Component {
                                 </Button>
                                 : null
                             }
-                            {this.state.gameState === GAME_STATE.STARTED.label
-                                ? <Button type="button" onClick={() => this.changeGameState(GAME_STATE.STOPPED.label)}>
-                                    Stop game
-                                </Button>
-                                : null
-                            }
                         </Line>
+                        {/*<Line>*/}
+                            {/*{this.state.gameState === GAME_STATE.STARTED.label*/}
+                                {/*? <Button type="button" onClick={() => this.changeGameState(GAME_STATE.STOPPED.label)}>*/}
+                                    {/*Stop game*/}
+                                {/*</Button>*/}
+                                {/*: null*/}
+                            {/*}*/}
+                        {/*</Line>*/}
                         <Line>
-                            <strong>{this.state.numberOfActiveTeams || '0'} teams are actives</strong><br />
+                            <strong>{this.state.numberOfActiveTeams || '0'} teams active</strong><br />
                         </Line>
                         <Line>
                             Game: {this.state.gameState}
                         </Line>
                         <Line>
-                            Level: {this.state.gameStep}
+                            Next level: {this.state.gameStep}
+                        </Line>
+                        <Line>
+                            <Button type="button" onClick={() => this.resetTeams()} style={{color: 'red'}}>
+                                <b>Reset game</b>
+                            </Button>
                         </Line>
                     </Form>
                     <Form id="initTeams">
                         <Line>
                             <h3>Init teams</h3>
+                            {'-   '}
+                            <strong>{this.state.numberOfActiveTeams || '0'} teams active</strong>
                         </Line>
                         <Line>
                             <label>
@@ -683,19 +804,16 @@ export class Admin extends Component {
                                     onChange={this.handleFormChangeInt.bind(this, 'numberOfTeams')}
                                 />
                             </label>
-                        </Line>
-                        <Line>
                             <Button type="button" onClick={this.submitInitTeams}>
                                 Create teams
                             </Button>
-                        </Line>
-                        <Line>
-                            <strong>{this.state.numberOfActiveTeams || '0'} teams are actives</strong>
                         </Line>
                         <ResultLine>
                             {this.renderTeams()}
                         </ResultLine>
                     </Form>
+                </FormsContainer>
+                <FormsContainer>
                     <Form id="initParcels">
                         <Line>
                             <h3>Init parcels</h3>

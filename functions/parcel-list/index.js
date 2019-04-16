@@ -18,7 +18,8 @@ exports.parcelList = async (req, res) => {
 
     // Enable CORS
     res.set('Access-Control-Allow-Origin', "*");
-    res.set('Access-Control-Allow-Methods', 'GET, POST');
+    res.set('Access-Control-Allow-Headers', '*');
+    res.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
 
     try {
         const results = await datastore.runQuery(query);

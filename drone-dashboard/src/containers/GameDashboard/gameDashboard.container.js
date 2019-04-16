@@ -36,16 +36,23 @@ const GoogleMapContainer = styled.div`
   display: flex;
   flex: 1 1 950px;
   overflow: hidden;
-  height: 600px;
+  height: 860px;
   border-radius: 15px;
 `;
 
 const ScoresContainer = styled.div`
   display: flex;
-  flex: 0 1 200px;
+  flex: 0 1 220px;
   flex-flow: column nowrap;
   align-items: flex-start;
-  padding: 0 15px;
+  padding: 0 5px 0 5px;
+  margin-left: 10px;
+  overflow: hidden;
+  // TODO change depending of screen size 
+  height: 860px;
+  &:hover {
+    overflow: auto;
+  }
   ${ScoreItem}:not(:last-of-type) {
     margin-bottom: 10px;
   }
@@ -56,12 +63,14 @@ export class GameDashboard extends Component {
         ...GAME_PARAMETERS,
     };
 
-    constructor() {
-        super();
+    constructor(props) {
+        super(props);
         this.state = {
             // drones: createDrones(3),
             drones: [],
             parcels: [],
+            build: props.build,
+            filter: '',
         };
     }
 
@@ -75,16 +84,26 @@ export class GameDashboard extends Component {
 
     initUpdater = async () => {
         this.timer = setInterval(async () => {
-            // this.moveDrones();
-            const dronesAndParcels = await getDronesAndParcels();
-            // const dronesAndParcels = await Promise.resolve(mockedDronesAndParcels_2);
-            this.updateGame(dronesAndParcels || {drones: [], parcels: []});
+            try {
+                // this.moveDrones();
+                const dronesAndParcels = await getDronesAndParcels();
+                // const dronesAndParcels = await Promise.resolve(mockedDronesAndParcels_2);
+                this.updateGame(dronesAndParcels || {drones: [], parcels: []});
+            } catch (e) {
+            }
         }, this.props.speed);
     };
 
     log() {
         this.props.logLevel && this.props.logLevel === 'debug' && console.log(this.state);
     }
+    filterTeam = (teamId) => {
+        if (this.state.filter && this.state.filter === teamId) {
+            this.setState({ filter: ''});
+        } else {
+            this.setState({ filter: teamId});
+        }
+    };
 
     updateGame = ({drones, parcels}) => {
         const dronesNext = parseDroneInfo(drones || []);
@@ -103,13 +122,19 @@ export class GameDashboard extends Component {
                 lat={get(boundary, 'latitude')}
                 lng={get(boundary, 'longitude')}
                 status={STATUS.TOGGLE}
-                teamId={type === 'inner' ? 'green' : type === 'center' ? 'orange' : 'red'}
+                teamId={type === 'inner' ? 'green' : type === 'middle' ? 'orange' : 'red'}
             />
         ))
     }
 
     renderLeaderBoard() {
-        const scores = parseScores(this.state.drones);
+        const scores = parseScores(this.state.drones)
+            .filter(drone => {
+                return (
+                    this.state.filter === ''
+                    || this.state.filter === drone.teamId
+                );
+            });
         let previousScore = 0;
         let nextScore = 0;
         let previousDraw = false;
@@ -143,6 +168,7 @@ export class GameDashboard extends Component {
                     isPreviousDraw={isPreviousDraw}
                     parcels={this.state.parcels}
                     drone={drone ? drone : {}}
+                    onClick={() => this.filterTeam(drone.teamId)}
                 />
             );
         });
@@ -158,24 +184,39 @@ export class GameDashboard extends Component {
                         defaultZoom={this.props.zoom}
                         // onGoogleApiLoaded={({map, maps}) => this.renderPolylines(map, maps)}
                     >
-                        {this.state.parcels.map((parcel, index) => [
-                            <Pin
-                                {...parcel}
-                                key={`delivery-pin-${parcel.teamId}-${parcel.parcelId || index}`}
-                                lat={get(parcel, 'location.delivery.latitude')}
-                                lng={get(parcel, 'location.delivery.longitude')}
-                            />,
-                            <Parcel
-                                {...parcel}
-                                key={`parcel-${parcel.teamId}-${parcel.parcelId || index}`}
-                                lat={get(parcel, 'location.pickup.latitude')}
-                                lng={get(parcel, 'location.pickup.longitude')}
-                            />,
-                        ])}
+                        {this.state.parcels
+                            .filter(parcel => {
+                                return (
+                                    this.state.filter === ''
+                                    || this.state.filter === parcel.teamId
+                                );
+                            })
+                            .map((parcel, index) => [
+                                <Pin
+                                    {...parcel}
+                                    key={`delivery-pin-${parcel.teamId}-${parcel.parcelId || index}`}
+                                    lat={get(parcel, 'location.delivery.latitude')}
+                                    lng={get(parcel, 'location.delivery.longitude')}
+                                />,
+                                <Parcel
+                                    {...parcel}
+                                    key={`parcel-${parcel.teamId}-${parcel.parcelId || index}`}
+                                    lat={get(parcel, 'location.pickup.latitude')}
+                                    lng={get(parcel, 'location.pickup.longitude')}
+                                />,
+                            ])
+                        }
                         {this.props.showBoundaries ? this.renderBoundaries('inner') : null}
                         {this.props.showBoundaries ? this.renderBoundaries('outer') : null}
-                        {this.props.showBoundaries ? this.renderBoundaries('center') : null}
-                        {this.state.drones.map((drone) => [
+                        {this.props.showBoundaries ? this.renderBoundaries('middle') : null}
+                        {this.state.drones
+                            .filter(drone => {
+                                return (
+                                    this.state.filter === ''
+                                    || this.state.filter === drone.teamId
+                                );
+                            })
+                            .map((drone) => [
                             <Drone
                                 {...drone}
                                 key={drone.teamId}

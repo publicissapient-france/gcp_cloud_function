@@ -1,6 +1,6 @@
 resource "google_project" "project-drone" {
   count = "${length(var.projects)}"
-  project_id = "${var.projects[count.index]}-${var.date}"
+  project_id = "devoxx-${var.date}-${count.index}"
 
   name = "${var.projects[count.index]}"
 
@@ -11,7 +11,7 @@ resource "google_project" "project-drone" {
 # Enable Services APIs on the project
 resource "google_project_services" "project_services" {
   count = "${length(var.projects)}"
-  project = "${var.projects[count.index]}-${var.date}"
+  project = "devoxx-${var.date}-${count.index}"
 
   services = [
     "pubsub.googleapis.com",
@@ -25,7 +25,7 @@ resource "google_project_services" "project_services" {
 
 resource "google_project_iam_binding" "pubsub" {
   count = "${length(var.projects)}"
-  project     = "${var.projects[count.index]}-${var.date}"
+  project     = "devoxx-${var.date}-${count.index}"
   role = "roles/pubsub.admin"
 
   members = "${var.users[count.index]}"
@@ -33,7 +33,7 @@ resource "google_project_iam_binding" "pubsub" {
 
 resource "google_project_iam_binding" "cloudfunctions" {
   count = "${length(var.projects)}"
-  project     = "${var.projects[count.index]}-${var.date}"
+  project     = "devoxx-${var.date}-${count.index}"
   role = "roles/cloudfunctions.developer"
 
   members = "${var.users[count.index]}"
@@ -41,7 +41,7 @@ resource "google_project_iam_binding" "cloudfunctions" {
 
 resource "google_project_iam_binding" "editor" {
   count = "${length(var.projects)}"
-  project     = "${var.projects[count.index]}-${var.date}"
+  project     = "devoxx-${var.date}-${count.index}"
   role = "roles/editor"
 
   members = "${var.users[count.index]}"
@@ -50,7 +50,7 @@ resource "google_project_iam_binding" "editor" {
 
 resource "google_project_iam_binding" "owner" {
   count = "${length(var.projects)}"
-  project     = "${var.projects[count.index]}-${var.date}"
+  project     = "devoxx-${var.date}-${count.index}"
   role = "roles/owner"
 
   members = [

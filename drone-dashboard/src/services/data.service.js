@@ -1,7 +1,7 @@
 import Bluebird from 'bluebird';
 import axios from 'axios';
 import {get} from 'lodash';
-import { darken } from 'polished';
+import {darken} from 'polished';
 import Chance from 'chance';
 
 import {COLORS} from '../styles/variables';
@@ -11,6 +11,7 @@ import {
     PARCEL_CHANCES,
     PARCEL_TYPES,
 } from '../constants';
+
 const chance = new Chance();
 
 export const getDronesAndParcels = async () => {
@@ -53,7 +54,7 @@ export const parseDroneInfo = (drones) => {
             ...dronePosition,
             command: droneCommand,
             parcels: droneParcels,
-            score: droneScore || 0,
+            score: droneScore || 0,
             topicUrl: droneTopicUrl,
             distancePerTick: droneDistancePerTick,
         };
@@ -69,10 +70,10 @@ export const parseDroneTeamColor = (teamId, type) => {
     if (teamId === 'all' && type === PARCEL_TYPES.SPEED_BOOST) {
         return 'speed';
     }
-    if ((teamId || 'default').match(/-/g)) {
+    if ((teamId || 'default').match(/-/g)) {
         return teamId.split('-')[0].toLowerCase();
     }
-    return (teamId || 'default');
+    return (teamId || 'default');
 };
 export const parseDroneTeamId = (teamId) => teamId.match(/-/g) ? parseInt(teamId.split('-')[1].toLowerCase(), 10) : parseInt(teamId, 10);
 export const parseScoreColor = (props) => COLORS[props.failure || props.default ? 'grey' : parseDroneTeamColor(props.teamId)];
@@ -81,7 +82,7 @@ export const parseScoreBorderColor = (props) => props.failure || props.default ?
 export const postDroneInfo = async (droneInfoData) => {
     return Bluebird.each(droneInfoData, async (droneInfo) => {
         try {
-            return await axios.post(GAME_PARAMETERS.droneHttpUpserterUrl, droneInfo);
+            return await axios.post(GAME_PARAMETERS.droneHttpUpserterUrl, droneInfo, {crossDomain: true});
         } catch (error) {
             console.log('Error while upserting droneInfo', error);
         }
@@ -91,10 +92,13 @@ export const postDroneInfo = async (droneInfoData) => {
 export const postParcel = async (parcelsData) => {
     return Bluebird.each(parcelsData, async (parcel) => {
         try {
-            return await axios.post(GAME_PARAMETERS.parcelHttpUpserterUrl, parcel);
+            return await axios.post(GAME_PARAMETERS.parcelHttpUpserterUrl, parcel, {crossdomain: true});
             // return await axios.post('http://localhost:9000', parcel);
         } catch (error) {
-            console.log('Error while upserting parcel', error);
+            console.log('Error while upserting parcel', error, 'status', error.statusCode );
+            if (error.statusCode === 500) {
+                return await axios.post(GAME_PARAMETERS.parcelHttpUpserterUrl, parcel, {crossDomain: true});
+            }
         }
     });
 };
