@@ -39,6 +39,7 @@ export const parseDroneInfo = (drones) => {
         let droneScore = get(drone, 'data.score');
         let droneTopicUrl = get(drone, 'data.topicUrl');
         let droneDistancePerTick = get(drone, 'data.distancePerTick');
+        let updatedDistancePerTick = get(drone, 'data.updatedDistancePerTick');
         const droneBase = {
             teamId: drone.teamId,
         };
@@ -57,6 +58,7 @@ export const parseDroneInfo = (drones) => {
             score: droneScore || 0,
             topicUrl: droneTopicUrl,
             distancePerTick: droneDistancePerTick,
+            updatedDistancePerTick,
         };
     })
 };

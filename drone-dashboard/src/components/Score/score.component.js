@@ -69,7 +69,6 @@ export const ScoreItem = styled.div`
 const Speed = styled.span`
   font-size: 1.1rem;
   color: ${props => props.speedFactor >= 0 ? COLORS.speedBoost[0] : COLORS.red};
-  padding-left: 5px;
   i {
     font-size: 1.2rem;
   }
@@ -162,14 +161,16 @@ export class Score extends Component {
     }
 
     renderSpeed() {
-        const speedFactor = this.props.drone.distancePerTick ? ((this.props.drone.distancePerTick / 0.05) - (GAME_PARAMETERS.distancePerTick * 20)).toFixed(0) : 0.0;
+        const speed = this.props.updatedDistancePerTick === undefined ? 0.3 : this.props.updatedDistancePerTick;
+        const updatedSeed =  this.props.updatedDistancePerTick === undefined ? 0.3 : this.props.updatedDistancePerTick;
+        const bonus = (speed - GAME_PARAMETERS.distancePerTick) / GAME_PARAMETERS.speedBoostValue;
+        const handicap = updatedSeed - GAME_PARAMETERS.distancePerTick;
+        const speedFactor = ((bonus / GAME_PARAMETERS.speedBoostValue ) - (handicap / GAME_PARAMETERS.speedBoostValue) / GAME_PARAMETERS.speedBoostValue);
         return (
-            speedFactor
-                ? <Speed speedFactor={speedFactor}>
-                    <i className="material-icons">flash_on</i>
-                    <span>{`${speedFactor >= 0 ? '+' : '-'}${Math.abs(speedFactor)}`}</span>
-                </Speed>
-                : null
+            <Speed speedFactor={speedFactor}>
+                <i className="material-icons" style={{width: '14px'}}>flash_on</i>
+                <span>{`${speedFactor >= 0 ? '+' : '-'}${Math.abs(speedFactor).toFixed(1)}`}</span>
+            </Speed>
         );
     }
 
