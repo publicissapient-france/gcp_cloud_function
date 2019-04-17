@@ -58,6 +58,12 @@ const ScoresContainer = styled.div`
   }
 `;
 
+const Filter = styled.div`
+  background: rgba(0, 0, 0, .2);
+  width: 100%;
+  height: 100%;
+`;
+
 export class GameDashboard extends Component {
     static defaultProps = {
         ...GAME_PARAMETERS,
@@ -230,7 +236,8 @@ export class GameDashboard extends Component {
                                 teamId={parseDroneTeamColor(drone.teamId)}
                                 status={STATUS.TOGGLE}
                                 drone={drone}
-                            />
+                            />,
+                            <Filter />
                         ])}
                     </GoogleMapReact>
                 </GoogleMapContainer>

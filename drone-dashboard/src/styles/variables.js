@@ -14,7 +14,7 @@ export const COLORS = {
     lime: '#A5D31C',
     violet: '#ee82ee',
     pink: '#cc42b9',
-    magenta: '#CC00B0',
+    magenta: '#fd00dc',
     purple: '#7b48cc',
     black: '#1f1f1f',
     grey: '#777777',

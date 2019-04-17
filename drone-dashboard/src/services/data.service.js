@@ -26,6 +26,7 @@ export const getDronesAndParcels = async () => {
         return await response.json();
     } catch (error) {
         console.log(error);
+        return null;
     }
 };
 
