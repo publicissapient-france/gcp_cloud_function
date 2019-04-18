@@ -272,6 +272,11 @@ export const createStepLevel = {
                 score: PARCEL_SCORES['0'],
             },
             {
+                type: PARCEL_TYPES.SPEED_BOOST,
+                targetTeam: 'all',
+                number: 1,
+            },
+            {
                 type: PARCEL_TYPES.CLASSIC,
                 targetTeam: 'all',
                 number: 2,
@@ -280,7 +285,7 @@ export const createStepLevel = {
             {
                 type: PARCEL_TYPES.CLASSIC,
                 targetTeam: 'all',
-                number: 1,
+                number: 2,
                 score: PARCEL_SCORES['100'],
             },
             {
@@ -290,7 +295,6 @@ export const createStepLevel = {
                 score: PARCEL_SCORES['200'],
             }
         ];
-        // TODO randomly add speed boost parcel
         generatedParcels.map(async parcel => await createParcelsFn(parcel));
     },
 };

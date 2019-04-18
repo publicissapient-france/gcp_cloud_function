@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import styled from 'styled-components';
-import {get, orderBy, groupBy, flatten, some, isEmpty, find, forEach, omit} from 'lodash';
+import {get, orderBy, concat, groupBy, flatten, some, isEmpty, find, forEach, omit} from 'lodash';
 import Chance from 'chance';
 import uuid from 'uuid';
 import {
@@ -123,6 +123,7 @@ const ResultLine = styled(Line)`
 const ResultContainer = styled.div`
   //max-height: 350px;
   //overflow: auto;
+  width: 100%;
   ${ResultLine} {
     padding: 0;
   }
@@ -699,20 +700,36 @@ export class Admin extends Component {
                 ? orderBy(this.state.savedParcels, ['teamId'], ['asc'])
                 : []
         );
-        const groupedParcels = groupBy(sortedParcels, 'teamId');
+        let sortedTeams = (
+            this.state.savedTeams &&
+            this.state.savedTeams.length > 0
+                ? orderBy(this.state.savedTeams, ['teamId'], ['asc'])
+                : []
+        );
+        sortedTeams = concat({teamId: 'all'}, sortedTeams);
+        const teamsWithLevel = this.state.gameStepTeams
+            ? Object.entries(this.state.gameStepTeams)
+                .map(teamStep => teamStep[1].map(team => ({...team, step: teamStep[0]})))
+                .flat()
+            : undefined;
         return (
-            !isEmpty(groupedParcels) &&
-            Object.values(groupedParcels).map((teamParcels, teamIndex) => {
+            !isEmpty(sortedTeams) &&
+            Object.values(sortedTeams).map((team, teamIndex) => {
+                const teamParcels = sortedParcels.filter(parcel => parcel.teamId === team.teamId);
                 const orderedParcels = orderBy(teamParcels, ['status', 'score'], ['asc']);
-                const parcelWithTeamId = teamParcels.find(parcel => parcel.teamId !== 'all');
-                const teamIdColumn = parcelWithTeamId ? parcelWithTeamId.teamId : 'all';
+                const teamLevel = teamsWithLevel
+                    .find(stepTeam => stepTeam.teamId === team.teamId);
+                const teamStepLevel = teamLevel ? GAME_STATE[teamLevel.gameStep].level : 0;
+                const level = teamStepLevel < 100 ? teamStepLevel : '∞';
                 return (
                     <Column key={teamIndex}>
-                        <ColumnHeader teamId={teamIdColumn} />
+                        { team.teamId !== 'all' ? `${level}` : '-' }
+                        <ColumnHeader teamId={team.teamId} />
                         { orderedParcels.length > 0 &&
                             orderedParcels.map((parcel, index) => {
                             return (
                                 parcel.teamId
+                                && !(parcel.status === STATUS.GRABBED && parcel.type === PARCEL_TYPES.SPEED_BOOST)
                                     ? <Parcel
                                         key={`parcel-${parcel.teamId}-${index}`}
                                         className={parcel.status && parcel.status === STATUS.AVAILABLE ? 'available' : 'grabbed' }
@@ -735,7 +752,6 @@ export class Admin extends Component {
     }
 
     // TODO Clear parcels button
-    // TODO Save start, stop and team level in local Storage
     // TODO Do animation on dashboard start (hide map and score, start bouton that start's all)
     render() {
         return (
