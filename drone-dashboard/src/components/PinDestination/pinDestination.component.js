@@ -26,7 +26,7 @@ export const PinContainer = styled.div`
 export class PinDestination extends Component {
     renderParcelScoreCounter() {
         return (
-            this.props.score &&
+            this.props.score !== undefined &&
             <CounterBubble {...this.props} addMargin='pin'>
                 {this.props.score}
             </CounterBubble>
