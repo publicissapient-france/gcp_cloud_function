@@ -719,7 +719,7 @@ export class Admin extends Component {
                 const orderedParcels = orderBy(teamParcels, ['status', 'score'], ['asc']);
                 const teamLevel = teamsWithLevel
                     .find(stepTeam => stepTeam.teamId === team.teamId);
-                const teamStepLevel = teamLevel ? GAME_STATE[teamLevel.gameStep].level : 0;
+                const teamStepLevel = teamLevel && GAME_STATE[teamLevel.gameStep] ? GAME_STATE[teamLevel.gameStep].level : 0;
                 const level = teamStepLevel < 100 ? teamStepLevel : '∞';
                 return (
                     <Column key={teamIndex}>
