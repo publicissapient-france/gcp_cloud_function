@@ -68,7 +68,7 @@ export const ScoreItem = styled.div`
 
 const Speed = styled.span`
   font-size: 1.1rem;
-  color: ${props => props.speedFactor >= 0 ? COLORS.speedBoost[0] : COLORS.red};
+  color: ${props => props.speedFactor >= 100 ? COLORS.speedBoost[0] : COLORS.red};
   i {
     font-size: 1.2rem;
   }
@@ -161,15 +161,12 @@ export class Score extends Component {
     }
 
     renderSpeed() {
-        const speed = this.props.updatedDistancePerTick === undefined ? 0.3 : this.props.updatedDistancePerTick;
-        const updatedSeed =  this.props.updatedDistancePerTick === undefined ? 0.3 : this.props.updatedDistancePerTick;
-        const bonus = (speed - GAME_PARAMETERS.distancePerTick) / GAME_PARAMETERS.speedBoostValue;
-        const handicap = updatedSeed - GAME_PARAMETERS.distancePerTick;
-        const speedFactor = ((bonus / GAME_PARAMETERS.speedBoostValue ) - (handicap / GAME_PARAMETERS.speedBoostValue) / GAME_PARAMETERS.speedBoostValue);
+        const updatedSeed =  this.props.drone && this.props.drone.updatedDistancePerTick === undefined ? 0.3 : this.props.drone.updatedDistancePerTick;
+        const speedFactor = Math.round(updatedSeed / .3 * 100);
         return (
             <Speed speedFactor={speedFactor}>
                 <i className="material-icons" style={{width: '14px'}}>flash_on</i>
-                <span>{`${speedFactor >= 0 ? '+' : '-'}${Math.abs(speedFactor).toFixed(1)}`}</span>
+                <span>{`${speedFactor}%`}</span>
             </Speed>
         );
     }
@@ -229,7 +226,7 @@ export class Score extends Component {
                     this.renderDefaultStatus()
                 }
                 {this.props.drone.score || 0}
-                {/*{this.renderSpeed()}*/}
+                {this.renderSpeed()}
                 {this.renderLeaderBoard()}
             </ScoreItem>
         );
