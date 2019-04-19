@@ -229,7 +229,7 @@ export class Score extends Component {
                     this.renderDefaultStatus()
                 }
                 {this.props.drone.score || 0}
-                {this.renderSpeed()}
+                {/*{this.renderSpeed()}*/}
                 {this.renderLeaderBoard()}
             </ScoreItem>
         );
