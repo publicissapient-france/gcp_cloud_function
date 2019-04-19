@@ -115,19 +115,13 @@ export const createStepLevel = {
             {
                 type: PARCEL_TYPES.CLASSIC,
                 targetTeam: team.teamId,
-                number: 1,
-                score: PARCEL_SCORES['0'],
-            },
-            {
-                type: PARCEL_TYPES.CLASSIC,
-                targetTeam: team.teamId,
-                number: 1,
+                number: 2,
                 score: PARCEL_SCORES['50'],
             },
             {
                 type: PARCEL_TYPES.CLASSIC,
                 targetTeam: team.teamId,
-                number: 1,
+                number: 2,
                 score: PARCEL_SCORES['100'],
             },
             {
@@ -196,7 +190,7 @@ export const createStepLevel = {
             {
                 type: PARCEL_TYPES.CLASSIC,
                 targetTeam: 'all',
-                number: 1,
+                number: 2,
                 score: PARCEL_SCORES['100'],
             },
             {
